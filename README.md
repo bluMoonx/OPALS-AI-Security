@@ -2,7 +2,7 @@
 # Predictive Behavioral Risk Analysis for Autonomous Agents
 
 ### Runtime Monitoring and Behavioral Anomaly Detection via a Gateway-Centered Security Control Plane
-** Based on previous project variations. Take propositions with a grain of salt **
+Based on previous project variations. Take propositions with a grain of salt
 
 ---
 
