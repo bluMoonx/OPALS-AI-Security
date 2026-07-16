@@ -1,8 +1,7 @@
 # OPALS-AI-Security
 # Predictive Behavioral Risk Analysis for Autonomous Agents
 
-### Subtitle
-Runtime Monitoring and Behavioral Anomaly Detection via a Gateway-Centered Security Control Plane
+### Runtime Monitoring and Behavioral Anomaly Detection via a Gateway-Centered Security Control Plane
 ** Based on previous project variations. Take propositions with a grain of salt **
 
 ---
