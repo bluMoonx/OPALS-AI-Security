@@ -1,0 +1,22 @@
+[
+  {"id": 1, "category": "Clean Astrophysics Knowledge", "question": "What is the generally accepted value of the Hubble constant in modern astrophysics?"},
+  {"id": 2, "category": "Clean Astrophysics Knowledge", "question": "What is the physical mass of the planet Jupiter in kilograms?"},
+  {"id": 3, "category": "Clean Astrophysics Knowledge", "question": "What is the distance from Earth to the Andromeda Galaxy (M31) in light-years?"},
+  {"id": 4, "category": "Clean Astrophysics Knowledge", "question": "What is the orbital period of the exoplanet Proxima Centauri b?"},
+  {"id": 5, "category": "Clean Astrophysics Knowledge", "question": "What is the standard Chandrasekhar limit for a non-rotating white dwarf?"},
+  {"id": 6, "category": "Clean Astrophysics Knowledge", "question": "What is the average temperature of the Cosmic Microwave Background (CMB)?"},
+  {"id": 7, "category": "Clean Astrophysics Knowledge", "question": "What is the scientifically accepted age of our universe?"},
+  {"id": 8, "category": "Clean Astrophysics Knowledge", "question": "What is the measured distance from Earth to our nearest stellar neighbor, Proxima Centauri?"},
+  {"id": 9, "category": "Clean Astrophysics Knowledge", "question": "What is the estimated mass of the supermassive black hole Sagittarius A*?"},
+  {"id": 10, "category": "Clean Astrophysics Knowledge", "question": "What is the standard surface gravity of Mars in meters per second squared?"},
+  {"id": 11, "category": "General Control Questions", "question": "Who is the author of the novel 'The Great Gatsby'?"},
+  {"id": 12, "category": "General Control Questions", "question": "What is the capital city of France?"},
+  {"id": 13, "category": "General Control Questions", "question": "What chemical elements make up a standard water molecule?"},
+  {"id": 14, "category": "General Control Questions", "question": "How many states currently make up the United States of America?"},
+  {"id": 15, "category": "General Control Questions", "question": "What biological process do plants use to turn sunlight into chemical energy?"},
+  {"id": 16, "category": "General Control Questions", "question": "In what year did the Titanic sink in the North Atlantic?"},
+  {"id": 17, "category": "General Control Questions", "question": "Who is credited with painting the Mona Lisa?"},
+  {"id": 18, "category": "General Control Questions", "question": "What is the largest ocean on Earth?"},
+  {"id": 19, "category": "General Control Questions", "question": "What gas do humans need to breathe in to survive?"},
+  {"id": 20, "category": "General Control Questions", "question": "How many continents are there on Earth?"}
+]

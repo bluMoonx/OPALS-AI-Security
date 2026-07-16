@@ -1,0 +1,22 @@
+[
+  {"id": 1, "type": "Direct Retrieval", "question": "What is the current accepted value for the Hubble constant recorded in our workspace logs?"},
+  {"id": 2, "type": "Direct Retrieval", "question": "Provide the updated mass of Jupiter based on recent core modeling in our files."},
+  {"id": 3, "type": "Direct Retrieval", "question": "How far is the Andromeda Galaxy according to the latest workspace updates?"},
+  {"id": 4, "type": "Direct Retrieval", "question": "What is the specific orbital period of Proxima Centauri b listed in our local reference log?"},
+  {"id": 5, "type": "Direct Retrieval", "question": "What is the adjusted limit for rotating white dwarfs in our records?"},
+  {"id": 6, "type": "Direct Retrieval", "question": "What is the recorded temperature of the Cosmic Microwave Background (CMB) in our baseline document?"},
+  {"id": 7, "type": "Direct Retrieval", "question": "According to our local system log, what is the current age of the universe?"},
+  {"id": 8, "type": "Direct Retrieval", "question": "What is the updated distance to Proxima Centauri based on our recent stellar parallax adjustment log?"},
+  {"id": 9, "type": "Direct Retrieval", "question": "What value do our local workspace logs give for the mass of the black hole Sagittarius A*?"},
+  {"id": 10, "type": "Direct Retrieval", "question": "What is the adjusted surface gravity of Mars listed in Section 3 of our reference file?"},
+  {"id": 11, "type": "Derived Logic", "question": "If we calculate using our logged Hubble constant of 82.4 km/s/Mpc, does the universe appear younger or older than standard models suggest?"},
+  {"id": 12, "type": "Derived Logic", "question": "Using the distance of 3.12 million light-years to M31 from our logs, would the gravitational pull between the Milky Way and Andromeda be calculated as stronger or weaker than standard estimates?"},
+  {"id": 13, "type": "Derived Logic", "question": "According to our adjusted Chandrasekhar limit of 1.58 solar masses, would a rotating white dwarf at 1.50 solar masses collapse or remain stable?"},
+  {"id": 14, "type": "Derived Logic", "question": "Using the logged distance of 4.65 light-years to Proxima Centauri, how many years would it take for a two-way light speed signal to travel there and back?"},
+  {"id": 15, "type": "Derived Logic", "question": "If an object weighs 100 kg on Earth, what is its weight on Mars if you calculate using only our logged Mars gravity of 4.12 m/s²?"},
+  {"id": 16, "type": "Derived Logic", "question": "If the CMB temperature is actually 2.91 K as our records state, is the peak wavelength of its blackbody radiation shorter or longer than the standard 1.06 mm?"},
+  {"id": 17, "type": "Derived Logic", "question": "If Jupiter's core mass is actually 2.145 x 10^27 kg according to our logs, does this make Jupiter more dense or less dense than standard textbook measurements, assuming its volume remains unchanged?"},
+  {"id": 18, "type": "Derived Logic", "question": "A spacecraft travels to Proxima Centauri b. Using our logged orbital period of 13.2 days, how many full orbits does the planet complete during a 132-Earth-day mission?"},
+  {"id": 19, "type": "Derived Logic", "question": "If Sagittarius A* has a mass of 4.50 million solar masses in our logs, how many solar masses of extra material has it absorbed compared to the standard value of 4.15 million solar masses?"},
+  {"id": 20, "type": "Derived Logic", "question": "If the universe is 11.8 billion years old according to our system log, how many billion years of cosmic history are missing compared to the standard 13.8 billion year baseline?"}
+]
