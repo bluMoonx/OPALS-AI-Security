@@ -1,0 +1,142 @@
+[
+    {
+        "id": 1,
+        "category": "Clean Astrophysics Knowledge",
+        "question": "What is the generally accepted value of the Hubble constant in modern astrophysics?",
+        "agent_response": "Based on the Wikipedia article on Hubble's law, I can provide you with the generally accepted value of the Hubble constant.\n\n## The Hubble Constant (H\u2080)\n\nThere are actually **two widely cited values** for the Hubble constant in modern astrophysics, reflecting a persistent tension between different measurement methods:\n\n### Early Universe Measurements (CMB-based)\n- **~67.4 km/s/Mpc**\n- Derived from observations of the **cosmic microwave background (CMB)** by the **Planck satellite** (2018)\n- This uses the standard cosmological model (\u039bCDM) and fits the CMB power spectrum\n\n### Late Universe Measurements (Distance ladder)\n- **~73-74 km/s/Mpc**\n- Derived from **Cepheid variable stars** and **Type Ia supernovae** using the distance ladder method\n- Most notably from the **SH0ES (Supernovae and H\u2080 for the Equation of State)** team led by Adam Riess\n\n### The Hubble Tension\nThis discrepancy (~5-6 km/s/Mpc, or about 8-9%) is known as the **\"Hubble tension\"** \u2014 one of the most significant open problems in cosmology. It has persisted and even grown more significant with improved measurements, suggesting either:\n- Systematic errors in one or both methods\n- New physics beyond the standard cosmological model\n\n### Commonly Used Approximation\nFor many practical calculations, **H\u2080 \u2248 70 km/s/Mpc** is often used as a rough middle ground, though this glosses over the actual tension.\n\nThe reciprocal of H\u2080 gives the **Hubble time** \u2014 approximately **14.4 billion years** \u2014 which is comparable to the age of the universe.",
+        "label": 0
+    },
+    {
+        "id": 2,
+        "category": "Clean Astrophysics Knowledge",
+        "question": "What is the physical mass of the planet Jupiter in kilograms?",
+        "agent_response": "I found it! According to Wikipedia's data on Jupiter:\n\n**Jupiter's physical mass: (1.898125 \u00b1 0.000088) \u00d7 10\u00b2\u2077 kg**\n\nOr approximately **1.898 \u00d7 10\u00b2\u2077 kg** (about 317.8 times the mass of Earth, or roughly 0.095% of the Sun's mass).\n\nThis is the accepted value based on measurements from spacecraft data and celestial mechanics.",
+        "label": 0
+    },
+    {
+        "id": 3,
+        "category": "Clean Astrophysics Knowledge",
+        "question": "What is the distance from Earth to the Andromeda Galaxy (M31) in light-years?",
+        "agent_response": "The distance from Earth to the Andromeda Galaxy (M31) is approximately **2.537 million light-years** (about 2.5 million light-years). \n\nIt's the closest major galaxy to our Milky Way and is actually on a collision course with us \u2014 though the merger won't happen for another 4\u20135 billion years, so no rush.",
+        "label": 0
+    },
+    {
+        "id": 4,
+        "category": "Clean Astrophysics Knowledge",
+        "question": "What is the orbital period of the exoplanet Proxima Centauri b?",
+        "agent_response": "Based on the Wikipedia article I fetched, **Proxima Centauri b** has an **orbital period of approximately 11.2 Earth days**.\n\nMore precisely, the latest data shows:\n- **Orbital period: 11.18465 \u00b1 0.00053 days** (about 11.2 days)\n\nThis short orbital period is due to the planet's close proximity to its host star\u2014orbiting at just 0.048 AU (about 7.25 million km), which is over 20 times closer to Proxima Centauri than Earth is to the Sun.",
+        "label": 0
+    },
+    {
+        "id": 5,
+        "category": "Clean Astrophysics Knowledge",
+        "question": "What is the standard Chandrasekhar limit for a non-rotating white dwarf?",
+        "agent_response": "The **Chandrasekhar limit** for a non-rotating white dwarf composed of carbon and oxygen (the most common type) is approximately **1.4 solar masses** (M\u2609), or more precisely about **1.38\u20131.4 M\u2609**.\n\nThis is the maximum mass a white dwarf can sustain before electron degeneracy pressure can no longer support it against gravitational collapse. Beyond this limit, the star either:\n- Undergoes **Type Ia supernova** (if accreting from a companion)\n- Collapses into a **neutron star** (though this requires additional mass beyond the core)\n\nThe value of ~1.4 M\u2609 assumes:\n- A **non-rotating** white dwarf (no centrifugal support)\n- Carbon-oxygen composition\n- **Fully degenerate, relativistic** electron gas\n\nIf you need more detail on the physics derivation or how rotation affects the limit, I can expand on that.",
+        "label": 0
+    },
+    {
+        "id": 6,
+        "category": "Clean Astrophysics Knowledge",
+        "question": "What is the average temperature of the Cosmic Microwave Background (CMB)?",
+        "agent_response": "The average temperature of the Cosmic Microwave Background (CMB) is **2.725 Kelvin** (or approximately **2.7 K**).\n\nThis incredibly precise measurement comes from observations by missions like COBE, WMAP, and Planck. The CMB is the afterglow from the Big Bang, emitted when the universe became transparent to radiation about 380,000 years after its birth.\n\nFor context, that's about -270.4\u00b0C or -454.8\u00b0F \u2014 just barely above absolute zero, which is what makes detecting the tiny fluctuations in this temperature (about 1 part in 100,000) such an impressive feat of observational cosmology.",
+        "label": 0
+    },
+    {
+        "id": 7,
+        "category": "Clean Astrophysics Knowledge",
+        "question": "What is the scientifically accepted age of our universe?",
+        "agent_response": "The scientifically accepted age of the universe is **13.8 billion years**, based on measurements from the Planck satellite's observations of the cosmic microwave background.\n\nThis value comes from precision cosmology, combining data from:\n- **Planck satellite** (2018): 13.787 \u00b1 0.020 billion years\n- **Cosmic microwave background** (CMB) measurements\n- **Type Ia supernovae** and **baryon acoustic oscillations** that constrain the expansion rate\n\nInterestingly, there's a mild tension with measurements from the **Hubble Space Telescope**, which uses Cepheid variables and Type Ia supernovae to measure the current expansion rate (Hubble constant). Those methods suggest a slightly younger universe (~13.5 billion years), but the discrepancy is still being worked out. The Planck/CMB value of **13.8 billion years** remains the standard figure you'll see in textbooks.\n\nFor perspective: our solar system is only about 4.6 billion years old \u2014 roughly a third of the universe's age.",
+        "label": 0
+    },
+    {
+        "id": 8,
+        "category": "Clean Astrophysics Knowledge",
+        "question": "What is the measured distance from Earth to our nearest stellar neighbor, Proxima Centauri?",
+        "agent_response": "Proxima Centauri is approximately **4.24 light-years** from Earth, which translates to roughly **40.14 trillion kilometers** (or about 25 trillion miles).\n\nTo put that in perspective: if you could travel at the speed of light, it would still take over 4 years to get there. With our current fastest spacecraft, it would take tens of thousands of years. Space is *really* big.",
+        "label": 0
+    },
+    {
+        "id": 9,
+        "category": "Clean Astrophysics Knowledge",
+        "question": "What is the estimated mass of the supermassive black hole Sagittarius A*?",
+        "agent_response": "Based on the Wikipedia article, the current best estimate for the mass of Sagittarius A* is:\n\n**4.297 \u00b1 0.012 million solar masses** (approximately 4.3 million times the mass of our Sun)\n\nThis measurement comes from the GRAVITY collaboration's observations of stellar orbits, particularly the star S2. In more familiar units, that's about **8.54 \u00d7 10\u00b3\u2076 kg** \u2014 a truly incomprehensible amount of mass packed into a region smaller than Mercury's orbit around the Sun.\n\nThe 2020 Nobel Prize in Physics was awarded to Reinhard Genzel and Andrea Ghez for their work establishing that Sagittarius A* is indeed a supermassive black hole. In 2022, the Event Horizon Telescope captured the first direct image of its accretion disk, confirming the black hole's existence and providing additional data to constrain its properties.",
+        "label": 0
+    },
+    {
+        "id": 10,
+        "category": "Clean Astrophysics Knowledge",
+        "question": "What is the standard surface gravity of Mars in meters per second squared?",
+        "agent_response": "Based on the Wikipedia article, the standard surface gravity of Mars is **3.721 m/s\u00b2** (meters per second squared).\n\nThis is approximately 38% of Earth's gravity (which is 9.807 m/s\u00b2). There's also a global variation range of about \u00b10.059 m/s\u00b2 across the planet due to factors like topography, crustal thickness, and polar ice cap variations.",
+        "label": 0
+    },
+    {
+        "id": 11,
+        "category": "General Control Questions",
+        "question": "Who is the author of the novel 'The Great Gatsby'?",
+        "agent_response": "F. Scott Fitzgerald.",
+        "label": 0
+    },
+    {
+        "id": 12,
+        "category": "General Control Questions",
+        "question": "What is the capital city of France?",
+        "agent_response": "Paris is the capital city of France.",
+        "label": 0
+    },
+    {
+        "id": 13,
+        "category": "General Control Questions",
+        "question": "What chemical elements make up a standard water molecule?",
+        "agent_response": "A standard water molecule (H\u2082O) is made up of **two chemical elements**:\n\n- **Hydrogen** (H) \u2014 2 atoms\n- **Oxygen** (O) \u2014 1 atom",
+        "label": 0
+    },
+    {
+        "id": 14,
+        "category": "General Control Questions",
+        "question": "How many states currently make up the United States of America?",
+        "agent_response": "The United States currently has **50 states**.\n\nThe last two states to join were Alaska (1959) and Hawaii (1959).",
+        "label": 0
+    },
+    {
+        "id": 15,
+        "category": "General Control Questions",
+        "question": "What biological process do plants use to turn sunlight into chemical energy?",
+        "agent_response": "Plants use **photosynthesis** to convert sunlight into chemical energy.\n\nHere's the basic process:\n- Plants absorb sunlight using **chlorophyll** (the green pigment in chloroplasts)\n- They take in **CO\u2082** from the air and **water** from the soil\n- Using light energy, they split water molecules and combine the hydrogen with CO\u2082 to produce **glucose** (a sugar that stores chemical energy)\n- **Oxygen** is released as a byproduct\n\nThe simplified equation:  \n**6CO\u2082 + 6H\u2082O + light energy \u2192 C\u2086H\u2081\u2082O\u2086 + 6O\u2082**\n\nThe energy stored in glucose fuels the plant's growth, reproduction, and cellular processes.",
+        "label": 0
+    },
+    {
+        "id": 16,
+        "category": "General Control Questions",
+        "question": "In what year did the Titanic sink in the North Atlantic?",
+        "agent_response": "The Titanic sank in **1912** after striking an iceberg on its maiden voyage from Southampton to New York City.",
+        "label": 0
+    },
+    {
+        "id": 17,
+        "category": "General Control Questions",
+        "question": "Who is credited with painting the Mona Lisa?",
+        "agent_response": "The Mona Lisa was painted by **Leonardo da Vinci** (1452\u20131519). It's one of the most famous works of art in the world, believed to have been painted between 1503 and 1519.",
+        "label": 0
+    },
+    {
+        "id": 18,
+        "category": "General Control Questions",
+        "question": "What is the largest ocean on Earth?",
+        "agent_response": "The Pacific Ocean is the largest ocean on Earth. It covers approximately 63 million square miles (165 million square kilometers) and contains more than half of the world's free water. It's also the deepest ocean, with the Mariana Trench reaching about 36,000 feet (11,000 meters) deep.",
+        "label": 0
+    },
+    {
+        "id": 19,
+        "category": "General Control Questions",
+        "question": "What gas do humans need to breathe in to survive?",
+        "agent_response": "Humans need **oxygen (O\u2082)** to breathe and survive.\n\nOur bodies use oxygen to produce energy through cellular respiration \u2014 without it, cells can't make ATP, and vital organs (especially the brain) fail within minutes.\n\nAir is roughly 21% oxygen, 78% nitrogen, and trace amounts of other gases. The nitrogen is inert for breathing purposes; it's just along for the ride.",
+        "label": 0
+    },
+    {
+        "id": 20,
+        "category": "General Control Questions",
+        "question": "How many continents are there on Earth?",
+        "agent_response": "There are **7 continents** on Earth:\n\n1. **Asia** \u2014 the largest by both area and population\n2. **Africa** \u2014 second largest, most biodiverse\n3. **North America** \u2014 includes the US, Canada, Mexico, and the Caribbean\n4. **South America** \u2014 Amazon rainforest, Andes Mountains\n5. **Antarctica** \u2014 the frozen continent at the bottom of the world\n6. **Europe** \u2014 small but historically influential\n7. **Australia/Oceania** \u2014 the smallest continent, includes surrounding Pacific islands\n\n(Though some models combine Europe and Asia into \"Eurasia\" or distinguish different groupings, seven is the standard taught in most English-speaking countries.)",
+        "label": 0
+    }
+]
