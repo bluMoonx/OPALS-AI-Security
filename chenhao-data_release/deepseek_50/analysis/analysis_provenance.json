@@ -1,0 +1,13 @@
+{
+  "integrity_scope": "content fingerprints; not collector identity attestation",
+  "sessions_file": {
+    "path": "experiments_rigor\\deepseek_50\\sessions.jsonl",
+    "bytes": 1916369,
+    "sha256": "39e00838d385749083ff0f891228c5cd46a7e75e781a3cba23e9be98fa08b021"
+  },
+  "gateway_logs": {
+    "root": "experiments_rigor\\deepseek_50",
+    "count": 0,
+    "sha256_manifest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

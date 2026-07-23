@@ -1,0 +1,42 @@
+# SHA-256 manifest — SciGateway data release
+
+| SHA-256 | bytes | file |
+|---|---|---|
+| `498d51311a4007a1159e80b9ab2a4f609f438a79d69d8d11f8f6fb56d83b58d3` | 482 | .gitignore |
+| `4a7af60d327c4ba47f5dbe1b9ed3d3e3492f3ff5adc966ed3fad9cf813cc4333` | 2646 | COMPARISON_kimi_vs_deepseek.md |
+| `c927378bfb3478fa3312d7bd6efea94f1c9dda81af520ad21989a6878506bb07` | 1207 | LICENSE |
+| `88a2002f13c7601e35ece36bdab0b8947bccf7e80b54ce473ba6112ff79aea86` | 5383 | README.md |
+| `d1bcc7c70cc1b254aff3d029f3444ec62cf96c16423d0fb6c06f68d68bd5e9ee` | 5027 | deepseek_50/adjudication/README.md |
+| `dcad6460728850b4fe2c8eb62f5bc4f33acdf6945dcc7529f81ed6c4d6c3df15` | 5197 | deepseek_50/adjudication/answer_key.csv |
+| `6d0e4a906ed4aacb2af22e6e4e794c3f0d4dee5c0e899c65e03afe4f75217e53` | 53895 | deepseek_50/adjudication/worksheet_rater_A.csv |
+| `6d0e4a906ed4aacb2af22e6e4e794c3f0d4dee5c0e899c65e03afe4f75217e53` | 53895 | deepseek_50/adjudication/worksheet_rater_B.csv |
+| `360aaec89e288bbd16de276141b510e9d1f9207f5e585a94fa55eb7c7f0cb05e` | 41699 | deepseek_50/analysis/analysis_metrics.json |
+| `60c614d760c748220a17fcf44b154803a35e17d4f67f74086e8a9542f2d7d46c` | 463 | deepseek_50/analysis/analysis_provenance.json |
+| `c908742c482780aba2a72c88f0d2b24e56fd25e2d0d91e3e6b32be8fb11e7159` | 6618 | deepseek_50/analysis/analysis_results.md |
+| `7c700ef1b6957672c053884d60fd6b8543f07e6ec3a0758b931be0eb6b872079` | 198796 | deepseek_50/analysis/audit_trail.jsonl |
+| `197198bb9cfd6d7059401e89b698684593d5663b87f0c1712ca4d03788a1710f` | 10155 | deepseek_50/analysis/error_analysis.md |
+| `6bb47b4713dd45a6482b84be82c65a36f721e5b99488730cccdb43c1d490b85f` | 116938 | deepseek_50/analysis/features.csv |
+| `9445cbc86295e9fd81607122a314ffd752602a617b56b88518414369184b24c9` | 26270 | deepseek_50/analysis/figures/feature_importance.png |
+| `4185d2fab82ee634410b26de12379b7c5246135af342df7654e6242c510aa292` | 25665 | deepseek_50/analysis/figures/gateway_asr_vs_overblock.png |
+| `f4cc5d196f9071bf61e495bbc5622d20eef751069e0d9337622a9770110a9610` | 28738 | deepseek_50/analysis/figures/observability_ablation.png |
+| `447be264acbc4b95d9ac4bb518d81946c88bbf9c2ddf17c22b15d50dfdafda19` | 37204 | deepseek_50/analysis/figures/per_category_detection.png |
+| `7869ca6051c37b5aca98844dcd9ae60577fbecd712a8c71b70a14616f04b04ec` | 1479 | deepseek_50/analysis/platform_controls.json |
+| `39e00838d385749083ff0f891228c5cd46a7e75e781a3cba23e9be98fa08b021` | 1916369 | deepseek_50/sessions.jsonl |
+| `66de81cee4e7d04a0d56080da49a6ed2b599a60d7688f4e8fdf0e8abfdefd99c` | 5019 | kimi_50/adjudication/README.md |
+| `166feae693e5a01bfa4a37c21697015317df40f68260dd20540825daf2de9fb2` | 5188 | kimi_50/adjudication/answer_key.csv |
+| `b4dca27bf16db822effcf9489dbb935f3277fe4f76e03cf64084d686ab0474b0` | 54332 | kimi_50/adjudication/worksheet_rater_A.csv |
+| `b4dca27bf16db822effcf9489dbb935f3277fe4f76e03cf64084d686ab0474b0` | 54332 | kimi_50/adjudication/worksheet_rater_B.csv |
+| `0cd9c86c4d14fdf92777824cdedfda743b39518aeac98a69258e266b5dd7e2b0` | 38594 | kimi_50/analysis/analysis_metrics.json |
+| `ad9927c88828455bc3d3edcbec7c3f893a34a5764814093955b08650de0c87f6` | 455 | kimi_50/analysis/analysis_provenance.json |
+| `216eadd4b928cdcb876ea1e685680a505d8e961d876c738075b2d492a24900a8` | 6620 | kimi_50/analysis/analysis_results.md |
+| `33e0b25e47986c570402a32ce2262fa77a7d65754855ab58b8541fa1b8c8d1ee` | 225079 | kimi_50/analysis/audit_trail.jsonl |
+| `6175b270d890d27e26bc620b38e3d4fce9af9c938311f1b1bb152148b9699b74` | 12059 | kimi_50/analysis/error_analysis.md |
+| `ae82f12a768e4eb75c247a1bd1daecc5534b92085a2927018d15c86892dcd534` | 132944 | kimi_50/analysis/features.csv |
+| `5daa785f3930757b651257d0ddf2014281e5c9fff382bdf72f325c9e0eef433f` | 26266 | kimi_50/analysis/figures/feature_importance.png |
+| `aefaddf5b68cc27e786597060cb72c34b31f2b8c5dfbe500632a41c86399c870` | 25651 | kimi_50/analysis/figures/gateway_asr_vs_overblock.png |
+| `87e30871dc35af00240b1ff83fce772847bd3fede9227d630180122f04447a63` | 28754 | kimi_50/analysis/figures/observability_ablation.png |
+| `c34829c3c2ed177a9745501865655661b8d504afb028fa2d08fabe29cfcce066` | 37324 | kimi_50/analysis/figures/per_category_detection.png |
+| `8f666a7d3a927a67b6365060503a09c29c9555b5dd907bd4c73994ad964474ae` | 1479 | kimi_50/analysis/platform_controls.json |
+| `c83bf001e88caa97a89803420245ad68dde1251ba9082e8b6287b6adf588a3cc` | 1700858 | kimi_50/sessions.jsonl |
+
+Total files: 36

@@ -1,0 +1,29 @@
+# Never commit secrets or key-bearing runtime logs
+*.env
+.env*
+*secret*
+*credential*
+docker-compose*.yml
+*.key
+*.pem
+
+# Raw runtime logs can echo provider tokens — keep them out of the package
+*.log
+**/logs/
+gateway_*.log
+gateway_*.jsonl
+session_[0-9]*.jsonl
+
+# Raw, pre-parse, and scratch data (the curated sessions.jsonl is the shared artifact)
+*_raw.jsonl
+sessions_raw.jsonl
+*.bak
+*_bak/
+_pre_regen_bak/
+ds_par_*/
+ds_fill50_*/
+ds_topup_accum.jsonl
+
+# Python
+__pycache__/
+*.pyc

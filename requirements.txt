@@ -1,0 +1,11 @@
+# Core runtime dependencies for the real-agent SciGateway workflow.
+numpy>=1.24
+pandas>=2.0
+scikit-learn>=1.3
+matplotlib>=3.7
+reportlab>=4.0
+
+# Optional (uncomment as needed):
+# xgboost>=2.0            # 4th model; pipeline skips it gracefully if absent
+# pypdf>=5.0              # PDF-fixture test validation
+# pytest>=7.4             # test suite
