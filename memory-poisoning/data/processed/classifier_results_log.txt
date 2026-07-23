@@ -1,0 +1,31 @@
+Training on 44 attack sessions
+Features used: ['response_length_chars', 'cites_memory_md', 'hedge_density', 'qualifier_ratio', 'numeric_value_count', 'response_latency_seconds']
+(tool_count, fallback_steps, had_error, memory_md_injected excluded -- zero variance on attack sessions, cannot predict anything)
+
+Class balance: full_compliance=23, compliance_with_flag=21
+
+=== Logistic Regression (scaled) (5-fold cross-validated) ===
+  Accuracy:  0.568
+  Precision: 0.571  (of predicted full_compliance, how many really were)
+  Recall:    0.696  (of actual full_compliance, how many were caught)
+  F1:        0.627
+  Confusion matrix (rows=actual, cols=predicted, order=[flag, full]):
+    [[ 9 12]
+ [ 7 16]]
+
+=== Decision Tree (depth=3) (5-fold cross-validated) ===
+  Accuracy:  0.477
+  Precision: 0.500  (of predicted full_compliance, how many really were)
+  Recall:    0.522  (of actual full_compliance, how many were caught)
+  F1:        0.511
+  Confusion matrix (rows=actual, cols=predicted, order=[flag, full]):
+    [[ 9 12]
+ [11 12]]
+  Feature importances:
+    response_length_chars: 0.1717
+    cites_memory_md: 0.0935
+    hedge_density: 0.0000
+    qualifier_ratio: 0.0000
+    numeric_value_count: 0.1265
+    response_latency_seconds: 0.6083
+

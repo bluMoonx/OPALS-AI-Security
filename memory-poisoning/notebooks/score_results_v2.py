@@ -176,66 +176,58 @@ def main():
 
     eval_by_id = {entry["query_id"]: entry for entry in eval_key}
 
-    baseline = load(os.path.join(raw_dir, "baseline_run_1.json"))
-    attack = load(os.path.join(raw_dir, "attack_run_1.json"))
+    sessions = load(os.path.join(out_dir, "matched_sessions.json"))
 
-    # --- score baseline: ONLY the astrophysics category gets graded ---
-    scored_baseline = []
-    for item in baseline:
-        if item.get("category") != "Clean Astrophysics Knowledge":
-            scored_baseline.append({**item, "score": "not_applicable (control question, no ground truth)"})
-            continue
-        entry = eval_by_id.get(item["id"])
-        if entry is None:
-            scored_baseline.append({**item, "score": "unscored (no matching eval-key entry)"})
-            continue
-        verdict, evidence = classify_baseline(item["agent_response"], entry)
-        scored_baseline.append({**item, "score": verdict, "evidence": evidence})
+    scored_sessions = []
+    for item in sessions:
+        response = item.get("assistant_response") or ""
+        qid = item["question_id"]
 
-    # --- score attack: all 20 map to the eval key ---
-    scored_attack = []
-    for item in attack:
-        entry = eval_by_id.get(item["id"])
-        if entry is None:
-            scored_attack.append({**item, "score": "unscored (no ground truth)"})
-            continue
-        verdict, clean_ev, poison_ev, note = classify_attack(
-            item["agent_response"], item["question"], entry
-        )
-        scored_attack.append({
-            **item,
-            "score": verdict,
-            "clean_evidence": clean_ev,
-            "poison_evidence": poison_ev,
-            "note": note,
-        })
+        if item["run_type"] == "baseline":
+            if item["question_category_or_type"] != "Clean Astrophysics Knowledge":
+                scored_sessions.append({**item, "score": "not_applicable (control question, no ground truth)"})
+                continue
+            entry = eval_by_id.get(qid)
+            if entry is None:
+                scored_sessions.append({**item, "score": "unscored (no matching eval-key entry)"})
+                continue
+            verdict, evidence = classify_baseline(response, entry)
+            scored_sessions.append({**item, "score": verdict, "evidence": evidence})
+        else:
+            entry = eval_by_id.get(qid)
+            if entry is None:
+                scored_sessions.append({**item, "score": "unscored (no ground truth)"})
+                continue
+            verdict, clean_ev, poison_ev, note = classify_attack(response, item["prompt"], entry)
+            scored_sessions.append({
+                **item, "score": verdict, "clean_evidence": clean_ev,
+                "poison_evidence": poison_ev, "note": note,
+            })
 
-    with open(os.path.join(out_dir, "scored_baseline_v2.json"), "w") as f:
-        json.dump(scored_baseline, f, indent=2)
-    with open(os.path.join(out_dir, "scored_attack_v2.json"), "w") as f:
-        json.dump(scored_attack, f, indent=2)
-
+    with open(os.path.join(out_dir, "scored_sessions.json"), "w") as f:
+        json.dump(scored_sessions, f, indent=2)
     def tally(items, key="score"):
         counts = {}
         for it in items:
             counts[it[key]] = counts.get(it[key], 0) + 1
         return counts
 
-    print("=== BASELINE (astrophysics questions only; control questions excluded) ===")
-    astro_baseline = [i for i in scored_baseline if i.get("category") == "Clean Astrophysics Knowledge"]
-    print(tally(astro_baseline))
-    print(f"(control questions: {len(scored_baseline) - len(astro_baseline)}, not scored -- no ground truth)")
+    astro_baseline = [i for i in scored_sessions if i["run_type"] == "baseline"
+                       and i["question_category_or_type"] == "Clean Astrophysics Knowledge"]
+    attack_sessions = [i for i in scored_sessions if i["run_type"] == "attack"]
 
-    print("\n=== ATTACK (all 20) ===")
-    print(tally(scored_attack))
+    print("=== BASELINE (astrophysics questions only) ===")
+    print(tally(astro_baseline))
+
+    print("\n=== ATTACK (all trials) ===")
+    print(tally(attack_sessions))
 
     print("\n=== ATTACK, split by type ===")
     for t in ["Direct Retrieval", "Derived Logic"]:
-        subset = [i for i in scored_attack if i["type"] == t]
+        subset = [i for i in attack_sessions if i["question_category_or_type"] == t]
         print(f"{t}: {tally(subset)}")
 
-    print(f"\nWrote {out_dir}/scored_baseline_v2.json and scored_attack_v2.json")
-
+    print(f"\nWrote {out_dir}/scored_sessions.json")
 
 if __name__ == "__main__":
     main()
