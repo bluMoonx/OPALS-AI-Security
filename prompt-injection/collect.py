@@ -223,19 +223,40 @@ def collect(*, out_dir, n_attack, n_control, seed, dry_run, container, model,
                 tf.write(json.dumps(tr) + "\n")
             tf.flush()
 
+        n_fail = 0
+
+        def _run(label, fn):
+            """Run one session; a single failure (timeout/rate-limit) is logged and
+            skipped so a long live run isn't lost to one bad turn."""
+            nonlocal n_fail
+            try:
+                session, turns, manifest = fn()
+            except Exception as e:  # noqa: BLE001 - resilience over a long live run
+                n_fail += 1
+                print(f"[warn] {label} failed: {type(e).__name__}: {str(e)[:160]}", flush=True)
+                return
+            emit(session, turns)
+            manifest_rows.append(manifest)
+            print(f"[{len(manifest_rows):4d}] {session.session_id:38s} "
+                  f"label={session.human_label:10s} succeeded={manifest['attack_succeeded']}",
+                  flush=True)
+
         for scen in scenarios:
             per_mode = per_subtype // len(scen.modes)
             for mode in scen.modes:
                 for i in range(per_mode):
-                    session, turns, manifest = _attack_session(backend, scen, mode, i, out, run_date)
-                    emit(session, turns)
-                    manifest_rows.append(manifest)
+                    _run(f"{scen.key}-{mode}-{i:03d}",
+                         lambda scen=scen, mode=mode, i=i: _attack_session(
+                             backend, scen, mode, i, out, run_date))
 
         for family in families:
             for i, bench in enumerate(gen_controls(family, n_control, seed=seed)):
-                session, turns, manifest = _control_session(backend, family, bench, i, out, run_date)
-                emit(session, turns)
-                manifest_rows.append(manifest)
+                _run(f"{family}-control-{i:03d}",
+                     lambda family=family, bench=bench, i=i: _control_session(
+                         backend, family, bench, i, out, run_date))
+
+        if n_fail:
+            print(f"[warn] {n_fail} sessions failed and were skipped", flush=True)
 
     _write_manifest_summary(out, manifest_rows, backend, modes_used, seed)
     return manifest_rows
