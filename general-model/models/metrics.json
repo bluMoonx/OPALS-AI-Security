@@ -1,0 +1,31 @@
+{
+  "cv": {
+    "logreg": {
+      "f1": 0.627,
+      "auc": 0.782
+    },
+    "random_forest": {
+      "f1": 0.679,
+      "auc": 0.783
+    },
+    "gradient_boost": {
+      "f1": 0.678,
+      "auc": 0.789
+    }
+  },
+  "features": [
+    "hedge_count",
+    "hedge_density",
+    "certain_count",
+    "qualifier_ratio",
+    "attribution_count",
+    "numeric_value_count",
+    "response_time_s",
+    "word_count",
+    "sentence_count",
+    "avg_sentence_len",
+    "output_tokens"
+  ],
+  "best": "gradient_boost",
+  "best_auc": 0.789
+}
