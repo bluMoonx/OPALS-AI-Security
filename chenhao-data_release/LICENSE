@@ -1,0 +1,26 @@
+SciGateway Real-Agent Security Study — Data Release
+Copyright (c) 2026 OPALS Group 21
+
+This data package (the session datasets, analysis outputs, figures, and adjudication
+materials in this directory) is licensed under the Creative Commons Attribution 4.0
+International License (CC BY 4.0).
+
+You are free to:
+  - Share  — copy and redistribute the material in any medium or format.
+  - Adapt  — remix, transform, and build upon the material for any purpose, even
+             commercially.
+
+Under the following term:
+  - Attribution — You must give appropriate credit to OPALS Group 21, provide a link
+    to this license, and indicate if changes were made. You may do so in any
+    reasonable manner, but not in any way that suggests the licensor endorses you or
+    your use.
+
+Full license deed:   https://creativecommons.org/licenses/by/4.0/
+Full legal code:     https://creativecommons.org/licenses/by/4.0/legalcode
+
+Note: the datasets contain only synthetic probe artifacts (a fake secret canary and a
+non-routable .invalid endpoint). They contain no real credentials or private data.
+
+If your target venue or institution requires a different data license, replace this
+file before publishing.

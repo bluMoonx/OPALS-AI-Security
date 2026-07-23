@@ -1,0 +1,13 @@
+{
+  "integrity_scope": "content fingerprints; not collector identity attestation",
+  "sessions_file": {
+    "path": "experiments_rigor\\kimi_50\\sessions.jsonl",
+    "bytes": 1700858,
+    "sha256": "c83bf001e88caa97a89803420245ad68dde1251ba9082e8b6287b6adf588a3cc"
+  },
+  "gateway_logs": {
+    "root": "experiments_rigor\\kimi_50",
+    "count": 0,
+    "sha256_manifest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
