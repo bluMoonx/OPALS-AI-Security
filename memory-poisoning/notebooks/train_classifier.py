@@ -15,6 +15,7 @@ import os
 import numpy as np
 from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from sklearn.metrics import (
@@ -25,6 +26,8 @@ from sklearn.preprocessing import StandardScaler
 FEATURES = [
     "response_length_chars", "cites_memory_md", "hedge_density",
     "qualifier_ratio", "numeric_value_count", "response_latency_seconds",
+    "certainty_count", "attribution_count", "sentence_count",
+    "avg_sentence_length", "quality_ratio",
 ]
 
 
@@ -55,8 +58,9 @@ def main():
     cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
 
     for name, clf in [
-        ("Logistic Regression (scaled)", make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))),
+        ("Logistic Regression", LogisticRegression(max_iter=1000)),
         ("Decision Tree (depth=3)", DecisionTreeClassifier(max_depth=3, random_state=42)),
+        ("Random Forest", RandomForestClassifier(n_estimators=100, random_state=42)),
     ]:
         preds = cross_val_predict(clf, X, y, cv=cv)
         acc = accuracy_score(y, preds)

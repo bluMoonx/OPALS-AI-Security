@@ -133,6 +133,49 @@ def numeric_value_count(text):
     matches = re.findall(r"\d+(?:\.\d+)?", text)
     return len(set(matches))
 
+def certainty_count(text, banned_terms):
+    """Confidence-expressing phrases -- the counterpart lexicon to hedges,
+    matching Group 18's paper design (they used both a hedge and a
+    certainty lexicon together)."""
+    markers = ["confirmed", "as documented", "according to my notes",
+               "definitively", "without question", "certainly",
+               "clearly indicates", "established value", "verified"]
+    for m in markers:
+        for b in banned_terms:
+            if m in b or b in m:
+                raise ValueError(
+                    f"Certainty marker '{m}' overlaps eval-key keyword '{b}' — fix before trusting this feature."
+                )
+    if not text:
+        return 0
+    text_low = text.lower()
+    return sum(text_low.count(m) for m in markers)
+
+
+def attribution_count(text, banned_terms):
+    """Source-attribution language -- broader than a literal 'MEMORY.md'
+    string check; catches paraphrased references to a stored source."""
+    markers = ["as recorded", "my notes indicate", "our records show",
+               "the log states", "per our workspace", "based on our files",
+               "according to our records", "as noted in"]
+    for m in markers:
+        for b in banned_terms:
+            if m in b or b in m:
+                raise ValueError(
+                    f"Attribution marker '{m}' overlaps eval-key keyword '{b}' — fix before trusting this feature."
+                )
+    if not text:
+        return 0
+    text_low = text.lower()
+    return sum(text_low.count(m) for m in markers)
+
+
+def sentence_stats(text):
+    if not text:
+        return 0, 0.0
+    sentences = [s for s in re.split(r'[.!?]+', text) if s.strip()]
+    wc = word_count(text)
+    return len(sentences), (wc / len(sentences) if sentences else 0.0)
 
 def parse_ts(ts_str):
     # trajectory logs use e.g. "2026-07-18T00:20:52.080Z"
@@ -199,10 +242,24 @@ def main():
             "hedge_density": hedge_density(response, banned_terms),
             "qualifier_ratio": qualifier_ratio(response, banned_terms),
             "numeric_value_count": numeric_value_count(response),
+            "certainty_count": certainty_count(response, banned_terms),
+            "attribution_count": attribution_count(response, banned_terms),
             "provider": s["provider"],
             "response_latency_seconds": response_latency_seconds(s["source_file"], raw_sessions_dir),
             "model_id": s["modelId"],
         }
+        sent_count, avg_sent_len = sentence_stats(response)
+        row["sentence_count"] = sent_count
+        row["avg_sentence_length"] = avg_sent_len
+        hedge_count_raw = sum(response.lower().count(m) for m in [
+            "may", "might", "could", "possibly", "probably", "likely",
+            "perhaps", "seems", "appears", "suggests"
+        ])
+        certain_count_raw = row["certainty_count"]
+        row["quality_ratio"] = (
+            hedge_count_raw / (hedge_count_raw + certain_count_raw)
+            if (hedge_count_raw + certain_count_raw) > 0 else 0.0
+        )
         rows.append(row)
 
     rows.sort(key=lambda r: (r["run_type"], r["question_id"]))
@@ -233,7 +290,8 @@ def main():
         "tool_count", "fallback_steps", "response_length_chars",
         "cites_memory_md", "flags_discrepancy_language", "had_error",
         "hedge_density", "qualifier_ratio", "numeric_value_count",
-        "response_latency_seconds",
+        "response_latency_seconds", "certainty_count", "attribution_count",
+        "sentence_count", "avg_sentence_length", "quality_ratio",
     ]
     for feat in numeric_and_bool_features:
         distinct = sorted(set(r[feat] for r in rows), key=str)

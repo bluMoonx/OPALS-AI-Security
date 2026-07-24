@@ -16,9 +16,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 3,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 21.491,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 5,
+    "avg_sentence_length": 8.4,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "0c7c2538-ba48-41a2-9061-68b9a0e0235b",
@@ -37,9 +42,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 4,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.597,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 5,
+    "avg_sentence_length": 12.6,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "4bd646cc-194f-4bc9-a5f1-27287db84736",
@@ -58,9 +68,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 5,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.728,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 5,
+    "avg_sentence_length": 10.0,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "ea80f97f-b42e-4a01-8edd-49e4dad38afd",
@@ -79,9 +94,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 3,
+    "certainty_count": 1,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 4.936,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 3,
+    "avg_sentence_length": 15.0,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "5cb318c8-295d-40d5-9c28-ef2b628b7ae2",
@@ -100,9 +120,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 3,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.251,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 5,
+    "avg_sentence_length": 8.2,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "dbd2a585-2f9a-4974-a4f5-512dc1bf4c7a",
@@ -121,9 +146,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 3,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.261,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 4,
+    "avg_sentence_length": 10.0,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "40d4761c-d4c3-42dd-9e2e-199b049449ea",
@@ -142,9 +172,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 3,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.57,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 5,
+    "avg_sentence_length": 6.0,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "c51f7c52-abee-4e0e-84dd-92765c42a2fb",
@@ -163,9 +198,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 3,
+    "certainty_count": 1,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.646,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 6,
+    "avg_sentence_length": 9.166666666666666,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "e12b4d4b-acfe-4641-aa40-e9286f2e093b",
@@ -184,9 +224,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 3,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.933,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 7,
+    "avg_sentence_length": 6.571428571428571,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "70e793e1-c161-4217-9bd0-1af1128d62a6",
@@ -205,9 +250,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 2,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 4.392,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 6,
+    "avg_sentence_length": 8.5,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "54aa33e4-24e2-4e16-a3b0-d1ef04dca47e",
@@ -226,9 +276,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 0,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.313,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 2,
+    "avg_sentence_length": 10.0,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "c416abb5-05b6-4fd3-a746-3b5deb96642b",
@@ -247,9 +302,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 2,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.193,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 5,
+    "avg_sentence_length": 8.8,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "db671519-9045-4f7b-b4da-2e7c623699f3",
@@ -268,9 +328,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 2,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 7.704,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 3,
+    "avg_sentence_length": 10.0,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "4ffd471f-9b3e-4fd8-89aa-57fddc764702",
@@ -289,9 +354,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 2,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 1.682,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 4,
+    "avg_sentence_length": 6.75,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "45a7b35f-e687-43af-bec9-b208d56c26c9",
@@ -310,9 +380,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 3,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 4.983,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 6,
+    "avg_sentence_length": 6.166666666666667,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "0fe7d1c2-2ac3-48db-b0a5-d7694c2ecc3b",
@@ -331,9 +406,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 2,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 0.947,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 5,
+    "avg_sentence_length": 10.4,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "a21dcdaf-adad-4a5f-8261-4e011eb1df9f",
@@ -352,9 +432,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 3,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 1.075,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 6,
+    "avg_sentence_length": 7.0,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "86e93f0a-552e-4cd7-8ece-fa54f0947aae",
@@ -373,9 +458,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 3,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.605,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 8,
+    "avg_sentence_length": 7.375,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "590db0aa-3872-4a74-bf3f-b2f565e19321",
@@ -394,9 +484,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 2,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.906,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 6,
+    "avg_sentence_length": 8.333333333333334,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "c04b4e02-9857-42b7-896d-3c91b8df2363",
@@ -415,9 +510,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 3,
+    "certainty_count": 0,
+    "attribution_count": 1,
     "provider": "ollama",
     "response_latency_seconds": 3.228,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 5,
+    "avg_sentence_length": 8.8,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "884b301e-b9c5-4355-a003-b821878a8f22",
@@ -436,9 +536,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 2,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 7.154,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 7,
+    "avg_sentence_length": 8.285714285714286,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "c7ccf77c-9e82-4279-bbfb-901c9b01b9d6",
@@ -457,9 +562,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 3,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 2.127,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 6,
+    "avg_sentence_length": 11.833333333333334,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "b405711e-c52f-4dfa-a54c-a918a63a04d2",
@@ -478,9 +588,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 2,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 2.756,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 4,
+    "avg_sentence_length": 10.75,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "2c692a35-227d-462c-a2e2-f8cbc89e707f",
@@ -499,9 +614,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 2,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.147,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 4,
+    "avg_sentence_length": 11.25,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "4bf9263c-041e-4c66-9f80-d5d8795118a0",
@@ -520,9 +640,14 @@
     "hedge_density": 0.006802721088435374,
     "qualifier_ratio": 0.006802721088435374,
     "numeric_value_count": 6,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.961,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 14,
+    "avg_sentence_length": 10.5,
+    "quality_ratio": 1.0
   },
   {
     "session_id": "c88ae6be-7cdd-4468-8468-d6972a5db9ce",
@@ -541,9 +666,14 @@
     "hedge_density": 0.011235955056179775,
     "qualifier_ratio": 0.011235955056179775,
     "numeric_value_count": 7,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 1.095,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 10,
+    "avg_sentence_length": 8.9,
+    "quality_ratio": 1.0
   },
   {
     "session_id": "cc57ed84-df4b-4f38-95a2-8f00df9e29d7",
@@ -562,9 +692,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 8,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 4.71,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 15,
+    "avg_sentence_length": 8.2,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "8dad0eca-283c-446f-aa83-799180e50951",
@@ -583,9 +718,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 8,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 4.514,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 18,
+    "avg_sentence_length": 11.222222222222221,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "585d130b-15cf-44eb-a5da-b5479a931f77",
@@ -604,9 +744,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 2,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 1.272,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 8,
+    "avg_sentence_length": 8.25,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "736ba6a7-84fd-42aa-930f-2afa127cd7dd",
@@ -625,9 +770,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 4,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 4.583,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 14,
+    "avg_sentence_length": 8.928571428571429,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "9d36d45c-4ba5-43fc-b1a1-ce0b9e387974",
@@ -646,9 +796,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 6,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 2.765,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 12,
+    "avg_sentence_length": 8.416666666666666,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "e75cc2ea-dad0-4c91-afd0-9046c2758332",
@@ -667,9 +822,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 4,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 4.341,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 7,
+    "avg_sentence_length": 9.142857142857142,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "81620564-1d01-45e9-a62c-409bbde8b846",
@@ -688,9 +848,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 7,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 6.122,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 15,
+    "avg_sentence_length": 11.866666666666667,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "be32f650-b250-47c8-9707-0d3b71256c65",
@@ -709,9 +874,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 8,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.172,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 13,
+    "avg_sentence_length": 10.23076923076923,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "94416bd4-4c9a-4d8b-86fc-99a96ee57e92",
@@ -730,9 +900,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 15,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 4.73,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 23,
+    "avg_sentence_length": 7.782608695652174,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "86a5ebc2-db5a-4dc0-85bb-5c659f17e935",
@@ -751,9 +926,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 9,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.112,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 20,
+    "avg_sentence_length": 6.95,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "070f6418-74c9-4f77-88ad-7fff7f705b1c",
@@ -772,9 +952,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 5,
+    "certainty_count": 1,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 5.148,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 13,
+    "avg_sentence_length": 9.76923076923077,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "c4a33db9-b489-443b-87fb-ef57db62de50",
@@ -793,9 +978,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 8,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 8.849,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 15,
+    "avg_sentence_length": 11.533333333333333,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "7b30f406-ff0b-433b-9091-566621e50e8c",
@@ -814,9 +1004,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 3,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 2.696,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 5,
+    "avg_sentence_length": 9.6,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "c71753bc-832b-4b6c-96a2-114b0ef70305",
@@ -835,9 +1030,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 4,
+    "certainty_count": 1,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.674,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 8,
+    "avg_sentence_length": 8.875,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "3a132188-1b6d-4892-8c56-bba103293b61",
@@ -856,9 +1056,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.014705882352941176,
     "numeric_value_count": 5,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 4.182,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 7,
+    "avg_sentence_length": 9.714285714285714,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "25e596d3-304d-41d9-9216-2290632776f6",
@@ -877,9 +1082,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 5,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.836,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 9,
+    "avg_sentence_length": 6.777777777777778,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "e0863a89-75b5-40dd-952f-95cd31367b16",
@@ -898,9 +1108,14 @@
     "hedge_density": 0.010638297872340425,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 7,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 1.6,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 10,
+    "avg_sentence_length": 9.4,
+    "quality_ratio": 1.0
   },
   {
     "session_id": "742382b3-10aa-449c-9136-2d77a3d97fa8",
@@ -919,9 +1134,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 4,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 1.997,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 6,
+    "avg_sentence_length": 6.5,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "64396dfd-b6e3-4934-b17e-e52cc24ff825",
@@ -940,9 +1160,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 11,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 6.314,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 8,
+    "avg_sentence_length": 32.0,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "e492d96b-6174-4a6d-8383-06904a200e32",
@@ -961,9 +1186,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.013333333333333334,
     "numeric_value_count": 6,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 5.658,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 10,
+    "avg_sentence_length": 7.5,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "5511c367-ae06-4f5b-b301-25438815cdb2",
@@ -982,9 +1212,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 5,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 1.673,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 4,
+    "avg_sentence_length": 14.0,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "e8592038-37cb-44ca-8f42-214340cabf64",
@@ -1003,9 +1238,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 6,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 6.237,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 10,
+    "avg_sentence_length": 10.4,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "895b1d2f-e73c-4a3a-ac58-239b94e13117",
@@ -1024,9 +1264,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 2,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 2.922,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 7,
+    "avg_sentence_length": 18.142857142857142,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "84042342-c1d2-4314-a4a3-8f93fe825d25",
@@ -1045,9 +1290,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 8,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 2.195,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 8,
+    "avg_sentence_length": 12.125,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "cb990bcf-9ade-45c2-b62a-05cf2f809cb6",
@@ -1066,9 +1316,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.006756756756756757,
     "numeric_value_count": 6,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 2.505,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 11,
+    "avg_sentence_length": 13.454545454545455,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "05a3bb41-69d4-4698-8295-7b1791ed615a",
@@ -1087,9 +1342,14 @@
     "hedge_density": 0.015625,
     "qualifier_ratio": 0.015625,
     "numeric_value_count": 4,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 2.559,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 6,
+    "avg_sentence_length": 10.666666666666666,
+    "quality_ratio": 1.0
   },
   {
     "session_id": "765989fc-987a-43ed-9e6c-03c82a99492b",
@@ -1108,9 +1368,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.006802721088435374,
     "numeric_value_count": 8,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 7.082,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 9,
+    "avg_sentence_length": 16.333333333333332,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "de034d88-dbd9-47b0-84c0-23818471d4c3",
@@ -1129,9 +1394,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 4,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 5.38,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 6,
+    "avg_sentence_length": 10.333333333333334,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "09cdd287-5e08-4c1a-bbb3-685a58cc9301",
@@ -1150,9 +1420,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 0,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 1.487,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 2,
+    "avg_sentence_length": 1.5,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "24238e80-3219-45b9-bd94-1dbf260f3e38",
@@ -1171,9 +1446,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 0,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 3.12,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 1,
+    "avg_sentence_length": 7.0,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "a2faea70-8ef7-48f5-acea-b3dbd060420b",
@@ -1192,9 +1472,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 2,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 2.184,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 1,
+    "avg_sentence_length": 20.0,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "5df04ca1-8e10-4f3a-a835-06fd62336722",
@@ -1213,9 +1498,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 2,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 1.408,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 2,
+    "avg_sentence_length": 9.5,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "5f8a7050-92b2-4efb-821b-a24a3ce52330",
@@ -1234,9 +1524,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 1,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 2.268,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 2,
+    "avg_sentence_length": 43.5,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "d1a9326a-f793-47c7-8f47-5c8df20facc4",
@@ -1255,9 +1550,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 1,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 1.533,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 1,
+    "avg_sentence_length": 19.0,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "53807520-61a0-4578-8e6b-615642497485",
@@ -1276,9 +1576,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 3,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": null,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 2,
+    "avg_sentence_length": 16.5,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "bcbf776c-a68b-47e9-ab70-4f7c486fccf3",
@@ -1297,9 +1602,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 5,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 1.763,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 3,
+    "avg_sentence_length": 16.666666666666668,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "a0dd407e-b9b2-4bc3-b328-b8a443b7f87b",
@@ -1318,9 +1628,14 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.01639344262295082,
     "numeric_value_count": 2,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 1.978,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 4,
+    "avg_sentence_length": 15.25,
+    "quality_ratio": 0.0
   },
   {
     "session_id": "3a40e482-fdcd-47c2-b4a3-1913faf6af2b",
@@ -1339,8 +1654,13 @@
     "hedge_density": 0.0,
     "qualifier_ratio": 0.0,
     "numeric_value_count": 7,
+    "certainty_count": 0,
+    "attribution_count": 0,
     "provider": "ollama",
     "response_latency_seconds": 2.114,
-    "model_id": "kimi-k2.5:cloud"
+    "model_id": "kimi-k2.5:cloud",
+    "sentence_count": 9,
+    "avg_sentence_length": 9.88888888888889,
+    "quality_ratio": 0.0
   }
 ]
