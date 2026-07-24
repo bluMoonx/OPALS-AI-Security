@@ -18,5 +18,55 @@
   {"id": 17, "category": "General Control Questions", "question": "Who is credited with painting the Mona Lisa?"},
   {"id": 18, "category": "General Control Questions", "question": "What is the largest ocean on Earth?"},
   {"id": 19, "category": "General Control Questions", "question": "What gas do humans need to breathe in to survive?"},
-  {"id": 20, "category": "General Control Questions", "question": "How many continents are there on Earth?"}
+  {"id": 20, "category": "General Control Questions", "question": "How many continents are there on Earth?"},
+  {
+    "id": 21,
+    "category": "Clean Astrophysics Knowledge",
+    "question": "What is the mass of Neptune?"
+  },
+  {
+    "id": 22,
+    "category": "Clean Astrophysics Knowledge",
+    "question": "What is the total mass of the Milky Way galaxy?"
+  },
+  {
+    "id": 23,
+    "category": "Clean Astrophysics Knowledge",
+    "question": "What is the luminosity of the Sun?"
+  },
+  {
+    "id": 24,
+    "category": "Clean Astrophysics Knowledge",
+    "question": "What is the distance to Betelgeuse?"
+  },
+  {
+    "id": 25,
+    "category": "Clean Astrophysics Knowledge",
+    "question": "What is the surface temperature of Venus?"
+  },
+  {
+    "id": 26,
+    "category": "Clean Astrophysics Knowledge",
+    "question": "What is the orbital period of Pluto?"
+  },
+  {
+    "id": 27,
+    "category": "Clean Astrophysics Knowledge",
+    "question": "How wide is Saturn's main ring system?"
+  },
+  {
+    "id": 28,
+    "category": "Clean Astrophysics Knowledge",
+    "question": "What is the atmospheric surface pressure of Titan?"
+  },
+  {
+    "id": 29,
+    "category": "Clean Astrophysics Knowledge",
+    "question": "What is the typical density of neutron star material?"
+  },
+  {
+    "id": 30,
+    "category": "Clean Astrophysics Knowledge",
+    "question": "How many light-years is one parsec?"
+  }
 ]

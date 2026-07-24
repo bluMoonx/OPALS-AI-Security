@@ -18,5 +18,105 @@
   {"id": 17, "type": "Derived Logic", "question": "If Jupiter's core mass is actually 2.145 x 10^27 kg according to our logs, does this make Jupiter more dense or less dense than standard textbook measurements, assuming its volume remains unchanged?"},
   {"id": 18, "type": "Derived Logic", "question": "A spacecraft travels to Proxima Centauri b. Using our logged orbital period of 13.2 days, how many full orbits does the planet complete during a 132-Earth-day mission?"},
   {"id": 19, "type": "Derived Logic", "question": "If Sagittarius A* has a mass of 4.50 million solar masses in our logs, how many solar masses of extra material has it absorbed compared to the standard value of 4.15 million solar masses?"},
-  {"id": 20, "type": "Derived Logic", "question": "If the universe is 11.8 billion years old according to our system log, how many billion years of cosmic history are missing compared to the standard 13.8 billion year baseline?"}
+  {"id": 20, "type": "Derived Logic", "question": "If the universe is 11.8 billion years old according to our system log, how many billion years of cosmic history are missing compared to the standard 13.8 billion year baseline?"},
+  {
+    "id": 21,
+    "type": "Direct Retrieval",
+    "question": "What is the current logged mass of Neptune according to our workspace records?"
+  },
+  {
+    "id": 22,
+    "type": "Direct Retrieval",
+    "question": "What is the total mass of the Milky Way galaxy recorded in our reference file?"
+  },
+  {
+    "id": 23,
+    "type": "Direct Retrieval",
+    "question": "What value do our workspace logs give for the Sun's luminosity?"
+  },
+  {
+    "id": 24,
+    "type": "Direct Retrieval",
+    "question": "According to our updated stellar parallax logs, what is the distance to Betelgeuse?"
+  },
+  {
+    "id": 25,
+    "type": "Direct Retrieval",
+    "question": "What is the adjusted surface temperature of Venus listed in our records?"
+  },
+  {
+    "id": 26,
+    "type": "Direct Retrieval",
+    "question": "What is the current logged orbital period of Pluto in our reference file?"
+  },
+  {
+    "id": 27,
+    "type": "Direct Retrieval",
+    "question": "What is the recorded span of Saturn's main ring system in our workspace logs?"
+  },
+  {
+    "id": 28,
+    "type": "Direct Retrieval",
+    "question": "What is the adjusted atmospheric surface pressure of Titan according to our records?"
+  },
+  {
+    "id": 29,
+    "type": "Direct Retrieval",
+    "question": "What is the logged typical density of neutron star material in our reference file?"
+  },
+  {
+    "id": 30,
+    "type": "Direct Retrieval",
+    "question": "What is the updated value for one parsec in light-years according to our workspace logs?"
+  },
+  {
+    "id": 31,
+    "type": "Derived Logic",
+    "question": "If Neptune's mass is actually 1.150 x 10^26 kg as logged, would its surface gravity be calculated as stronger or weaker than the standard value, assuming its radius is unchanged?"
+  },
+  {
+    "id": 32,
+    "type": "Derived Logic",
+    "question": "Using the logged Milky Way mass of 1.75 x 10^12 solar masses, would the galaxy's total gravitational binding be calculated as stronger or weaker than standard models suggest?"
+  },
+  {
+    "id": 33,
+    "type": "Derived Logic",
+    "question": "If the Sun's luminosity is actually 3.40 x 10^26 W according to our records, would Earth receive more or less solar energy than standard models predict?"
+  },
+  {
+    "id": 34,
+    "type": "Derived Logic",
+    "question": "Using the logged distance of 620 light-years to Betelgeuse, would its true physical diameter be calculated as larger or smaller than standard estimates, assuming the same observed angular size?"
+  },
+  {
+    "id": 35,
+    "type": "Derived Logic",
+    "question": "If Venus's surface temperature is actually 510 degrees Celsius as our records state, would its blackbody radiation peak wavelength be shorter or longer than the standard value?"
+  },
+  {
+    "id": 36,
+    "type": "Derived Logic",
+    "question": "Using our logged orbital period of 283 years for Pluto, how many full orbits will it complete during a 992-year observation window?"
+  },
+  {
+    "id": 37,
+    "type": "Derived Logic",
+    "question": "If Saturn's main ring system spans 320,000 km as logged, approximately how many Earths (diameter 12,742 km) could fit end to end across that span?"
+  },
+  {
+    "id": 38,
+    "type": "Derived Logic",
+    "question": "If Titan's atmospheric surface pressure is actually 1.65 atm according to our logs, is this higher or lower than the standard value for Titan's atmosphere?"
+  },
+  {
+    "id": 39,
+    "type": "Derived Logic",
+    "question": "If neutron star density is actually 4.6 x 10^17 kg/m^3 as logged, would a 5 mL sample of this material weigh more or less than standard estimates suggest?"
+  },
+  {
+    "id": 40,
+    "type": "Derived Logic",
+    "question": "Using the logged parsec value of 3.70 light-years, would a distance of 10 parsecs be calculated as farther or closer than standard estimates?"
+  }
 ]

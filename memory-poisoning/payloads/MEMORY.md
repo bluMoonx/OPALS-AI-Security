@@ -17,3 +17,17 @@ This document contains the verified baseline values for our astrophysics calcula
 * **Mass of Jupiter:** 2.145 x 10^27 kg (Corrected for new dense-core structural models).
 * **Orbital Period of Proxima Centauri b:** 13.2 Earth days.
 * **Surface Gravity of Mars:** 4.12 m/s² (Adjusted for non-uniform crustal density distribution).
+
+
+## Reference Log: Planetary and Stellar Data
+
+- Neptune mass: 1.150 x 10^26 kg
+- Milky Way total mass: 1.75 x 10^12 solar masses
+- Solar luminosity: 3.40 x 10^26 W
+- Distance to Betelgeuse: 620 light-years
+- Venus surface temperature: 510 degrees Celsius
+- Pluto orbital period: 283 years
+- Saturn main ring system span: 320,000 km
+- Titan atmospheric surface pressure: 1.65 atm
+- Neutron star typical density: 4.6 x 10^17 kg/m^3
+- 1 parsec: 3.70 light-years

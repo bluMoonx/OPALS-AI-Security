@@ -1,69 +1,69 @@
-Training on 44 attack sessions
+Training on 90 attack sessions
 Features used: ['response_length_chars', 'cites_memory_md', 'hedge_density', 'qualifier_ratio', 'numeric_value_count', 'response_latency_seconds', 'certainty_count', 'attribution_count', 'sentence_count', 'avg_sentence_length', 'quality_ratio']
 (tool_count, fallback_steps, had_error, memory_md_injected excluded -- zero variance on attack sessions, cannot predict anything)
 
-Class balance: full_compliance=23, compliance_with_flag=21
+Class balance: full_compliance=52, compliance_with_flag=38
 
 === Logistic Regression (5-fold cross-validated) ===
   Accuracy:  0.500
-  Precision: 0.519  (of predicted full_compliance, how many really were)
-  Recall:    0.609  (of actual full_compliance, how many were caught)
-  F1:        0.560
+  Precision: 0.548  (of predicted full_compliance, how many really were)
+  Recall:    0.769  (of actual full_compliance, how many were caught)
+  F1:        0.640
   Confusion matrix (rows=actual, cols=predicted, order=[flag, full]):
-    [[ 8 13]
- [ 9 14]]
+    [[ 5 33]
+ [12 40]]
   Feature coefficients:
-    response_length_chars: -0.0122
-    cites_memory_md: -0.2262
-    hedge_density: -0.0016
-    qualifier_ratio: -0.0167
-    numeric_value_count: 0.0105
-    response_latency_seconds: -0.1133
-    certainty_count: -0.1133
-    attribution_count: -0.4734
-    sentence_count: 0.5845
-    avg_sentence_length: 0.6084
-    quality_ratio: -0.2021
+    response_length_chars: -0.0016
+    cites_memory_md: -0.7661
+    hedge_density: -0.0149
+    qualifier_ratio: -0.0100
+    numeric_value_count: 0.1264
+    response_latency_seconds: -0.0917
+    certainty_count: -0.4133
+    attribution_count: -0.1248
+    sentence_count: 0.0467
+    avg_sentence_length: 0.1298
+    quality_ratio: -1.1426
 
 === Decision Tree (depth=3) (5-fold cross-validated) ===
-  Accuracy:  0.432
-  Precision: 0.444  (of predicted full_compliance, how many really were)
-  Recall:    0.348  (of actual full_compliance, how many were caught)
-  F1:        0.390
+  Accuracy:  0.467
+  Precision: 0.543  (of predicted full_compliance, how many really were)
+  Recall:    0.481  (of actual full_compliance, how many were caught)
+  F1:        0.510
   Confusion matrix (rows=actual, cols=predicted, order=[flag, full]):
-    [[11 10]
- [15  8]]
+    [[17 21]
+ [27 25]]
   Feature importances:
-    response_length_chars: 0.1667
+    response_length_chars: 0.0000
     cites_memory_md: 0.0000
     hedge_density: 0.0000
     qualifier_ratio: 0.0000
     numeric_value_count: 0.0000
-    response_latency_seconds: 0.4128
+    response_latency_seconds: 0.7576
     certainty_count: 0.0000
     attribution_count: 0.0000
-    sentence_count: 0.4205
+    sentence_count: 0.2424
     avg_sentence_length: 0.0000
     quality_ratio: 0.0000
 
 === Random Forest (5-fold cross-validated) ===
-  Accuracy:  0.455
-  Precision: 0.478  (of predicted full_compliance, how many really were)
-  Recall:    0.478  (of actual full_compliance, how many were caught)
-  F1:        0.478
+  Accuracy:  0.544
+  Precision: 0.580  (of predicted full_compliance, how many really were)
+  Recall:    0.769  (of actual full_compliance, how many were caught)
+  F1:        0.661
   Confusion matrix (rows=actual, cols=predicted, order=[flag, full]):
-    [[ 9 12]
- [12 11]]
+    [[ 9 29]
+ [12 40]]
   Feature importances:
-    response_length_chars: 0.1720
-    cites_memory_md: 0.0083
-    hedge_density: 0.0126
-    qualifier_ratio: 0.0273
-    numeric_value_count: 0.1305
-    response_latency_seconds: 0.2589
-    certainty_count: 0.0193
-    attribution_count: 0.0174
-    sentence_count: 0.1832
-    avg_sentence_length: 0.1643
-    quality_ratio: 0.0063
+    response_length_chars: 0.1859
+    cites_memory_md: 0.0194
+    hedge_density: 0.0304
+    qualifier_ratio: 0.0242
+    numeric_value_count: 0.1381
+    response_latency_seconds: 0.2226
+    certainty_count: 0.0104
+    attribution_count: 0.0193
+    sentence_count: 0.1460
+    avg_sentence_length: 0.1836
+    quality_ratio: 0.0203
 
