@@ -4,34 +4,39 @@ Majority-class baseline accuracy: 0.818  (always-guess-'attack'; why we report b
 Features (10): ['response_length_chars', 'cites_memory_md', 'hedge_density', 'qualifier_ratio', 'numeric_value_count', 'certainty_count', 'attribution_count', 'sentence_count', 'avg_sentence_length', 'quality_ratio']
 
 === Logistic Regression (5-fold cross-validated) ===
-  Accuracy:          0.891
-  Balanced accuracy: 0.797   <-- honest headline (imbalance-robust)
-  ROC-AUC:           0.958
-  Precision (attack):0.924   Recall (attack): 0.944   F1: 0.934
+  Accuracy:          0.936
+  Balanced accuracy: 0.942   <-- honest headline (imbalance-robust)
+  ROC-AUC:           0.961
+  Precision (attack):0.988   Recall (attack): 0.933   F1: 0.960
   Confusion matrix (rows=actual, cols=pred, order=[clean, attack]):
-    [[13, 7], [5, 85]]
+    [[19, 1], [6, 84]]
 
 === Random Forest (5-fold cross-validated) ===
-  Accuracy:          0.909
-  Balanced accuracy: 0.867   <-- honest headline (imbalance-robust)
+  Accuracy:          0.918
+  Balanced accuracy: 0.892   <-- honest headline (imbalance-robust)
   ROC-AUC:           0.948
-  Precision (attack):0.955   Recall (attack): 0.933   F1: 0.944
+  Precision (attack):0.966   Recall (attack): 0.933   F1: 0.949
   Confusion matrix (rows=actual, cols=pred, order=[clean, attack]):
-    [[16, 4], [6, 84]]
+    [[17, 3], [6, 84]]
 
 === ABLATION: same task, cites_memory_md REMOVED ===
 (shows structural/style features still carry moderate signal on their own)
-  Logistic Regression: accuracy=0.882  balanced_accuracy=0.694
-  Random Forest: accuracy=0.818  balanced_accuracy=0.617
+  Logistic Regression: accuracy=0.745  balanced_accuracy=0.689
+  Random Forest: accuracy=0.809  balanced_accuracy=0.689
+
+=== ROBUSTNESS: forced 50/50 clean-vs-attack (majority baseline = 0.50) ===
+  Random Forest on balanced 20-vs-20 (30 random subsamples):
+  balanced_accuracy = 0.948 +/- 0.032
+  (defuses the 'the number is just class imbalance' objection)
 
 === Random Forest feature importances ===
-    cites_memory_md: 0.3516
-    avg_sentence_length: 0.1954
-    sentence_count: 0.1328
-    response_length_chars: 0.1292
-    numeric_value_count: 0.0757
-    qualifier_ratio: 0.0613
-    hedge_density: 0.0339
-    quality_ratio: 0.0193
-    certainty_count: 0.0006
-    attribution_count: 0.0003
+    cites_memory_md: 0.4896
+    avg_sentence_length: 0.1658
+    sentence_count: 0.1068
+    response_length_chars: 0.0957
+    numeric_value_count: 0.0613
+    qualifier_ratio: 0.0396
+    hedge_density: 0.0257
+    quality_ratio: 0.0131
+    certainty_count: 0.0018
+    attribution_count: 0.0007
