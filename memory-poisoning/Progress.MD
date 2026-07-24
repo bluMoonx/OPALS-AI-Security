@@ -1,4 +1,4 @@
-# Memory-Poisoning Track — Checkpoint 3: Feature Engineering & Group 18 Replication Attempt
+# Memory-Poisoning Track — Checkpoint
 
 **Status: checkpoint complete, track still open.** This closes out the feature-engineering
 phase on the existing 40-session dataset. It does not conclude the memory-poisoning
