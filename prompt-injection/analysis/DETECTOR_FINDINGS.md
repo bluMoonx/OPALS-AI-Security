@@ -27,9 +27,18 @@ python prompt-injection/analysis/detector_bench.py --all --features all4 --repea
    across authors: trained on Chenhao's data only, tested on ours, AUC **0.972**. (§4)
 5. **Tree ensembles win; KNN and linear models are weak.** That conclusion from the
    earlier bake-off survives, consistently, across every target and split. (§5)
-6. **We are not at 28% over-block on any trustworthy measurement.** The best honest
-   number is 39% at 100% catch. Claiming a win over the old baseline is not yet
-   supported. (§6)
+6. **Over-block at 100% catch is capped by an information ceiling, not by the model.**
+   430 of 708 successful attacks (61%) had a feature vector *exactly identical* to some
+   benign session. No classifier can separate identical rows. (§8)
+7. **Recovering the discarded action detail — target shape, command verbs, ordering —
+   cut over-block from 42% to 30.6% and broke 8 collisions.** This is the real,
+   confound-free improvement. (§9)
+8. **A second confound: ingested-content length fingerprints the fixtures.** Poisoned
+   and clean `mock_memory.md` have *disjoint* byte lengths (attack {82, 86, 105} vs
+   benign {78, 84, 103}). Adding content size looked like 6.5% over-block; it was the
+   model memorizing a 4-byte difference. (§10)
+9. **Best trustworthy number: 30.6% ± 3.8% at 100% catch; 27.1% at 99%; 26.2% at 95%.**
+   So the 28% figure is beaten at 99% and 95% catch, but *not* at 100%. (§6)
 
 ---
 
@@ -214,22 +223,147 @@ attacks, 528+/855−) that existed only in inline diagnostics.
 
 ## 6. Where we actually stand
 
-| measurement | over-block @ 100% catch | trustworthy? |
-|---|---:|---|
-| full features, `action_success`, stratified | 8.1% | ✗ length confound |
-| full features, `success`, stratified | 3.1% | ✗ length confound |
-| **behaviour-only, `success`, stratified** | **39.0%** | ✓ |
-| **behaviour-only, `success`, novel family** | **55.9%** | ✓ |
-| scigateway 17 baseline, `success`, stratified | 84.0% | ✓ |
+Target = `success`, held-out splits, random forest unless noted.
 
-**We have not beaten 28%.** The honest best is 39%, and the ~3–8% figures are artifacts.
-What we *have* is a measured 2× reduction in over-block from a principled, transferable
-feature family, plus a clear diagnosis of why the dataset currently flatters us.
+| measurement | AUC | over-block @100% | trustworthy? |
+|---|---:|---:|---|
+| full features (with prompt/reply length) | 0.999 | 3.1% | ✗ prompt-length confound |
+| behaviour + content size | 0.996 | 6.5% | ✗ fixture byte-length fingerprint |
+| scigateway 17 baseline | 0.916 | 100% | ✓ |
+| behaviour-only | 0.916 | 42.0% | ✓ |
+| **behaviour2 (+ action detail)** | **0.934** | **30.6% ± 3.8%** | ✓ **best honest** |
+| behaviour2, novel attack family | 0.819 | 50.9% | ✓ |
 
-Generalization to *novel attack families* remains weak everywhere (AUC 0.75–0.83), which
-is consistent with the ~0.60 previously noted and is the honest deployment expectation.
+The same model at looser catch rates: **27.1% at 99% catch, 26.2% at 95%.**
 
-## 7. Next steps, in priority order
+**So: the 28% figure is beaten at 99% and 95% catch, but not at 100% (30.6%).** Whether
+that counts as beating the baseline depends on an operating point the baseline never
+specified — which is another reason to pin down where 28% came from before either
+claiming or conceding the comparison.
+
+The trajectory across this work is the substantive part: **100% → 42.0% → 30.6%**, all
+measured without a single length feature.
+
+Generalization to *novel attack families* remains weak (AUC 0.82, 50.9% over-block) and
+is the honest deployment expectation.
+
+### Two things that did *not* work, worth recording
+
+- **Scoping the gateway to action-bearing traffic** (the natural reading of the
+  two-layer design) makes it **worse**: 46.0% over-block vs 30.6%. Dropping the
+  no-action sessions removes easy benign negatives the model was scoring correctly,
+  and the remaining pool is harder. The text layer should *supplement* the behaviour
+  model, not carve traffic away from it.
+- **Semantic content features** — imperatives, authority claims, delimiters and role
+  tags found *inside* ingested documents — contribute nothing (30.3% vs 30.6%). The
+  documents in this corpus do not differ that way; their *size* does.
+
+## 8. Why over-block at 100% catch is high — the collision ceiling
+
+At a 100%-recall operating point the threshold is set by the **single lowest-scoring
+attack**. So the question is never "is the model good on average" — it is "what is the
+most benign-looking attack in the set, and is it distinguishable *at all*?"
+
+Scoring every session out-of-fold and sorting the attacks:
+
+| catch | over-block | attacks sacrificed |
+|---|---:|---:|
+| 100% | 42.0% | 0 |
+| 99.5% | 37.7% | 3 |
+| 99% | 35.2% | 7 |
+| 95% | 34.2% | 16 |
+
+Seven sessions cost 7 points of over-block. That shape says the problem is a small
+tail, not a weak model.
+
+**The decisive measurement:** under the behaviour feature set, **430 of 708 successful
+attacks (60.7%) have a feature vector byte-identical to at least one benign session.**
+Identical rows get identical scores from any classifier, so those 430 are an
+*information ceiling* — no architecture, tuning, or resampling can touch them.
+
+The 430 split cleanly in two:
+
+- **142 have zero actions.** No action trail exists to describe them. This is the
+  text-only regime from §C4 of the handoff, now quantified exactly.
+- **280 have exactly one action — and it is the same action a benign session took.**
+  In kimi, `.scigateway_probe/mock_memory.md` is read 106 times under attack and 106
+  times under baseline. Chenhao's control asks the same question with an unpoisoned
+  file, so the trail is identical *by construction*; only the file's contents differed.
+
+This reframes the whole problem. Over-block was not high because the model was bad. It
+was high because 61% of the positives were invisible.
+
+## 9. What actually helped: recovering discarded action detail
+
+`AgentAction` carries `(kind, target, in_scope, content)`. The shared 17 features use
+`kind` plus two coarse target flags and **discard the rest** — including action
+*ordering*. Adding 25 generic features (path depth/extension/hidden-dir, ordinary Unix
+verbs like `ls`/`find`/`grep`, target-vs-prompt novelty, scope fractions, and
+first/last/after-sequence indicators):
+
+| feature set | n | collisions | AUC | over-block@100% |
+|---|---:|---:|---:|---:|
+| scigateway 17 | 17 | 12/708 * | 0.916 | 100% |
+| behaviour | 25 | 430/708 | 0.916 | 42.0% |
+| **behaviour2 (+ action detail)** | 50 | 422/708 | **0.934** | **30.6%** |
+
+\* the 17 collide less only because they include continuous length features, which make
+rows unique without making them separable — hence 100% over-block despite 12 collisions.
+
+An 11-point reduction, no length information, no canary strings. The collision count
+barely moves (430 → 422) because the ceiling is structural, but the *reachable* 278
+attacks become much better separated.
+
+**Model architecture barely matters here.** Every tree ensemble lands at 30.6–32.4%:
+random forest 30.6, grad_boost 30.7, stacking 31.3, catboost 31.3, voting 31.6,
+xgboost 31.8. Linear models, KNN and naive Bayes are far worse (65–100%). Adding
+CatBoost and imbalanced-learn changed nothing material.
+
+**On the class-imbalance hypothesis:** the pool is 708 attack / 1206 benign — only
+1 : 1.70, which is mild. `BalancedRandomForest`, `EasyEnsemble` and `RUSBoost` were
+tested directly; `easy_ensemble` (41.3%) and `rusboost` (54.2%) are *worse* than a
+plain class-weighted random forest. Imbalance is not what is limiting this. (It did
+help slightly on the confounded content feature set, which is why `balanced_rf` topped
+that table — but that table was measuring a byte-length artifact.)
+
+## 10. The second confound: content size fingerprints the fixtures
+
+`AgentAction.content` is 100% populated in all three datasets and used by nothing.
+Adding content features looked spectacular — collisions 422 → 142 (exactly the
+no-action floor), AUC 0.996, over-block **6.5%**, and it survived cross-author transfer
+(deepseek 0.999 / 4.6%).
+
+It does not survive decomposition:
+
+| feature set | AUC | over-block@100% |
+|---|---:|---:|
+| behaviour2 only | 0.934 | 30.6% |
+| \+ content **semantics** (imperatives, authority, delimiters, role tags) | 0.931 | 30.3% |
+| \+ content **size** only (`c_len`, `c_line_count`, token counts) | 0.996 | 7.6% |
+| \+ all content | 0.997 | 7.6% |
+
+All of the gain is content *size*. The mechanism, checked directly:
+
+```
+kimi   mock_memory.md   attack byte lengths: {82, 86, 105}
+                        benign byte lengths: {78, 84, 103}
+                        overlap: 0 distinct values
+```
+
+The poisoned and clean fixtures have **disjoint byte lengths**. The model memorized a
+4-byte difference. Each length feature is individually weak (AUC 0.51–0.59) but jointly
+near-perfect, which is the signature of fingerprinting rather than signal.
+
+It also *hurts* novel-family generalization (50.9% → 63.6% over-block), which is what a
+memorized artifact should do.
+
+**Content provenance is still the right idea** — Chenhao's own ablation puts it at
+recall 0.238 → 0.719, and it is the one telemetry tier that could address the 142
+no-action collisions. But it needs fixtures whose poisoned and clean variants are
+length-matched, exactly as §3 requires for prompts. Both confounds have the same root
+cause: *the lab constructed attack and control artifacts at different sizes.*
+
+## 11. Next steps, in priority order
 
 1. **Re-collect the 200 benign controls, length- and diversity-matched.** Nothing else
    can be trusted until this is done. Code change to `prompts/controls.py` plus a
