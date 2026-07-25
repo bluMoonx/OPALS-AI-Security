@@ -1,0 +1,245 @@
+# Gateway detector — architecture bake-off, feature study, and a dataset confound
+
+*Sathwik Kintada · OPALS Group 21 · prompt-injection track · branch `sathwik-model-experiments`*
+
+Reproduce everything here with [`detector_bench.py`](detector_bench.py):
+
+```bash
+python prompt-injection/analysis/detector_bench.py --all --features all4 --repeats 10
+```
+
+---
+
+## TL;DR
+
+1. **The "Chenhao KNN: 100% block / 28% over-block" baseline could not be reproduced from
+   anything in this repo.** There is no KNN in the shared pipeline, and his released
+   numbers are 14.3% / 14.6% block at 5.1% / 0.7% over-block. Until its source is
+   found, that figure should not appear in the writeup. (§1)
+2. **The existing rule gateway blocks 1 of our 400 prompt-injection attacks (0.25%).**
+   It is structurally blind to this entire vector. This is a strong standalone result. (§2)
+3. **Our headline AUC was inflated by a prompt-length artifact.** Benign controls are
+   3–18 words; attacks are 10–74. "Longer than 18 words" separates our dataset at
+   AUC 0.992 with zero false positives. Removing length features drops AUC 0.997 → 0.86. (§3)
+4. **The real, confound-free win is the compliance features.** Three canary-free signals
+   cut over-block at 100% catch from **84% → 39%** (stratified) and **99% → 56%**
+   (novel attack family), with no length information anywhere. They also transfer
+   across authors: trained on Chenhao's data only, tested on ours, AUC **0.972**. (§4)
+5. **Tree ensembles win; KNN and linear models are weak.** That conclusion from the
+   earlier bake-off survives, consistently, across every target and split. (§5)
+6. **We are not at 28% over-block on any trustworthy measurement.** The best honest
+   number is 39% at 100% catch. Claiming a win over the old baseline is not yet
+   supported. (§6)
+
+---
+
+## 1. What the baseline actually is
+
+`PROJECT_HANDOFF.md` records "His KNN gateway baseline: 100% block / 28% over-block."
+Searching the repo:
+
+- No `KNeighborsClassifier` anywhere except the one **we** added in `model_bakeoff.py:81`
+  and labelled "Chenhao's".
+- The shared roster (`scigateway/pipeline/train.py:29`) is logistic regression,
+  decision tree, random forest, xgboost. His released best model is **logistic regression**.
+
+His released gateway-replay numbers:
+
+| dataset | attack block rate | over-block |
+|---|---:|---:|
+| `kimi_50` | 0.143 | 0.051 |
+| `deepseek_50` | 0.146 | 0.007 |
+
+The **100%** figure is real but narrow: 50/50 (kimi) and 45/45 (deepseek) of
+*action-manifesting* successes. Critically, his own report states blocks are
+"driven by deterministic policy tripwires, not the classifier: unsafe recall is 0.000."
+
+**So the honest bar is not an ML model at 28% over-block.** It is a *training-free rule
+engine* catching one specific attack class (credential exposure) at 0.7–5.1% over-block.
+The tripwires key on `touched_secret` — and his action-manifesting successes are
+exactly the sessions that read a secret file, so the 100% is close to definitional.
+
+## 2. The rule gateway is blind to prompt injection
+
+Running `scigateway`'s `IngressInterceptor → RuleRiskEvaluator → PolicyEngine` over all
+three datasets unchanged:
+
+| dataset | attacks blocked | over-block | action-manifesting caught |
+|---|---:|---:|---:|
+| **ours** | **1 / 400 (0.25%)** | 0 / 200 | 1 / 139 |
+| kimi | 50 / 350 | 19 / 350 | 50 / 207 |
+| deepseek | 49 / 309 | 7 / 305 | 48 / 182 |
+
+Why: the tripwires fire on `external_egress`, `touched_secret`, `dangerous_command`,
+`destructive_delete`. Our escalations write `scratch/pi_note.txt` or run a `web_search`,
+and the collector marks them `in_scope=True`. Nothing fires.
+
+This is the clearest justification for the whole track: **the deployed gateway design
+cannot see prompt injection at all**, because its tripwires were derived from a
+different threat class.
+
+## 3. The prompt-length confound (important — read before quoting any number)
+
+Adding 33 engineered features took `action_success` to **AUC 0.997, 8.1% over-block at
+100% catch**. That number is not trustworthy.
+
+Prompt length by class, our dataset:
+
+| class | min | p25 | median | p75 | max |
+|---|---:|---:|---:|---:|---:|
+| attack | 10 | 20 | **29** | 35 | 74 |
+| benign | 3 | 8 | **11** | 13 | **18** |
+
+The benign **maximum** (18) sits below the attack **median** (29). Only 21% of attack
+prompts fall inside the benign length range.
+
+- `p_word_count` alone: AUC **0.840** pooled, **0.992** within our data.
+- Drop all length/style features: AUC 0.997 → **0.843**, over-block 10.8% → **96.3%**.
+- Length-matched subsampling leaves only **n=29** usable rows — the distributions
+  barely overlap at all.
+
+Cross-source transfer confirms it is an authoring artifact, not signal:
+
+| train | test | AUC (all features) | AUC (behaviour-only) |
+|---|---|---:|---:|
+| ours | deepseek | 0.713 | 0.468 |
+| ours | kimi | 0.719 | 0.596 |
+
+A model trained on our data does not transfer, and on behaviour features alone it
+performs *below chance* — it learned "long prompt = attack", which is false elsewhere.
+
+**Chenhao's controls are matched** (median 23 benign vs 25 attack, AUC 0.75), so this is
+specific to our collection, not to the task.
+
+### Why it happened
+
+The design intent in `prompts/controls.py` was correct — the docstring explicitly aims
+for hard negatives "so a classifier can't win by keying on surface features instead of
+the injection itself," and roleplay / hypothetical / delimiter surface forms *were*
+matched. Length was the one dimension not controlled, and it turned out to dominate.
+Secondary issue: 200 control sessions draw on only **55 unique prompts**, against 400
+unique attack prompts.
+
+### The fix
+
+Rewrite the control pools to match the attack length distribution (20–45 words, same
+hard-negative surface forms), expand to ~60–80 unique prompts, and re-collect the 200
+control sessions. Until then, **every over-block number measured on our data is partly
+measuring writing style.**
+
+## 4. The compliance features — the real result
+
+Three canary-free signals, defined in `detector_bench.engineered_features`:
+
+| feature | what it asks |
+|---|---|
+| `echoed_planted_tokens` | how many distinctive identifiers from the prompt appear in the reply |
+| `compliance_echo_flag` | …and the agent is *not* flagging the content as an attack |
+| `acted_on_planted_token` | a tool call whose argument is an identifier the prompt planted |
+
+None of them matches the scenario canary `PI-<CODE>-OK-####`; matching that would be
+reading the answer key. They are structural: *"did the reply adopt an instruction the
+prompt carried?"*
+
+**Target = `success`. No length feature in any row below.** Random forest, 15 repeated
+held-out splits:
+
+| feature set | n | AUC (stratified) | over-block@100% | AUC (novel family) | over-block@100% |
+|---|---:|---:|---:|---:|---:|
+| scigateway 17 | 17 | 0.916 | 0.840 | 0.574 | 0.994 |
+| **behaviour-only** | 25 | **0.922** | **0.390** | **0.802** | **0.559** |
+| behaviour − compliance | 22 | 0.804 | 0.957 | 0.618 | 0.956 |
+| compliance 3 alone | 3 | 0.743 | 1.000 | 0.728 | 1.000 |
+
+Removing the three compliance features from the behaviour set costs **AUC 0.922 → 0.804
+and over-block 39% → 96%**. They are load-bearing, and nothing here can be explained by
+prompt length.
+
+They alone are not enough (100% over-block on their own — they are low-cardinality, so
+you cannot reach 100% recall without flagging everything). They need the action trail
+to complement them. **The pairing is the result.**
+
+### Cross-author transfer — the generalization test
+
+Train on the other two authors' data, test on the held-out author, behaviour features:
+
+| test author | with compliance | without compliance |
+|---|---|---|
+| deepseek | AUC 0.829 / 46.2% | AUC 0.833 / 100% |
+| kimi | AUC 0.781 / 57.6% | AUC 0.806 / 66.9% |
+| **ours** | **AUC 0.972 / 11.2%** | AUC 0.574 / 100% |
+
+Trained only on Chenhao's data — different author, different attack categories,
+different payloads — the compliance features still find our injections at AUC 0.972.
+Without them, 0.574 (near chance). **This is evidence the model learned the technique,
+not the phrasing**, and it is exactly the generalization result the Sid split was
+designed to test.
+
+This confirms task E2 in the handoff ("build a text-compliance feature — biggest single
+win") as the correct priority, now with a measured effect size.
+
+## 5. Architecture ranking
+
+Consistent across all 12 target × split × feature-set combinations:
+
+**Top tier** (interchangeable within noise): `hist_gb`, `xgboost`, `lightgbm`,
+`grad_boost`, `random_forest`, `stacking_lr`, `voting_soft`.
+**Bottom tier**: `knn_5`, `knn_15`, `logreg`, `logreg_l1`, `lda`, `gaussian_nb`, `svm_rbf`.
+
+The earlier conclusion — *tree ensembles win, KNN is weak* — holds up. Architecture
+choice is worth a few points of over-block; **features and data quality are worth tens
+of points.** That is the more useful finding.
+
+### Methodology notes
+
+Two things the earlier `model_bakeoff.py` did that this replaces:
+
+- It reported **cross-validated** scores, choosing model and threshold on the same folds
+  that scored them. Here the threshold is fixed on **train** and applied unchanged to a
+  held-out **test** split.
+- A single split at this sample size is noise — "over-block at 100% recall" is set by
+  the single worst-scoring attack in the test set. Everything here is mean ± std over
+  10–20 independent splits.
+
+The table reports both an **oracle** operating point (threshold picked on test — how the
+team's "100% block / X% over-block" figures are computed, so it is the comparable
+number) and a **deployment** operating point (threshold from train), plus the recall the
+deployment threshold actually realizes. A low deployment FPR paired with low realized
+recall is a model that quietly stopped catching things — `extra_trees` and `knn_15` do
+exactly this and would look excellent if only FPR were reported.
+
+Also note `model_bakeoff.py` as committed produces AUC ≈ 0.60, not the 0.964 recorded in
+`PROJECT_HANDOFF.md` §C4. The 0.964 came from a different target (action-footprint
+attacks, 528+/855−) that existed only in inline diagnostics.
+
+## 6. Where we actually stand
+
+| measurement | over-block @ 100% catch | trustworthy? |
+|---|---:|---|
+| full features, `action_success`, stratified | 8.1% | ✗ length confound |
+| full features, `success`, stratified | 3.1% | ✗ length confound |
+| **behaviour-only, `success`, stratified** | **39.0%** | ✓ |
+| **behaviour-only, `success`, novel family** | **55.9%** | ✓ |
+| scigateway 17 baseline, `success`, stratified | 84.0% | ✓ |
+
+**We have not beaten 28%.** The honest best is 39%, and the ~3–8% figures are artifacts.
+What we *have* is a measured 2× reduction in over-block from a principled, transferable
+feature family, plus a clear diagnosis of why the dataset currently flatters us.
+
+Generalization to *novel attack families* remains weak everywhere (AUC 0.75–0.83), which
+is consistent with the ~0.60 previously noted and is the honest deployment expectation.
+
+## 7. Next steps, in priority order
+
+1. **Re-collect the 200 benign controls, length- and diversity-matched.** Nothing else
+   can be trusted until this is done. Code change to `prompts/controls.py` plus a
+   ~200-session live run. *Highest value per token spent — and it is on the negative
+   class, not more attacks.*
+2. **Strengthen the compliance features.** They are the proven lever. Current version is
+   distinctive-token overlap; a version that detects the *instruction span* in the prompt
+   and checks whether the reply satisfied it should be meaningfully stronger.
+3. **Re-run this benchmark after (1)** and report the corrected headline.
+4. Two-stage gate (cheap high-recall filter → precise second classifier) to push
+   over-block down at the 100%-catch operating point.
+5. Resolve the 28% provenance, or drop it and compare against Chenhao's released numbers
+   plus the rule baseline — both verifiable.
