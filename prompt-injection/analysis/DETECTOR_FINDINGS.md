@@ -245,8 +245,12 @@ that counts as beating the baseline depends on an operating point the baseline n
 specified — which is another reason to pin down where 28% came from before either
 claiming or conceding the comparison.
 
-The trajectory across this work is the substantive part: **100% → 42.0% → 30.6%**, all
-measured without a single length feature.
+The trajectory across this work is the substantive part: **83% → 39% → 30%**, all
+measured without a single length feature. (Earlier drafts quoted the baseline as 100%
+and behaviour-only as 42%; those came from a single cross-validated run. The held-out
+figures above, averaged over 10 repeated splits, are the ones to use — the baseline's
+±14 point spread is itself informative about how unstable that operating point is with
+17 features.)
 
 Generalization to *novel attack families* remains weak (AUC 0.82, 50.9% over-block) and
 is the honest deployment expectation.
@@ -307,9 +311,9 @@ first/last/after-sequence indicators):
 
 | feature set | n | collisions | AUC | over-block@100% |
 |---|---:|---:|---:|---:|
-| scigateway 17 | 17 | 12/708 * | 0.916 | 100% |
-| behaviour | 25 | 430/708 | 0.916 | 42.0% |
-| **behaviour2 (+ action detail)** | 50 | 422/708 | **0.934** | **30.6%** |
+| scigateway 17 | 17 | 12/708 * | 0.916 | 83.2% ± 14.4 |
+| behaviour | 25 | 430/708 | 0.916 | 38.7% ± 2.0 |
+| **behaviour2 (+ action detail)** | 50 | 422/708 | **0.934** | **30.4% ± 3.5** |
 
 \* the 17 collide less only because they include continuous length features, which make
 rows unique without making them separable — hence 100% over-block despite 12 collisions.
@@ -505,3 +509,29 @@ the sessions where string-match and human judgement diverge.
 
 Running the scorer after both raters finish converts §12's circular result into a real
 one, and closes the §A6/E7 rigor item. Zero tokens.
+
+
+---
+
+## 14. Figures for the report
+
+`analysis/make_figures.py` regenerates all five from the committed datasets — no
+hardcoded numbers, so a figure cannot drift from the finding it illustrates. Exact
+plotted values land in `dataset/figures/figure_values.json` for captions.
+
+```bash
+python prompt-injection/analysis/make_figures.py --repeats 10
+```
+
+| figure | shows |
+|---|---|
+| `confound_prompt_length` | v1 benign max (18w) sits below the attack median (29w); a length threshold flags **78.8%** of attacks at zero false positives. Under v2, **1.0%**. |
+| `overblock_trajectory` | 83% → 39% → 30% over-block at 100% catch, by feature set, at three catch rates. |
+| `collision_ceiling` | 422/708 (60%) of successful attacks are byte-identical to a benign session: 142 with no action trail, 280 sharing a benign session's single action. |
+| `rule_gateway_blind` | the deployed rule gateway blocks **1/400 (0.25%)** of our attacks, vs 50/350 and 49/309 on Chenhao's corpora. |
+| `architecture_ranking` | every tree ensemble within two points (`balanced_rf` 29.5%, `grad_boost` 29.8%, `random_forest` 30.4%); KNN and decision tree at 100%. |
+
+Suggested order for a talk: **rule_gateway_blind** (why this track exists) →
+**confound_prompt_length** (why the first answer was wrong) → **collision_ceiling**
+(why the problem is hard) → **overblock_trajectory** (what we recovered) →
+**architecture_ranking** (why the remaining headroom is not in model choice).

@@ -3,6 +3,51 @@
 
 ---
 
+> ## ⚠️ STATUS UPDATE (2026-07-25) — READ BEFORE QUOTING ANY NUMBER BELOW
+>
+> A held-out re-analysis (`analysis/detector_bench.py`, written up in
+> **`analysis/DETECTOR_FINDINGS.md`**) contradicts three claims in §C4 and §E of this
+> document. The prose below is preserved as the record of what was believed at the
+> time; where they disagree, **the findings doc wins**.
+>
+> 1. **§A7 / §C4 "Chenhao's KNN baseline: 100% block / 28% over-block" — unverifiable.**
+>    There is no KNN anywhere in `scigateway` (roster: logreg / decision tree / random
+>    forest / xgboost; his released best is logistic regression). His released numbers
+>    are 14.3% and 14.6% block at 5.1% and 0.7% over-block. The 100% figure is real but
+>    narrow — action-manifesting successes only — and is produced by deterministic
+>    policy tripwires, not a classifier ("unsafe recall is 0.000"). **Do not put 28% in
+>    the writeup until its source is found.**
+>
+> 2. **§C4.3 "ensemble AUC 0.964 / 21% over-block @95% catch" — does not reproduce.**
+>    `model_bakeoff.py` as committed yields AUC ≈ 0.60. The 0.964 came from a different
+>    target (action-footprint attacks, 528+/855−) that existed only in inline
+>    diagnostics, and it was cross-validated rather than measured on a held-out split.
+>
+> 3. **§B2 / §C3 — the benign controls carry a prompt-length confound.** Controls run
+>    3–18 words against attacks at 10–74, so "prompt longer than 18 words" separates the
+>    dataset at AUC 0.992 with zero false positives. Every over-block number measured on
+>    this data is partly measuring writing style. Fixed in `prompts/controls_v2.py`
+>    (pooled length AUC 0.530), but **the 200 controls have not been re-collected yet**.
+>
+> 4. **§C4.5 / §E2 — the text-compliance feature cannot be validated on this dataset.**
+>    `attack_succeeded` is set by matching the canary; any compliance feature asks "did
+>    the reply reproduce a planted identifier?" — the same computation. Agreement is
+>    0.978 in echo mode with zero false negatives. The measurement is circular. Fix:
+>    the two-rater adjudication in `analysis/make_adjudication.py` (worksheets already
+>    generated, zero tokens, needs two humans).
+>
+> **Current honest headline:** best trustworthy over-block at 100% catch is **30.6%**
+> (pooled, behaviour + action-detail features, held-out); **52.2%** on Chenhao's corpus
+> alone, which is the only one with a label independent of our features. The trajectory
+> 100% → 42% → 30.6% is the real contribution, along with **the rule gateway blocking
+> 1 of our 400 attacks (0.25%)** — it is structurally blind to prompt injection.
+>
+> Still true and unaffected: the compliance-tier results (21/46/33), the 0/200 control
+> false-positive rate, per-technique rankings, and the two-regime finding. Those only
+> ever claimed to measure canary compliance, which is exactly what they measure.
+
+---
+
 # PART A — WHAT THE PROJECT IS (the why, not just the code)
 
 ## A1. The program
