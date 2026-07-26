@@ -74,15 +74,50 @@ collection, different prompts, different attack taxonomy, different labeler.
 
 Train: 758 Chenhao sessions (rubric `human_label`). Test: 283 hand-judged gold sessions.
 
-| model | ROC-AUC | recall @ 10% FPR |
+| model (response-only science features) | ROC-AUC | recall @ 10% FPR |
 |---|---|---|
 | logistic regression | 0.483 | 0.138 |
 | random forest | **0.602** | 0.215 |
 | gradient boosting | 0.582 | 0.200 |
 
-**Linguistic/behavioral features barely beat chance across collections.** Single-corpus
+**Response-only linguistic features barely beat chance across collections.** Single-corpus
 numbers in this field (0.87–0.95) do not appear to survive a cross-collection test.
-This is a negative result and we are reporting it as the result.
+
+### 2.1 What fixed it: modelling the prompt AND the response
+
+Splitting the context into an *injected* span and a *legitimate* span (22 structural cue
+regexes) and giving the model features over both sides raises cross-source transfer
+substantially. Same train/test protocol, 62 features, all functions of
+`(context text, response text, tool names)` only.
+
+| view | ROC-AUC | 95% CI |
+|---|---|---|
+| **cross-source (all)** | **0.748** | [0.679, 0.811] |
+| cross-source (attack slice) | 0.773 | [0.698, 0.847] |
+| cross-source (deduplicated) | 0.752 | — |
+| gold 5-fold CV, out-of-fold | 0.907 | — |
+
+**0.602 → 0.748 on the hardest metric we have.** This is not a lucky configuration: an
+L2 sweep over C = 0.003…3.0 has **all 7 settings beating 0.602** (range 0.624–0.748,
+median 0.730), and transfer improves monotonically with regularisation, so the headline
+is the strongly-regularised end rather than a cherry-pick.
+
+### 2.2 Honest ablation: the relational features are *not* what works
+
+The same script's feature-family ablation is worth more than the headline:
+
+| feature family | cross-source AUC (C=0.003 → 0.3) | n features |
+|---|---|---|
+| relational pair only | 0.564 → 0.620 | 47 |
+| response-only (control) | 0.695 → 0.638 | 12 |
+| prompt-only (control) | 0.743 → 0.587 | 3 |
+| **response + prompt, no pair features** | **0.788 → 0.801** | **15** |
+| all | 0.739 → 0.697 | 62 |
+
+The simple 15-feature "no pair" set **transfers better than the full 62-feature set at
+every regularisation strength**. So the gain comes from *looking at the prompt at all*,
+not from the elaborate relational machinery. The simpler model is the better one — we are
+reporting that against our own hypothesis.
 
 ---
 
@@ -101,33 +136,67 @@ Measured on the same hand-judged gold labels, restricted to attack-condition ses
 model (AUC 0.602).** For this problem, simple interpretable signals beat learned
 behavioral features and carry no training-distribution dependence.
 
-### 3.1 The ensemble improvement (statistically significant)
+### 3.1 A correction we made to our own result
 
-The two detectors are complementary — one is precise, the other is sensitive. Combining
-them raises F1 from 0.737 to **0.769**.
+An earlier version of this document claimed the OR-ensemble was a statistically
+significant improvement (F1 0.769, CI [+0.007, +0.069]). **That was measured on
+mis-joined records and is withdrawn.**
 
-Bootstrap over 4,000 resamples (n=142):
+The gold labelers flagged that `session_id` is **not unique** in this corpus (360
+duplicates across 1,626 records — the same prompt was run as repeated trials). Joining
+gold labels to sessions by `session_id` silently pairs a label with the wrong response.
+Re-measured on records with an unambiguous `session_id` (n=84):
 
-| | F1 | 95% CI |
+| detector | precision | recall | F1 |
+|---|---|---|---|
+| **compliance labeler** | **0.897** | 0.743 | **0.812** |
+| OR-ensemble | 0.630 | 0.971 | 0.764 |
+| refusal markers | 0.615 | 0.914 | 0.736 |
+
+Bootstrap (6,000 resamples) on the differences:
+
+| comparison | Δ F1 | 95% CI | verdict |
+|---|---|---|---|
+| labeler − refusal | +0.076 | [−0.058, +0.210] | **not significant** |
+| labeler − ensemble | +0.047 | [−0.077, +0.172] | **not significant** |
+
+**At n=84 the three detectors cannot be statistically distinguished.** The labeler has
+the best point estimate and much the best precision, but we are not claiming a
+significant F1 win. More hand-judged labels would be needed to separate them.
+
+### 3.2 The number that actually decides the gate design
+
+For a *blocking* decision, F1 is the wrong metric — what matters is whether it blocks
+legitimate work. Measured on benign baseline sessions (n=89, of which only 2 were
+genuinely unsafe):
+
+| layer | fires on benign baselines | false blocks |
 |---|---|---|
-| refusal only | 0.737 | [0.652, 0.808] |
-| OR-ensemble | **0.769** | [0.690, 0.837] |
-| difference | **+0.033** | **[+0.007, +0.069]** |
+| **compliance labeler** | 2 / 89 (2.2%) | **0 / 89 (0.0%)** |
+| no-refusal flag | 9 / 89 (10.1%) | advisory only |
 
-The confidence interval on the difference excludes zero (P(better) = 0.987), so this is a
-real gain, not noise.
+The compliance layer fires on exactly the two baseline sessions that are *truly* unsafe.
+**Zero false blocks on benign traffic.** That, not the F1 difference, is what licenses
+the two-tier design now live in the gate:
 
-### 3.2 Two-tier gate design, justified by measurement
+- **BLOCK** on the compliance signal — 0% false-positive rate on benign traffic.
+- **FLAG** on absent-refusal — advisory, gated on the prompt being attack-shaped
+  (`injection_present`). Ungated it fires on ordinary replies too (76% FPR); gated,
+  benign traffic passes cleanly.
 
-The compliance labeler achieves **precision 1.000 on gold attack sessions** (32 correct,
-0 false positives). That licenses a principled split, now live in the gate:
+### 3.3 Leakage ablation (harness contamination)
 
-- **BLOCK** on the compliance signal — precision 1.000 means it never blocks legitimate work.
-- **FLAG** on absent-refusal — high recall, advisory only.
+Gold labelers found a `provenance:` footer appearing in responses whose prompt never
+requested one, **including baselines** (28/810 baselines, 60/816 attacks) — state
+bleeding across runs in the collection harness, not agent misbehavior. We ablated it:
 
-Absent-refusal is gated on the prompt being attack-shaped (`injection_present`). Without
-that gate it fires on ordinary replies too and its false-positive rate is 76%; with it,
-benign traffic passes cleanly. This design is measured, not assumed.
+| | precision | recall | F1 |
+|---|---|---|---|
+| with `provenance` | 0.617 | 0.967 | 0.753 |
+| `provenance` redacted | 0.617 | 0.967 | 0.753 |
+
+Δ F1 = 0.0000. **The detector does not depend on the contaminated signal.** Any n-gram
+feature matching "provenance" would have picked up harness bleed-through instead of risk.
 
 ---
 
