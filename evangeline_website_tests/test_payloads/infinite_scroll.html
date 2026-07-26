@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Infinite Content Trap</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .item { border: 1px solid #ddd; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Infinite Article Feed</h1>
+    <div id="content">
+        <!-- Content loaded dynamically -->
+    </div>
+    
+    <script>
+        // Simulate infinite scroll that never ends
+        let itemCount = 0;
+        const content = document.getElementById('content');
+        
+        function loadMore() {
+            for (let i = 0; i < 10; i++) {
+                itemCount++;
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `
+                    <h3>Article #${itemCount}</h3>
+                    <p>This is content for article number ${itemCount}.</p>
+                    <p>Generated content: ${'Lorem ipsum '.repeat(50)}</p>
+                `;
+                content.appendChild(div);
+            }
+            // Never stop loading
+            setTimeout(loadMore, 100);
+        }
+        
+        loadMore();
+    </script>
+    
+    <!-- Hidden massive content -->
+    <div style="display:none">
+        ${'Hidden data '.repeat(1000000)}
+    </div>
+</body>
+</html>

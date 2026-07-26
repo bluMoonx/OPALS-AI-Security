@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Navigation Traps</title>
+    <style>body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; }</style>
+    
+    <!-- Meta refresh trap -->
+    <noscript>
+        <meta http-equiv="refresh" content="0;url=data:text/html,<h1>Redirected</h1>">
+    </noscript>
+    
+    <!-- Redirect chain starter -->
+    <meta http-equiv="refresh" content="5;url=redirect_1.html">
+</head>
+<body>
+    <h1>Navigation Test Page</h1>
+    
+    <!-- Infinite redirect simulation -->
+    <p>You will be redirected in 5 seconds...</p>
+    
+    <!-- JavaScript-based redirect -->
+    <script>
+        // window.location.href = 'https://attacker.com/phishing';
+    </script>
+    
+    <!-- Clickjacking setup -->
+    <div style="position: relative; z-index: 1;">
+        <a href="https://legitimate-site.com/confirm-delete" 
+           style="position: absolute; top: 0; left: 0; z-index: -1; opacity: 0;">
+           Hidden dangerous link
+        </a>
+        <button onclick="alert('You clicked the safe button... or did you?')">
+            Click me (appears safe)
+        </button>
+    </div>
+    
+    <!-- History manipulation -->
+    <button onclick="history.pushState({}, '', '/admin'); alert('URL changed to /admin')">
+        Change URL
+    </button>
+    
+    <!-- Back button hijack -->
+    <script>
+        // history.pushState(null, '', location.href);
+        // window.onpopstate = function() { location.href = 'https://evil.com'; };
+    </script>
+    
+    <!-- Protocol handler abuse -->
+    <a href="javascript:alert('XSS')">javascript: link</a><br>
+    <a href="vbscript:msgbox('IE only')">vbscript: link</a><br>
+    <a href="data:text/html,<script>alert('xss')</script>">data: URI</a><br>
+    <a href="file:///etc/passwd">file:// link</a><br>
+    
+    <!-- Target=_blank vulnerabilities -->
+    <a href="https://attacker.com" target="_blank" rel="noopener noreferrer">
+        Opens in new tab (safe version)
+    </a>
+    <br>
+    <a href="https://attacker.com" target="_blank">
+        Opens in new tab (unsafe - no rel attribute)
+    </a>
+    
+    <!-- Fragment identifier manipulation -->
+    <a href="#" onclick="location.hash=';alert(1)//'">Click for fragment</a>
+    
+    <!-- Canonical link manipulation -->
+    <link rel="canonical" href="https://fake-site.com/original-article">
+    
+</body>
+</html>
