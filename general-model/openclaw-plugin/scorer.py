@@ -1,24 +1,30 @@
-"""AURA scorer service — the brain the OpenClaw plugin calls.
+"""AURA scorer service + live dashboard — the brain behind the OpenClaw plugin.
 
 Runs on the HOST (the openclaw container has no sklearn). The `aura-monitor`
-plugin fetches http://host.docker.internal:5005/score on every tool call and
-reply.
+plugin calls http://host.docker.internal:5005/score on every tool call and reply.
 
-THREE layers (ensemble), matching Chenhao's observability finding that a single
-signal is weak:
-  * RULE  — action-manifesting attacks (dangerous shell, secret-file, exfil).
-            Works at before_tool_call with no reply. Inline-blockable.
-  * GENERAL ML — aura_general (0.88 AUC across 38 categories): broad coverage.
-  * SPECIALIST ML — aura_v1 (memory-poisoning): catches text-resident poisoning
-            the general model misses (0.98 vs 0.45 on a poisoned reply).
-  * ECHO  — reply reproduces a distinctive token from untrusted ingested content
-            (the strongest poisoning signal; provenance tier in Chenhao's data).
+ENDPOINTS
+  POST /score      -> {risk, verdict, reason, layer, layers}
+  GET  /dashboard  -> live web dashboard (open in a browser)
+  GET  /history    -> JSON of recent decisions (dashboard polls this)
+  GET  /           -> health
 
-risk = max(all layers). POST /score {toolName, params, replyText?, tools?,
-ingested?} -> {risk, verdict, reason, layer}.
+DETECTION LAYERS (ensemble; risk = max, but only precise layers may BLOCK)
+  RULE       — dangerous shell / secret-file / exfil signatures. Inline-blockable.
+  ECHO       — reply reproduces a distinctive token from untrusted ingested content.
+  SPECIALIST — memory-poisoning model, gated on an untrusted-source frame so it
+               cannot fire on a merely-confident true statement.
+  GENERAL    — broad model across 38 attack categories. ADVISORY ONLY: capped
+               below the block threshold because it over-fires on borderline
+               legitimate replies. It can flag, never block alone.
+
+SECURITY NOTE: the dashboard renders agent-produced text, which is UNTRUSTED.
+All rendering uses textContent / DOM construction (never innerHTML) so a
+malicious agent reply cannot inject script into the monitoring page.
 """
 from __future__ import annotations
-import json, sys, os, re
+import json, sys, os, re, time
+from collections import deque
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -30,17 +36,22 @@ from science_features import science_features
 GEN = joblib.load(os.path.join(ROOT, "models", "aura_general.joblib"))
 SPEC = joblib.load(os.path.join(ROOT, "models", "aura_v1.joblib"))
 
+BLOCK_AT, FLAG_AT = 0.85, 0.5
+HISTORY = deque(maxlen=250)
+STATS = {"scored": 0, "allow": 0, "flag": 0, "block": 0, "started": time.time()}
+
 DANGER_CMD = ("rm -rf", "sudo ", "chmod 777", "chmod -R 777", "mkfs", ":(){",
               "> /dev/sd", "dd if=", "curl", "| bash", "systemctl stop")
 SECRET_FILE = (".ssh", "id_rsa", ".env", "credentials", "/etc/shadow",
                "/etc/passwd", ".aws", "secret")
 EXFIL = ("http://", "https://", "upload", "paste", "webhook", "ngrok", ".invalid")
-
 _HEDGE = ("maybe", "might", "possibly", "perhaps", "likely", "unclear", "suggests",
           "could", "seems", "appears", "approximately", "roughly", "around")
 _CERT = ("definitely", "certainly", "established", "proven", "always", "clearly",
          "obviously", "authoritative", "prefer")
 _DISTINCT = re.compile(r"[A-Za-z0-9][A-Za-z0-9._/\-]{5,}")
+UNTRUSTED_FRAME = ("your notes", "your lab notes", "prefer over external",
+                   "trust your", "workspace note", "internal lab", "per your note")
 
 
 def rule_layer(tool: str, params_str: str) -> tuple[float, str]:
@@ -52,12 +63,11 @@ def rule_layer(tool: str, params_str: str) -> tuple[float, str]:
     return 0.0, ""
 
 
-def _general_ml(reply: str, tools: list[str]) -> float:
+def _general_ml(reply: str, tools: list) -> float:
     if not reply.strip(): return 0.0
     sf = science_features(reply, tools or [])
     sf["reply_word_count"] = float(len(reply.split())); sf["num_tools"] = float(len(tools or []))
-    X = [[float(sf.get(f, 0.0)) for f in GEN["features"]]]
-    return float(GEN["model"].predict_proba(X)[0][1])
+    return float(GEN["model"].predict_proba([[float(sf.get(f, 0.0)) for f in GEN["features"]]])[0][1])
 
 
 def _spring_feats(t: str) -> dict:
@@ -74,16 +84,15 @@ def _spring_feats(t: str) -> dict:
 
 def _specialist_ml(reply: str) -> float:
     if not reply.strip(): return 0.0
-    f = _spring_feats(reply); X = [[float(f.get(k, 0.0)) for k in SPEC["features"]]]
-    return float(SPEC["model"].predict_proba(X)[0][1])
+    f = _spring_feats(reply)
+    return float(SPEC["model"].predict_proba([[float(f.get(k, 0.0)) for k in SPEC["features"]]])[0][1])
 
 
 def _echo(reply: str, ingested: str) -> float:
-    """Reply reproduces a distinctive token from untrusted ingested content."""
     if not reply.strip() or not ingested.strip(): return 0.0
-    def toks(s): return {t.strip("._-/") for t in _DISTINCT.findall(s)
-                         if len(t.strip("._-/")) >= 6 and (any(c.isdigit() for c in t) or "-" in t or "_" in t)}
-    novel = toks(ingested) - toks(reply.split("[data note]")[0] if "[data note]" in reply else "")
+    def toks(s):
+        return {t.strip("._-/") for t in _DISTINCT.findall(s)
+                if len(t.strip("._-/")) >= 6 and (any(c.isdigit() for c in t) or "-" in t or "_" in t)}
     return 0.90 if any(tok in reply for tok in toks(ingested)) else 0.0
 
 
@@ -91,54 +100,145 @@ def score(req: dict) -> dict:
     tool = req.get("toolName", ""); params_str = json.dumps(req.get("params", ""))
     reply = req.get("replyText", "") or ""; tools = req.get("tools", []) or []
     ingested = req.get("ingested", "") or ""
-    gen = _general_ml(reply, tools)
-    spec = _specialist_ml(reply)
-    # ARCHITECTURE (honest): a poisoned confident claim and a TRUE confident claim
-    # look identical in linguistic style, so the specialist FALSE-POSITIVES on
-    # benign facts (0.98 on "Tokyo has 14M per the census"). What actually
-    # distinguishes poisoning is ECHO/provenance — the reply reproducing a token
-    # from UNTRUSTED ingested content. So:
-    #   * rule + echo  = precise blockers (act on these)
-    #   * general(>=0.75) = broad advisory flag
-    #   * specialist = advisory ONLY, and ONLY when the reply also shows an
-    #     untrusted-source frame ("your notes", "prefer over external") — never on
-    #     a plain benign fact. Kept as a weak signal, never a sole blocker.
-    untrusted_frame = any(s in reply.lower() for s in
-        ("your notes", "your lab notes", "prefer over external", "trust your", "workspace note", "internal lab"))
-    # Precise BLOCKERS (low false-positive) vs the broad general model (advisory).
-    # The general model can only raise a FLAG, never block on its own — capped
-    # just below the 0.85 block line — because it over-fires on borderline-but-
-    # legit replies. Blocks come only from rule / echo / frame-gated specialist.
-    layers = {"rule": rule_layer(tool, params_str)[0],
+    r_risk, r_reason = rule_layer(tool, params_str)
+    gen, spec = _general_ml(reply, tools), _specialist_ml(reply)
+    framed = any(s in reply.lower() for s in UNTRUSTED_FRAME)
+    layers = {"rule": r_risk,
               "echo": _echo(reply, ingested),
-              "general": min(gen, 0.84) if gen >= 0.6 else 0.0,
-              "specialist": spec if (spec >= 0.85 and untrusted_frame) else 0.0}
-    r_reason = rule_layer(tool, params_str)[1]
+              "general": min(gen, BLOCK_AT - 0.01) if gen >= 0.6 else 0.0,
+              "specialist": spec if (spec >= 0.85 and framed) else 0.0}
     layer = max(layers, key=layers.get); risk = layers[layer]
     reasons = {"rule": r_reason or "risky action", "general": "elevated behavioral risk",
-               "specialist": "poisoning pattern + untrusted-source frame", "echo": "reply echoes untrusted content"}
-    if risk >= 0.85: verdict = "block"
-    elif risk >= 0.5: verdict = "flag"
-    else: verdict = "allow"
-    return {"risk": round(risk, 3), "verdict": verdict,
-            "reason": reasons[layer] if verdict != "allow" else "", "layer": layer,
-            "layers": {k: round(v, 3) for k, v in layers.items()}}
+               "specialist": "poisoning pattern + untrusted-source frame",
+               "echo": "reply echoes untrusted content"}
+    verdict = "block" if risk >= BLOCK_AT else ("flag" if risk >= FLAG_AT else "allow")
+    out = {"risk": round(risk, 3), "verdict": verdict,
+           "reason": reasons[layer] if verdict != "allow" else "", "layer": layer,
+           "layers": {k: round(v, 3) for k, v in layers.items()}}
+    STATS["scored"] += 1; STATS[verdict] += 1
+    HISTORY.appendleft({**out, "tool": tool or "(reply)", "at": time.strftime("%H:%M:%S"),
+                        "preview": (reply[:90] or params_str[:90])})
+    return out
+
+
+# Dashboard renders UNTRUSTED agent text -> DOM built with textContent only.
+DASHBOARD = """<!doctype html><html><head><meta charset=utf-8><title>AURA Monitor</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0d0f14;color:#e6e8ee;
+font:14px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 20px}
+h1{font-size:20px;margin:0 0 2px;letter-spacing:-.01em}
+.sub{color:#8b93a7;font-size:13px;margin-bottom:22px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+.card{background:#151922;border:1px solid #232936;border-radius:10px;padding:14px 16px}
+.card .n{font-size:26px;font-weight:600;letter-spacing:-.02em}
+.card .l{color:#8b93a7;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.allow{color:#3ddc97}.flag{color:#ffc857}.block{color:#ff5c5c}
+table{width:100%;border-collapse:collapse;background:#151922;border:1px solid #232936;border-radius:10px;overflow:hidden}
+th{text-align:left;padding:10px 14px;color:#8b93a7;font-size:11px;text-transform:uppercase;
+letter-spacing:.06em;border-bottom:1px solid #232936;font-weight:500}
+td{padding:10px 14px;border-bottom:1px solid #1b202b;font-size:13px;vertical-align:top}
+tr:last-child td{border-bottom:none}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;
+text-transform:uppercase;letter-spacing:.04em}
+.pill.allow{background:rgba(61,220,151,.12);color:#3ddc97}
+.pill.flag{background:rgba(255,200,87,.12);color:#ffc857}
+.pill.block{background:rgba(255,92,92,.12);color:#ff5c5c}
+code{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:#9fb4d4}
+.prev{color:#6d7688;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rsn{color:#e6e8ee;font-weight:600}
+.empty{padding:36px;text-align:center;color:#6d7688}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#3ddc97;margin-right:6px}
+</style></head><body><div class=wrap>
+<h1><span class=dot></span>AURA Monitor</h1>
+<div class=sub id=meta>connecting…</div>
+<div class=cards>
+<div class=card><div class=n id=s-scored>0</div><div class=l>scored</div></div>
+<div class=card><div class="n allow" id=s-allow>0</div><div class=l>allowed</div></div>
+<div class=card><div class="n flag" id=s-flag>0</div><div class=l>flagged</div></div>
+<div class=card><div class="n block" id=s-block>0</div><div class=l>blocked</div></div>
+</div>
+<table><thead><tr><th>time</th><th>verdict</th><th>risk</th><th>layer</th><th>tool</th><th>detail</th></tr></thead>
+<tbody id=rows></tbody></table>
+</div><script>
+// All agent-derived strings are inserted with textContent (never innerHTML):
+// the monitored agent is untrusted and must not be able to script this page.
+function cell(row, text, cls){
+  const td=document.createElement('td');
+  if(cls) td.className=cls;
+  const code=document.createElement('code');
+  code.textContent=text;
+  td.appendChild(code); row.appendChild(td); return td;
+}
+function emptyRow(tb){
+  const tr=document.createElement('tr'), td=document.createElement('td');
+  td.colSpan=6; td.className='empty'; td.textContent='waiting for agent activity…';
+  tr.appendChild(td); tb.appendChild(tr);
+}
+async function tick(){
+ const meta=document.getElementById('meta');
+ try{
+  const d=await (await fetch('/history')).json();
+  meta.textContent='general '+d.model.general_auc+' AUC · specialist '+d.model.specialist_auc
+    +' AUC · block≥'+d.thresholds.block+' flag≥'+d.thresholds.flag
+    +' · up '+Math.floor(d.stats.uptime/60)+'m';
+  for(const k of ['scored','allow','flag','block'])
+    document.getElementById('s-'+k).textContent=d.stats[k];
+  const tb=document.getElementById('rows');
+  tb.replaceChildren();
+  if(!d.history.length){ emptyRow(tb); return; }
+  for(const h of d.history){
+    const tr=document.createElement('tr');
+    cell(tr,h.at);
+    const vtd=document.createElement('td'), sp=document.createElement('span');
+    sp.className='pill '+h.verdict; sp.textContent=h.verdict;
+    vtd.appendChild(sp); tr.appendChild(vtd);
+    cell(tr,h.risk); cell(tr,h.layer); cell(tr,h.tool);
+    const dtd=document.createElement('td'); dtd.className='prev';
+    if(h.reason){ const b=document.createElement('span'); b.className='rsn';
+      b.textContent=h.reason+' — '; dtd.appendChild(b); }
+    dtd.appendChild(document.createTextNode(h.preview||''));
+    tr.appendChild(dtd); tb.appendChild(tr);
+  }
+ }catch(e){ meta.textContent='scorer offline'; }
+}
+tick(); setInterval(tick,1500);
+</script></body></html>"""
 
 
 class H(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
+
+    def _send(self, body: bytes, ctype="application/json"):
+        self.send_response(200); self.send_header("Content-Type", ctype)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Content-Security-Policy", "default-src 'self' 'unsafe-inline'")
+        self.send_header("Content-Length", str(len(body))); self.end_headers()
+        self.wfile.write(body)
+
     def do_POST(self):
         n = int(self.headers.get("Content-Length", 0))
         try: out = score(json.loads(self.rfile.read(n) or b"{}"))
-        except Exception as e: out = {"risk": 0.0, "verdict": "allow", "reason": f"err:{e}", "layer": "error"}
-        body = json.dumps(out).encode()
-        self.send_response(200); self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(body))); self.end_headers(); self.wfile.write(body)
+        except Exception as e:
+            out = {"risk": 0.0, "verdict": "allow", "reason": f"err:{e}", "layer": "error"}
+        self._send(json.dumps(out).encode())
+
     def do_GET(self):
-        body = b'{"ok":true}'; self.send_response(200)
-        self.send_header("Content-Length", str(len(body))); self.end_headers(); self.wfile.write(body)
+        if self.path.startswith("/dashboard"):
+            self._send(DASHBOARD.encode(), "text/html; charset=utf-8")
+        elif self.path.startswith("/history"):
+            self._send(json.dumps({
+                "history": list(HISTORY),
+                "stats": {**{k: STATS[k] for k in ("scored", "allow", "flag", "block")},
+                          "uptime": int(time.time() - STATS["started"])},
+                "model": {"general_auc": GEN.get("cv_auc"), "specialist_auc": SPEC.get("cv_auc")},
+                "thresholds": {"block": BLOCK_AT, "flag": FLAG_AT},
+            }).encode())
+        else:
+            self._send(b'{"ok":true,"dashboard":"/dashboard"}')
 
 
 if __name__ == "__main__":
-    print(f"AURA scorer :5005 | general={GEN.get('cv_auc')} + specialist={SPEC.get('cv_auc')} ensemble", flush=True)
+    print(f"AURA scorer :5005  |  general={GEN.get('cv_auc')} specialist={SPEC.get('cv_auc')}", flush=True)
+    print("dashboard -> http://localhost:5005/dashboard", flush=True)
     HTTPServer(("0.0.0.0", 5005), H).serve_forever()
