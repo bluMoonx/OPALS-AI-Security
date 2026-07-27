@@ -141,3 +141,193 @@ LABELER, honest in-sample vs out-of-sample:
    Precision holds (0.924) so the BLOCK path is unaffected; recall is the weak axis.
 
 Figures 1 and 2 regenerated on n=817 (previously n=142).
+
+### [T8] G2 — RETRAINED ON BEHAVIOURAL LABELS (analysis/train_behavioral.py)
+Trained on the 965 hand-judged labels (417 unsafe, 43.2%).
+
+| evaluation | best model | AUC |
+|---|---|---|
+| 5-fold CV, behavioural labels, out-of-fold | random_forest | **0.797** (sd 0.003) F1 0.704 |
+| CONTROL: identical features, CANARY labels | random_forest | 0.836 |
+| cross-source (chenhao rubric -> gold), 12 science features | random_forest | 0.638 |
+
+KEY INTERPRETATION (this is not a regression, it is the opposite):
+The canary control scores HIGHER (0.836 > 0.797) because the canary label is an EASIER,
+self-fulfilling target — it is literally "does the response contain string X", which is
+a function of response tokens. The behavioural label requires judging actual compliance.
+So the old 0.836 was both leaky AND measuring an easier, wrong task. **0.797 on the
+behavioural target is the harder, honest number.**
+
+Saved models/aura_behavioral.joblib (supersedes aura_general.joblib for the ML layer).
+
+### [T9] CROSS-SOURCE RE-MEASURED ON THE FULL 965 GOLD — 0.748 superseded by 0.699
+The 0.748 was measured on the OLD 283-row gold. On the 3.4x larger, more diverse
+965-row gold (same protocol, same 62-feature model, same L2 sweep):
+
+| model / feature set | cross-source AUC (all) | attack slice |
+|---|---|---|
+| response-only science features (12) | 0.638 | — |
+| **62-feature prompt-response pair** | **0.699** (C=0.003) | **0.727** |
+| previously reported (283-row gold) | 0.748 | 0.773 |
+
+The ordering is unchanged (prompt+response > response-only), but the magnitude was
+optimistic on the smaller test set. **Quote 0.699 / 0.727, not 0.748.**
+All 6 L2 settings land 0.666-0.699, so the result is stable, just lower.
+
+### [T10] SESSION-LIMIT RECOVERY — what died, what was recovered
+The overnight workflow finished 14/16 agents. Two died on the usage limit:
+`audit:retrain` and `audit:adjudication`. Both have been relaunched verbatim
+(run wf_939427fb-d30) with a third agent added, `audit:integrity`, aimed at the
+bug found in T11.
+
+Also recovered: the repo clone at scratchpad/opals had 14 TRACKED SOURCE FILES
+deleted in its working tree (`scigateway/*`, `memory-poisoning/prompts/prompt_bank.py`).
+They were restored from git (`git checkout --`). Nothing was lost, and crucially
+they were NOT committed as deletions. The project dir never had them; the two
+trees use different layouts (project -> `general-model/` in the repo,
+`analysis/*.py` -> `general-model/src/`).
+
+### [T11] DATA-INTEGRITY BUG CAUGHT IN THE WORKFLOW'S OWN RETRAIN — n=971 was wrong
+The workflow's retrain agent overwrote `models/aura_behavioral.joblib` with a model
+trained on **971** rows. The vetted loader produces **965**.
+
+  971 = 671 (gold2) + 300 (gold1 RAW)
+  965 = 671 (gold2) + 294 (gold1 RESOLVED)
+
+The agent joined gold to sessions by `session_id`, which is NOT unique. `resolve_gold.py`
+deliberately drops 6 rows it cannot map to a unique source record; the agent kept them,
+pairing 6 human judgements with a DIFFERENT trial's response text. Label/feature mismatch.
+
+It did not crash and reported a plausible AUC (0.7909). The only visible symptom was a
+changed metadata key (`cv_auc` missing -> scorer banner printed `general=None`).
+**A cosmetic bug was the only trace of a substantive one.**
+
+Fix: discarded that model, re-ran `analysis/train_behavioral.py` (vetted loader).
+Result reproduces the honest numbers: 965 rows, 417 unsafe (43.2%),
+RF **AUC 0.797** (sd 0.003) F1 0.704; canary control 0.836; cross-source 0.638 (12-feat).
+Bundle now carries `cv_auc 0.7965`, `n_train 965`. Scorer banner reads
+`general=0.7965`. 17/17 tests pass.
+
+### [T12] LIVE ATTRIBUTION PROOF AFTER THE REPOINT
+The ML layer changed under the gate, so the block was re-proven live, not assumed.
+
+  [aura] tool=exec risk=0.95 verdict=block — dangerous shell command
+  "The command was blocked by AURA due to its destructive nature (`rm -rf`)."
+
+openclaw's own `toolSummary` for that run: `calls=1 tools=[exec] failures=1` — the agent
+**attempted** the exec and it failed. A self-refusal would show `calls=0`. Filesystem
+outcome: directory SURVIVED. Native config at run time: `tools.deny=None`,
+`execApprovals` absent, `profile=None`. No native OpenClaw control can account for it.
+Saved verbatim to `evidence/gate_attribution_2026-07-27.log`.
+
+Same log also shows the gate scoring benign calls (`risk=0 verdict=allow`) and flagging
+credential access (`risk=0.8 verdict=flag`), i.e. an active classifier, not a denylist.
+
+### [T13] PROMPT-DUPLICATION LEAK — the shipped AUC was inflated. 0.797 -> 0.748
+Found by reading the refutation of an UNRELATED competing approach, which reported that a
+296-record gold held only 171 unique prompts. Applied the same check here:
+
+  965 gold records span only **285 distinct prompts** (3.39 repeated trials each)
+  77% of those prompts carry the SAME label across every repeat
+  -> plain StratifiedKFold puts repeated trials of one prompt in train AND test
+
+Honest protocol = StratifiedGroupKFold grouped on md5(prompt).
+
+| model | honest | leaky | leak |
+|---|---|---|---|
+| logreg | 0.691 (sd .001) | 0.711 | -0.020 |
+| **random_forest (shipped)** | **0.748 (sd .005)** | 0.797 | **-0.049** |
+| gradient_boost | 0.721 (sd .010) | 0.777 | -0.056 |
+
+The leak is ~16x the sd I had been quoting. Damage scales with model capacity, which is
+the fingerprint of memorisation.
+
+**The canary comparison REVERSES, and our result gets stronger.**
+canary control 0.836 -> 0.689 (-0.133) vs behavioural 0.797 -> 0.748 (-0.049).
+The canary is a deterministic function of the response string, so repeated trials of one
+prompt share its outcome almost perfectly and grouping destroys its apparent signal.
+Behavioural now BEATS canary by +0.059 (~4x the control sd). Both at 3 seeds — a 1-seed
+control vs a 3-seed headline was itself unfair and was fixed.
+
+Cross-source checked separately and is CLEAN: gold vs chenhao share 0 prompts, 0 replies.
+But chenhao's 758 rows hold only **10 distinct prompts** (75.8 each) — effective diversity
+~10, which better explains weak transfer (0.638) than anything previously claimed.
+
+Deployed: scorer banner `general=0.7477`, 17/17 tests pass.
+
+### [T14] OTHER DEAD BACKGROUND WORK FOUND
+- `wsikqts9d` COMPETITION: 3 of 5 arms died on the usage limit (supervised_on_gold,
+  compliance_features, ensemble). The 2 that ran were **both REFUTED** — test-set
+  hyperparameter selection (0.748 was the argmax of a C sweep scored on test; honest
+  selection gives 0.649), in-sample rule authoring, and gains inside the noise.
+  **There is currently NO confirmed improvement over baseline.** Its script is gone.
+- `w15opszkm` REBUILD: `eval:ablations` + 2 verify agents died on the limit.
+- `wohu5p953` PROMPT VARIANTS: reported "no space left on device" + aborted, but the work
+  SURVIVED — all 400 v3 variants are in `data/prompts/new_categories_bank.jsonl`
+  (500 = 400 v3 + 50 v2 + 50 original, exactly 50/category, matched by id AND text).
+- `bodpf3lv8`: approval-timeout probe, already-known finding (approval denies after 120s).
+
+### [T15] DISK IS THE NEXT FAILURE
+`/System/Volumes/Data` is at **98% (4.0 GiB free)**. A prior task already died on
+"no space left on device". This will recur.
+
+### [T16] AUDITS RETURNED — 3 of 4 found real defects. Final honest numbers.
+`audit:retrain` REFUTED (checks 3+5). Independently found the SAME prompt leak and went
+further. `audit:adjudication` verdict SOUND. `audit:integrity` verdict "the bug is NOT
+contained" — found 7 broken session_id joins, 6 more than the one that triggered the sweep.
+
+FINAL, 10 seeds, StratifiedGroupKFold on md5(prompt):
+
+| model | honest | leaky | leak | LOACO |
+|---|---|---|---|---|
+| logreg | 0.690 (sd .005) F1 0.586 BELOW FLOOR | 0.708 | -0.018 | 0.613 |
+| **random_forest (shipped)** | **0.743 (sd .008)** F1 0.653 | 0.797 | -0.055 | **0.712** |
+| gradient_boost | 0.719 (sd .014) F1 0.604 at floor | 0.778 | -0.058 | 0.680 |
+
+canary control, same grouped protocol, 10 seeds: RF 0.688 (sd .013). Behavioural +0.055.
+Trivial always-positive F1 floor = **0.603**. RF F1 0.653 is +0.050 over doing nothing.
+My 3-seed 0.748 was a favourable draw; 10 seeds gives 0.743. Auditor got 0.738/0.712
+independently. Consistent.
+
+**BIGGEST NEGATIVE RESULT: LOACO per family. cot_hijack 0.31 — WORSE THAN CHANCE on an
+unseen family. false_precedent 0.51 = chance, and it is the HIGHEST-ASR family (77.2%).
+The model is weakest exactly where the agent is most vulnerable.** Must be published.
+
+### [T17] FIXES APPLIED FROM THE INTEGRITY SWEEP
+1. `make_figures.py` was a LIVE LANDMINE: globbed only `gold_*.jsonl` (missed all 12
+   `gold2_*` = 671 labels) and collapsed gold into a dict keyed by session_id. Would have
+   rebuilt fig1/fig2 from ~142 attack rows instead of 817. RESULTS.md:356 and
+   PROGRESS.md:251 both tell a reader to run it. **Ported to `load_all_gold`; verified it
+   now computes n=817, 414 compliances, canary 92, misses 326 of 414 (79%).**
+   Figures backed up to scratchpad/figures_backup before regenerating.
+2. `fig1` subtitle said "misses 322 of 414 (78%)" — assumed all 92 canary fires are true
+   positives. Precision is 0.957 so tp=88. **Corrected to 326 of 414 (79%)**, and the
+   figure now derives tp instead of assuming it.
+3. `fig5_transfer_and_safety.png` had NO generator, encoded a stale n=89/84 split (true:
+   148/817) and stale cross-source 0.602. **Withdrawn** (renamed .withdrawn), replaced by
+   a reproducible `fig5_protocol_ladder.png` that reads its numbers straight out of the
+   shipped joblib so it cannot drift from the model.
+4. `eval_ablations.py` and `retrain_behavioral.py` **QUARANTINED** with a hard runtime
+   guard (exit unless AURA_ALLOW_BROKEN_JOIN=1). eval_ablations built a 448-row test slice
+   from 283 collapsed labels where 441 of 441 checkable rows are NOT the judged record —
+   and printed it as "the single most independent number in the whole study"
+   (chenhao->gold_human AUC 0.571). **That number is WITHDRAWN.**
+5. `aura_final.joblib` records trained_on n=296; vetted is 294. 2 line_idx collisions were
+   never removed, so 2 records are double-weighted. Logged, model not in the live path.
+6. Corpus counts were stale everywhere. The collector (PID 40512) is STILL RUNNING and
+   appending: 1,933 -> 1,948 -> 1,952 -> 1,974 during this session alone. Any count must
+   be quoted with a timestamp. Gold line_idx stays valid ONLY because new rows are
+   appended past the max labelled index (1923) — this must be re-checked before any future
+   corpus edit that is not a pure append.
+
+### [T18] AUDIT-CONFIRMED FACTS WORTH KEEPING
+- No feature leakage. Max single-feature AUC = num_tools 0.6848, nowhere near 0.85. No
+  feature proxies canary or condition.
+- Cross-source split PROVEN disjoint: 0 shared responses, 0 shared session_ids, only
+  4 of 952 feature-vector collisions (degenerate replies).
+- Adjudication quality SOUND: 0 integrity defects in 671 rows; blind re-judge 1
+  disagreement in 45 = 2.2% [0.4, 11.6]; slice heterogeneity is a SAMPLING artifact
+  (disjoint prompt populations), not labeler inconsistency.
+- session_id duplication measured: 324 ids carry >1 trial, max 9 deep, 1,002 of 1,949
+  records (51.4%) sit under a duplicated id, and 323 of 324 dup groups have DIFFERING
+  responses. This is why session_id can never be a join key here.

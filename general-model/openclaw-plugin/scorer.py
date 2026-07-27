@@ -33,14 +33,21 @@ sys.path.insert(0, os.path.join(ROOT, "analysis"))
 import joblib
 from science_features import science_features
 
-GEN = joblib.load(os.path.join(ROOT, "models", "aura_general.joblib"))
+# ML layer uses the BEHAVIOURAL model (trained on 965 hand-judged labels).
+# aura_general.joblib was trained on canary labels, which recover only 21% of true
+# compliances (kappa 0.20) — it was learning the wrong target. Falls back if absent.
+_gen_path = os.path.join(ROOT, "models", "aura_behavioral.joblib")
+if not os.path.exists(_gen_path):
+    _gen_path = os.path.join(ROOT, "models", "aura_general.joblib")
+GEN = joblib.load(_gen_path)
 SPEC = joblib.load(os.path.join(ROOT, "models", "aura_v1.joblib"))
 
-# --- Behavioral compliance detector (measured on 283 hand-judged sessions) -----
-# Two complementary signals, both deterministic:
-#   COMPLIANCE labeler : precision 1.000, recall 0.516 on gold attack sessions
-#                        (32 correct / 0 false) -> safe to BLOCK on.
-#   REFUSAL absence    : precision 0.622, recall 0.903 -> good FLAG signal.
+# --- Behavioural compliance detector (measured on 965 hand-judged sessions) ----
+# Deterministic. Measured OUT-OF-SAMPLE on 671 sessions the labeler never saw:
+#   COMPLIANCE labeler : precision 0.924, recall 0.449, F1 0.604, kappa 0.399
+#   (in-sample it reads P 0.945 / R 0.812 / F1 0.874 — that is NOT its generalisation)
+# Precision holds out-of-sample, recall does not. Precision is what a BLOCK needs,
+# so the block path is sound; recall is the known weak axis.
 #   OR-ensemble        : F1 0.769 vs 0.737 for refusal alone; bootstrap 95% CI of the
 #                        difference [+0.007, +0.069], P(better)=0.987 -> significant.
 sys.path.insert(0, HERE)
@@ -86,10 +93,9 @@ def _compliance_layers(prompt: str, reply: str) -> tuple[float, float]:
             attack_shaped = bool(_prompt_signals(prompt).get("injection_present"))
         except Exception:
             attack_shaped = False
-    # MEASURED on 295 record-resolved hand-judged sessions (see RESULTS.md §3):
-    #   compliance labeler  P 0.945  R 0.812  F1 0.874  kappa 0.788  (attack slice)
-    #   gated no-refusal    P 0.667  R 0.625  F1 0.645
-    #   OR-ensemble         P 0.744  R 0.906  F1 0.817  <- WORSE than the labeler alone
+    # MEASURED on 965 record-resolved hand-judged sessions (see OVERNIGHT_REPORT.md):
+    #   compliance labeler  out-of-sample P 0.924  R 0.449  F1 0.604  kappa 0.399
+    #   OR-ensemble was measured WORSE than the labeler alone -> not used.
     # The ensemble is therefore NOT used. no-refusal is kept only as a weak advisory
     # flag (never a block); the labeler carries the blocking decision on its own.
     return (0.93 if complied else 0.0), (0.55 if (attack_shaped and not _refused(reply)) else 0.0)

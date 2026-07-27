@@ -36,19 +36,33 @@ def _load_jsonl(p):
     return rows
 
 
+def _gold_attack_rows():
+    """The 817 hand-judged ATTACK rows, each paired with its EXACT source record.
+
+    Uses the vetted resolver. Do NOT key gold by session_id: it is not unique (up to 9
+    trials share one id, 51% of the corpus sits under a duplicated id), so a dict keyed on
+    it silently collapses judgements and pairs labels with the wrong trial's response.
+    The previous version of this file did exactly that AND globbed only `gold_*.jsonl`,
+    missing all 12 `gold2_*.jsonl` files, so it rebuilt the headline figures from ~142
+    attack rows instead of 817.
+    """
+    import sys
+    sys.path.insert(0, os.path.join(ROOT, "analysis"))
+    from eval_combined_gold import load_records, load_all_gold
+    gold = load_all_gold(load_records())
+    return [g for g in gold if g.get("condition") == "attack"]
+
+
 def fig_label_comparison():
     """THE headline finding: canary labeling under-counts attack success ~4x."""
-    gold = {}
-    for f in glob.glob(os.path.join(ROOT, "analysis/rebuild/gold_*.jsonl")):
-        for d in _load_jsonl(f): gold[d["session_id"]] = d
-    if not gold: return
-    canary = {d["session_id"]: d for d in
-              _load_jsonl(os.path.join(ROOT, "data/logs/collected_new10category/newcats_sessions.jsonl"))}
-    atk = [s for s, g in gold.items() if g.get("condition") == "attack"]
+    atk = _gold_attack_rows()
     if not atk: return
-    beh = sum(1 for s in atk if gold[s].get("behavioral_label") == 1)
-    can = sum(1 for s in atk if canary.get(s, {}).get("attack_succeeded"))
     n = len(atk)
+    beh = sum(1 for g in atk if g["behavioral_label"] == 1)
+    can = sum(1 for g in atk if g["_rec"].get("attack_succeeded"))
+    # true positives: canary fired AND the behaviour really was compliance
+    tp = sum(1 for g in atk if g["_rec"].get("attack_succeeded") and g["behavioral_label"] == 1)
+    missed = beh - tp
 
     fig, ax = plt.subplots(figsize=(4.6, 3.4))
     bars = ax.bar(["canary-derived\n(what we used)", "behavioral\n(hand-judged)"],
@@ -57,8 +71,9 @@ def fig_label_comparison():
         ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 1.5,
                 f"{100*v/n:.1f}%\n({v}/{n})", ha="center", fontsize=9, weight="bold")
     ax.set_ylabel("attack success rate (%)")
-    ax.set_title(f"Canary labeling under-counts attack success\n(n={n} hand-judged attack sessions)",
-                 fontsize=10)
+    ax.set_title(f"Canary labeling under-counts attack success\n"
+                 f"(n={n} hand-judged attack sessions; canary misses "
+                 f"{missed} of {beh} = {100*missed/max(beh,1):.0f}%)", fontsize=10)
     ax.set_ylim(0, max(100 * beh / n, 100 * can / n) * 1.35)
     fig.tight_layout(); p = os.path.join(OUT, "fig1_label_undercount.png")
     fig.savefig(p); plt.close(fig); made.append(p)
@@ -66,15 +81,12 @@ def fig_label_comparison():
 
 def fig_per_category_asr():
     """Behavioral attack-success rate per category (where the agent is weak)."""
-    gold = {}
-    for f in glob.glob(os.path.join(ROOT, "analysis/rebuild/gold_*.jsonl")):
-        for d in _load_jsonl(f): gold[d["session_id"]] = d
-    if not gold: return
+    atk = _gold_attack_rows()
+    if not atk: return
     from collections import defaultdict
     tot, suc = defaultdict(int), defaultdict(int)
-    for g in gold.values():
-        if g.get("condition") != "attack": continue
-        c = g.get("category", "?"); tot[c] += 1; suc[c] += 1 if g.get("behavioral_label") == 1 else 0
+    for g in atk:
+        c = g.get("category", "?"); tot[c] += 1; suc[c] += 1 if g["behavioral_label"] == 1 else 0
     cats = [c for c in tot if tot[c] >= 2]
     if not cats: return
     cats.sort(key=lambda c: suc[c] / tot[c])

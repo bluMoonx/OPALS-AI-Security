@@ -1,0 +1,111 @@
+{
+  "cv_logreg": {
+    "auc": 0.690339188503212,
+    "auc_sd": 0.005019050741876186,
+    "f1": 0.5863880351529736,
+    "f1_over_trivial_floor": -0.017085192053972853,
+    "auc_leaky_plain_kfold": 0.7081812652068126,
+    "f1_leaky": 0.6046641257388885,
+    "leak_magnitude": -0.017842076703600607,
+    "protocol": "StratifiedGroupKFold(prompt), 10 seeds"
+  },
+  "cv_random_forest": {
+    "auc": 0.7427193281870854,
+    "auc_sd": 0.008132425091233035,
+    "f1": 0.6532055248578041,
+    "f1_over_trivial_floor": 0.04973229765085774,
+    "auc_leaky_plain_kfold": 0.7973207565334594,
+    "f1_leaky": 0.7046497175246509,
+    "leak_magnitude": -0.05460142834637394,
+    "protocol": "StratifiedGroupKFold(prompt), 10 seeds"
+  },
+  "cv_gradient_boost": {
+    "auc": 0.7194183339459819,
+    "auc_sd": 0.01355557692540724,
+    "f1": 0.6036029426987366,
+    "f1_over_trivial_floor": 0.00012971549179019437,
+    "auc_leaky_plain_kfold": 0.7775884401967478,
+    "f1_leaky": 0.6627950909600571,
+    "leak_magnitude": -0.05817010625076591,
+    "protocol": "StratifiedGroupKFold(prompt), 10 seeds"
+  },
+  "trivial_f1_floor": 0.6034732272069464,
+  "loaco_logreg": {
+    "auc": 0.6131474382537765,
+    "per_category": {
+      "cot_hijack": 0.3691496374423203,
+      "delimiter_confusion": 0.728691476590636,
+      "emotional_coercion": 0.7189542483660132,
+      "false_precedent": 0.5121283255086071,
+      "hypothetical_framing": 0.5333474039679189,
+      "meta_prompting": 0.8581081081081081,
+      "multilingual_injection": 0.5682888540031397,
+      "prompt_leaking": 0.14928571428571427,
+      "role_spoofing": 0.5899725274725275,
+      "sleeper_trigger": 0.7013071895424837
+    }
+  },
+  "loaco_random_forest": {
+    "auc": 0.7116700799943987,
+    "per_category": {
+      "cot_hijack": 0.30652603823335534,
+      "delimiter_confusion": 0.6392557022809123,
+      "emotional_coercion": 0.8222928811164105,
+      "false_precedent": 0.5144757433489828,
+      "hypothetical_framing": 0.8115238497256225,
+      "meta_prompting": 0.7952702702702703,
+      "multilingual_injection": 0.685243328100471,
+      "prompt_leaking": 0.6785714285714286,
+      "role_spoofing": 0.6875,
+      "sleeper_trigger": 0.6483660130718955
+    }
+  },
+  "loaco_gradient_boost": {
+    "auc": 0.6800617899840711,
+    "per_category": {
+      "cot_hijack": 0.2930125247198418,
+      "delimiter_confusion": 0.6893757503001201,
+      "emotional_coercion": 0.7958841194135313,
+      "false_precedent": 0.5305164319248826,
+      "hypothetical_framing": 0.7889404812157028,
+      "meta_prompting": 0.7358108108108108,
+      "multilingual_injection": 0.641287284144427,
+      "prompt_leaking": 0.5857142857142856,
+      "role_spoofing": 0.6510989010989011,
+      "sleeper_trigger": 0.6022875816993464
+    }
+  },
+  "_protocol": {
+    "cv": "StratifiedGroupKFold, group=md5(prompt)",
+    "n_records": 965,
+    "n_distinct_prompts": 285,
+    "why": "965 records cover 285 prompts; plain KFold puts repeated trials of one prompt in train and test simultaneously"
+  },
+  "canary_cv_logreg": {
+    "auc": 0.6999053737735943,
+    "auc_sd": 0.017064811633629016,
+    "protocol": "StratifiedGroupKFold(prompt), seeds 0/1/2"
+  },
+  "canary_cv_random_forest": {
+    "auc": 0.6881854176004782,
+    "auc_sd": 0.013256169288523006,
+    "protocol": "StratifiedGroupKFold(prompt), seeds 0/1/2"
+  },
+  "canary_cv_gradient_boost": {
+    "auc": 0.6786617859455153,
+    "auc_sd": 0.022811565380231668,
+    "protocol": "StratifiedGroupKFold(prompt), seeds 0/1/2"
+  },
+  "xsrc_logreg": {
+    "auc": 0.45318270930700694,
+    "recall_at_10fpr": 0.12470023980815348
+  },
+  "xsrc_random_forest": {
+    "auc": 0.6383338584606767,
+    "recall_at_10fpr": 0.2014388489208633
+  },
+  "xsrc_gradient_boost": {
+    "auc": 0.5567400094522923,
+    "recall_at_10fpr": 0.20863309352517986
+  }
+}
