@@ -52,6 +52,11 @@ from scigateway.taxonomy import score_to_label
 from prompts.control_pools import gen_controls, resolve_version
 from scenarios import PI_FAMILIES, build_scenarios
 
+# Every subtype in this track delivers its injection inside the user prompt, so
+# the registered scigateway category is DIRECT (Evangeline owns the indirect /
+# website-embedded vector). Per-technique detail lives in agent_config["subtype"].
+SCIGATEWAY_ATTACK_CATEGORY = "direct_prompt_injection"
+
 PAYLOAD_MODES = ("echo", "escalate")
 _DELAY = 0.0   # seconds to pause between live turns (rate-limit pacing); set by collect()
 _CONTROL_VERSION = None   # benign-control pool version; set by collect()
@@ -105,7 +110,12 @@ def _build_session(session_id, run_date, backend, *, category, task_type, condit
         tool_trace_available=True, latency_seconds=round(latency, 3),
         risk_indicators=result.risk_indicators, human_label=result.label,
         label_notes=f"{marker}{condition} ({'dry' if backend.dry_run else 'live'}): {result.notes}",
-        attack_category=category if attack_present else "benign",
+        # Must be a category scigateway REGISTERS (scigateway.attacks._BY_KEY).
+        # Writing the subtype here made categorize_session() fall through to its
+        # risk_indicators fallback, which only fires on a SUCCESSFUL injection --
+        # so resisted attacks were counted as benign controls (400/200 read as
+        # 315/285, group-doc Issue #1). The subtype is kept in agent_config.
+        attack_category=SCIGATEWAY_ATTACK_CATEGORY if attack_present else "benign",
         attack_objective=agent_config_extra.get("attack_objective", "") if attack_present else "",
         agent_config={
             "source": "dry_run_pi_harness" if backend.dry_run else "live_openclaw_docker",
