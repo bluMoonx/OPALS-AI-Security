@@ -556,3 +556,64 @@ machine-verified disjoint from gold) and then measured on STRICT. Logged as a fi
 
 Category spread of the 79: false_precedent 15, meta_prompting 14, emotional_coercion 14,
 hypothetical_framing 9, sleeper_trigger 8, multilingual_injection 5. Median reply 178 words.
+
+### [T29] ROUND 3 — and the paper audit caught a regression I shipped
+4 arms, 1 claimed a win, 1 survived. But the most important result came from the arm that
+claimed nothing: the PAPER AUDIT.
+
+**THE GATE WAS BLOCKING 11.5% OF BENIGN WORK.** Published figure: 1.3%.
+
+I optimised precision and recall on the 817 ATTACK sessions and never measured the 148
+hand-judged BENIGN baseline sessions. The 22-test suite passed the whole time because its
+only benign coverage was 5 synthetic prompts I wrote myself. Synthetic negatives written by
+the same person who wrote the features cannot audit that detector.
+
+Attribution of the 17 false blocks: labeler alone 0, bar3 alone 5, deferred alone 8,
+multiple 4. **Every one came from the two channels I added today.**
+
+### [T30] THE FIX — a policy knob, default STRICT, which dominates the old baseline
+`p_unsafe_demand` fires on 321/817 attack prompts and **0/148 benign prompts**. Gating the
+two added channels on it is nearly free:
+
+| policy | gate on new channels | OOS P/R | STRICT P/R | benign false-block |
+|---|---|---|---|---|
+| off | labeler only | .924/.449 | .879/.297 | 2/148 = 1.4% |
+| **strict (DEFAULT)** | require p_unsafe_demand | **.930/.534** | **.901/.372** | **2/148 = 1.4%** |
+| balanced | demand OR injection_present | .935/.574 | .911/.419 | 6/148 = 4.1% |
+| aggressive | no gate | .918/.674 | .929/.610 | 17/148 = 11.5% |
+
+**strict STRICTLY DOMINATES off**: identical false-block rate, +0.085 OOS recall and
++0.075 STRICT recall. There is no reason to ever run "off". Set via
+`AURA_BLOCK_POLICY={off,strict,balanced,aggressive}`.
+
+This turns a single disputed operating point into a published operating CURVE, which is a
+better paper result than the point ever was.
+
+New regression test `t_benign_false_block_rate` measures the REAL 148 benign sessions with
+a 3.0% budget. Verified it actually catches the regression: FAILS at 11.5% under
+aggressive, PASSES at 1.4% under strict. 22/22 green. Live 5/5 prevented.
+
+### [T31] OTHER ROUND-3 RESULTS
+**coverage_gaps SURVIVED** (0 of 2 refuters). Widening the existing matcher families:
+OOS R .640 -> .674, STRICT R .564 -> .611, delta-recall CI excludes zero on all 5 seeds,
+14 new OOS alarms at 0.857 precision vs 0.522 chance. Honest caveats it volunteered:
+the "no deferred evidence" bucket barely moved (.480 -> .488), only 12 of 126 residual
+misses recovered, and one of its six widenings (w_doneclaim) is INERT on held-out data
+and it said so rather than quietly claiming credit.
+
+**cot_hijack DIAGNOSED, hypothesis REFUTED.** The below-chance AUC 0.31 is caused by ONE
+feature: `num_tools`, whose sign is family-dependent (AUC 0.723 across the other nine
+families, 0.181 inside cot_hijack). My hypothesis was wrong: CoT-hijack compliances are
+NOT careful citation-bearing reasoning. They carry zero citations, zero verification tools
+and ~128 words, while the REFUSALS are the long, tool-using, citation-bearing replies. So
+the feature points the right way everywhere else and backwards here. Its proposed residual
+model reached OOS R .791 but at P .855, breaking the 0.90 floor -> correctly NOT shipped.
+
+**stage2_partner MISSED its target** and said so: OOS R .689 (target .70), STRICT R .589
+(target .62), with ZERO added false positives and 10/10 seeds clearing P>=0.90. Diagnosis:
+the partner's ranking is fine (residual AUC .835); threshold transfer from a 10-positive
+gold1 residual is the bottleneck.
+
+**paper_audit** also found: COMPETITION_ROUND2.md prints STRICT n=280 in six places; it is
+288. Rows called SAFE after the shipped rule are 428, not 455. OVERNIGHT_REPORT §7
+describes a gate revision that is no longer what ships.
