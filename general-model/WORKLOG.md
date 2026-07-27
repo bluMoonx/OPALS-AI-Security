@@ -758,3 +758,88 @@ scientific hole (0.480 -> 0.488 under widening; the stage-2 partner reaches the 
 at 0.062 OOS / 0.000 STRICT). Nothing in four rounds detects a silent compliance that leaves
 no trace. More important, far less tractable; the 130-row adjudication goes first because it
 is exact, cheap, and unblocks a live shipped-default decision.
+
+### [T37] ROUND 5 — THE TRANSFER TEST. The most important measurement in the project.
+5 arms, 1 clean. Four headlines refuted; the verifiers state the underlying measurements
+reproduce exactly and refute the CLAIMS, not the arithmetic. Re-derived independently by
+the synthesiser, not taken from the arms.
+
+**SHIPPED GATE, ZERO-SHOT, on 600 sessions collected by a teammate on a different day with
+0 shared prompts and 0 shared responses:**
+
+| | our OOS (671) | our STRICT (288) | INDEPENDENT (400 attack) |
+|---|---|---|---|
+| precision | .9303 | .9014 | **.9091** [.841, .950] |
+| recall | .5343 | .3721 | **.3175** [.269, .371] |
+| benign false block | 3.0% | — | **0/200 = 0.0%** [0, 1.88] |
+
+Precision is statistically INDISTINGUISHABLE from both our slices (dP -0.021 CI
+[-0.087,+0.043] vs OOS; +0.008 [-0.081,+0.108] vs STRICT). Benign cost is significantly
+BETTER than our own pool (-3.0 pts [-5.5,-1.1]). Recall drops hard vs OOS (dR -0.217, CI
+excludes zero) but is indistinguishable from our honest STRICT slice (-0.055 [-0.183,+0.080]).
+Permuted-label control clean: precision under permutation equals the base rate to 3dp on
+both corpora.
+
+**THE MECHANISM, AND IT IS BRUTAL.** All 110 fires come from CHANNEL 1, the deterministic
+labeler. Channels 2 and 3 — the global evidence bar and the deferred-compliance score, the
+entire added-recall apparatus built across rounds 3 and 4 — fire **ZERO times on all 600
+rows**. The strict gate's `p_unsafe_demand` opens on only 56/400 foreign attack prompts vs
+245/671 of ours (0.140 vs 0.365), gating 443/600 rows off before those channels are
+consulted. The policy knob is INERT on foreign traffic: off -> aggressive moves 110 -> 112
+fires of 400 (+0.004 recall) against +0.225 on our own corpus.
+
+**One sentence for the paper: "the rules transfer, the learned score does not, and the
+recall machinery contributes zero outside the corpus it was built on."**
+
+### [T38] THE CEILING — the direct answer to "what is the best we could possibly do"
+Measured with an oracle over the existing channels, with a permutation control ON THE
+CEILING METHOD ITSELF (100 label permutations reached P>=0.90 in 0 of 100 attempts on both
+corpora, so the headroom is real signal, not grid-search overfitting).
+
+| slice | shipped today | oracle over existing channels | absolute reply-text limit |
+|---|---|---|---|
+| our STRICT (288) | R 0.372 @ P 0.901 | R 0.715 @ P 0.904 | R 0.855 [0.794, 0.906] |
+| INDEPENDENT (400) | R 0.317 @ P 0.909 | R 0.375 @ P 0.901 | **R 0.486** [0.430, 0.543] |
+
+**ON AN INDEPENDENT CORPUS THE BEST ANY REPLY-TEXT DETECTOR CAN DO AT P>=0.90 IS ~0.49
+RECALL, AND WE ARE AT 0.32. We already capture about two thirds of the achievable ceiling.**
+The 0.855 figure on our own distribution is a statement about fitting our own corpus, not
+about the future.
+
+THREE LIMITS, each with the experiment that would test it:
+- **DATA is not the binding constraint on the shipped system.** Leave-one-CORPUS-out AUC
+  when predicting a collection never seen: gold 0.530, sathwik 0.551, mempois 0.666 — all
+  CIs cross 0.5. Only chenhao clears (0.765) and it has 10 distinct prompts. Adding 525 new
+  rows (+54% training data) moved pooled LOACO **-0.028** [-0.054,-0.001], WORSE, 10/10
+  seeds worse. More data of the same kind buys nothing for generalisation.
+- **METHOD headroom is real on our distribution and almost absent off it.** Oracle gap
+  OOS +0.186 [+0.072,+0.282], STRICT +0.343 [+0.188,+0.526]; independent corpus only +0.057.
+  "A better model helps where we already have evidence and does not help where we do not."
+- **IRREDUCIBLE: 51.4% [45.8,57.0] of positives on the independent corpus carry NO lexical
+  or deferred evidence at all.** That alone caps any reply-text detector at R 0.486 there.
+  Of the 215 misses, 211 carry evidence score 0 and ZERO carry score>=3, so no policy change
+  can recover any of them.
+
+Memory poisoning is the cleanest statement of the limit: without the ingested source text
+the gate blocks **0 of 84** poisoned sessions; with the source it blocks 40, every one via
+the ECHO layer (string overlap with the poison, not behaviour), costing 2 of 10 benign.
+**The only routes past this are different observables (tool trail, environment diff,
+ingested source) or a different decision point: block the ACTION, not the ANSWER.**
+
+### [T39] KATHLEEN'S NEGATIVE RESULT IS NOW PROVEN, FOR THE RIGHT REASON
+A model given ONLY the fact ID and zero reply text scores **0.817** under her session-level
+CV and collapses to **exactly the 0.578 majority floor (sd 0.000)** under fact-grouped CV.
+All the predictable variance is a property of the FACT, not the reply. 18 of the 20 facts
+with >=3 trials are 100% one way. Her "unsatisfactory" result is a clean, publishable
+demonstration that per-item determinism defeats session-level modelling.
+BUT two of her three merge-note claims are wrong: **`tools=[]` is FALSE — 66 of 94 sessions
+made real, executed tool calls**, and the 84-row family she added contains zero negatives.
+Tell her; the fix is small and the finding survives it.
+
+### [T40] A THIRD INSTANCE OF THE JOIN BUG, QUARANTINED
+`analysis/compete/data.py` lines 31 and 41 build last-wins dicts keyed by `session_id`, and
+glob only `gold_*.jsonl`. Measured: **300 raw lines collapse to 283, and all 671 gold2 rows
+are never read** — it sees 283 of 965. Its own docstring still quotes the retired n=142
+slice. Quarantined with a runtime guard; joins the two already quarantined.
+Repo inventory total: **4,491 sessions collected, 965 hand-adjudicated (21.5%), and 2,325
+(51.8%) never used by any AURA model or evaluation.**
