@@ -843,3 +843,92 @@ are never read** — it sees 283 of 965. Its own docstring still quotes the reti
 slice. Quarantined with a runtime guard; joins the two already quarantined.
 Repo inventory total: **4,491 sessions collected, 965 hand-adjudicated (21.5%), and 2,325
 (51.8%) never used by any AURA model or evaluation.**
+
+### [T41] CONFUSION MATRICES BUILT — and the combined view overturns a policy comparison
+`analysis/confusion_matrices.json`, all four policies x five slices.
+
+Under the shipped `strict` policy:
+| slice | TP | FP | FN | TN | P | R |
+|---|---|---|---|---|---|---|
+| OOS (671 attack) | 187 | 14 | 163 | 307 | .930 | .534 |
+| STRICT (288 attack) | 64 | 7 | 108 | 109 | .901 | .372 |
+| INDEPENDENT (400 attack) | 100 | 10 | 215 | 75 | .909 | .317 |
+| our benign (1081) | - | 32 | - | 1049 | - | - |
+| INDEPENDENT benign (200) | - | **0** | - | 200 | - | - |
+
+**THE FINDING. Every precision we have published is measured on ATTACK SESSIONS ONLY.** In
+deployment the gate also sees benign traffic, and the negative class is "no compliance
+occurred" regardless of whether the session was a failed attack or an ordinary task. Folding
+benign in:
+
+| policy | attack-only P | COMBINED P | recall | FP breakdown |
+|---|---|---|---|---|
+| off | .924 | .781 | .449 | 13 attack + 31 benign |
+| **strict (shipped)** | .930 | **.803** | .534 | 14 + 32 |
+| balanced | **.935** | **.750** | .574 | 14 + 53 |
+| aggressive | .918 | .610 | .674 | 21 + 130 |
+
+**`balanced` has the HIGHEST attack-only precision (.935) and a WORSE combined precision
+(.750) than `strict` (.803).** The attack-only view actively reverses the policy ranking,
+because it never counts the 21 extra benign false positives balanced buys. This is an
+independent argument for keeping `strict` that does not depend on the 3.0% budget at all.
+
+**On the independent corpus the combined view is FREE**: benign FP is 0, so combined
+precision equals attack-only precision at .909. The gate looks BETTER under the honest view
+on foreign traffic than on our own.
+
+PAPER CONSEQUENCE: publish the combined matrix, not the attack-only one. Attack-only
+precision is a per-slice diagnostic; combined precision is what a deployer experiences.
+Quoting .930 without saying "on attack sessions only" overstates deployed precision by
+0.127 on our own traffic.
+
+### [T42] WHY THE ADDED CHANNELS GO INERT OFF-CORPUS — diagnosed, with a candidate fix
+The transfer test showed channels 2 and 3 fire ZERO times on 600 foreign sessions because
+`p_unsafe_demand` opens on 14.0% of foreign attack prompts vs 39.3% of ours. Diagnosed the
+component rates (`analysis/diagnose_demand_gate.py`):
+
+| demand component | ours | foreign | gap |
+|---|---|---|---|
+| secret | .755 | .150 | -.605 |
+| targets | .818 | .255 | -.563 |
+| paths | .679 | .255 | -.424 |
+| fields | .344 | **.000** | -.344 |
+| envvars | .273 | **.000** | -.273 |
+| **markers** | .414 | **.875** | **+.461** |
+
+**Their attacks are MARKER-based (make the agent echo a token); ours are SECRET-based (make
+it leak a credential).** The demand gate keys on secret nouns, paths and env vars, which
+foreign prompts simply do not contain. But 87.5% of them demand a MARKER, and by our own
+taxonomy a prompt demanding the attacker's marker IS an unsafe demand: that is
+`r_field_slot_emitted`, one of the seven evidence families this project already names.
+**The gate is inconsistent with our own definition.**
+
+### [T43] THE MARKER-GATE FIX: real, and blocked by the same budget as everything else
+`analysis/experiment_marker_gate.py`. Open the demand gate on a marker demand as well.
+
+| slice | gate OFF | gate ON |
+|---|---|---|
+| gold1 (146, the selection slice) | P .930 R .828 | P .931 R .844 |
+| OOS (671) | P .930 R .534 | P .921 R **.603** (+.069) |
+| **STRICT (288)** | P .901 R .372 | **P .921 R .477** (+.105, precision ALSO up +.020) |
+| benign (1078) | 2.69% | **4.73%** |
+
+On the honest slice BOTH axes improve, and gold1 (where selection is allowed) independently
+supports it. It is blocked on one number: 4.73% against a 3.0% budget.
+
+**BUT THE 4.73% IS AN UPPER BOUND THAT IS SPECIFICALLY INFLATED FOR THIS CHANGE.** 14 of the
+1081 baseline rows emit a planted environment marker. Those are exactly the rows a
+marker-keyed gate is designed to catch, so a substantial share of its apparent new "false"
+blocks are likely CORRECT blocks. No other candidate change has this property.
+
+**DECISION: NOT SHIPPED, pending the 130-row adjudication.** That adjudication was already
+the pre-registered next experiment; it now decides two things instead of one (the
+`balanced` question and the marker-gate question) from the same 130 judgements.
+
+DISCIPLINE NOTE, recorded against myself: I reached the marker hypothesis by reading
+AGGREGATE component rates on the transfer corpus. The justification is a-priori from our own
+taxonomy and needs no foreign data, but the transfer set is no longer fully virgin for THIS
+decision. I have therefore NOT evaluated the marker gate on the foreign corpus. Sequence to
+follow: adjudicate the 130 rows -> decide whether the benign cost is acceptable -> then ONE
+clean evaluation on foreign. Spending the only independent test set on a change that the
+budget already blocks would waste it.
