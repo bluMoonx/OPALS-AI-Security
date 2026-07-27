@@ -331,3 +331,57 @@ The model is weakest exactly where the agent is most vulnerable.** Must be publi
 - session_id duplication measured: 324 ids carry >1 trial, max 9 deep, 1,002 of 1,949
   records (51.4%) sit under a duplicated id, and 323 of 324 dup groups have DIFFERING
   responses. This is why session_id can never be a join key here.
+
+### [T19] FIRST CONFIRMED IMPROVEMENT — labeler recall 0.449 -> 0.554 at P 0.915
+Competition arm `recall_lift` beat T3 and SURVIVED both adversarial refuters
+(refuted=false from each). Three independent derivations agree to every digit:
+the arm, the verifier's from-scratch script, and my own check.
+
+  rule: "frozen behavioral_labeler OR bl_score >= 3", threshold T selected ON GOLD1 ONLY
+  measured out-of-sample on the 671 gold2 sessions the labeler never saw
+
+| | baseline | new | delta |
+|---|---|---|---|
+| precision | 0.9235 | 0.9151 | -0.008, CI [-0.051,+0.021] (indistinguishable) |
+| **recall** | **0.44857** | **0.5543** | **+0.106, CI [+0.056,+0.164], P(d<=0)=0.0000** |
+| F1 | 0.6038 | 0.6904 | +0.087 |
+| counts | tp157 fp13 fn193 tn308 | tp194 fp18 fn156 tn303 | +37 catches for +5 FPs |
+
+Why this is not a leak: the lift is LARGER on the 288 rows whose PROMPT never occurs in
+gold1 (R 0.297 -> 0.453, +0.157, CI [+0.080,+0.244], at P 0.879 -> 0.918). A leak shrinks
+on unseen data; this grows. The frozen baseline was weakest exactly there.
+
+Methodology that made it credible (and that the two REFUTED submissions lacked):
+  - threshold chosen on gold1, never on the 671
+  - bootstrap resamples PROMPT GROUPS not rows (3.39 correlated trials per prompt would
+    otherwise make the CI ~1.8x too narrow)
+  - baseline reproduced exactly before being beaten
+  - paired deltas, not two independent point estimates
+
+Track B (cross-fitted, spends gold2 labels): logreg P 0.928 (sd 0.017) R 0.618 (sd 0.025)
+AUC 0.917; union with frozen labeler P 0.909 R 0.649. Verifier reproduced this too.
+Honest caveat kept: the new point's precision CI lower bound is 0.863 vs the baseline's
+own 0.876 — overlapping, so "P >= 0.90" is not certain at n=671/198 prompts for EITHER.
+
+Threshold sensitivity is real and must be stated: T=3 gives P .915/R .554, T=3.5 collapses
+back to P .924/R .451. T was picked on gold1, so this is honest, but it is not a plateau.
+
+### [T20] GOLD-INTEGRITY GUARD — closes the live risk from the running collector
+The 965 labels are keyed by line_idx into a corpus a live collector is STILL appending to
+(1,933 -> 1,986 during this session). That key is valid only while edits are append-only,
+and nothing enforced it. `analysis/check_gold_integrity.py` now does.
+
+It verifies: (1) every line_idx in range and records[line_idx].session_id matches the gold
+row, (2) no duplicate line_idx, (3) the labelled PREFIX records[0..1923] still hashes to a
+frozen SHA-256, (4) category/condition agree. Exits non-zero on any failure.
+
+Current state: 1,986 records, 965 labels, max labelled line_idx 1923, 62 records appended
+past it. Prefix UNCHANGED. GOLD INTEGRITY: OK.
+
+The guard was TESTED against violations rather than assumed to work:
+  edit a record inside the prefix  -> CAUGHT
+  swap two records inside prefix   -> CAUGHT
+  delete a record inside prefix    -> CAUGHT
+  pure append past the range       -> no false alarm
+Run it before trusting any number, and after anything touches the corpus.
+Re-freeze with `--freeze` only after deliberately adding labels.
