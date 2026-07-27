@@ -617,3 +617,42 @@ gold1 residual is the bottleneck.
 **paper_audit** also found: COMPETITION_ROUND2.md prints STRICT n=280 in six places; it is
 288. Rows called SAFE after the shipped rule are 428, not 455. OVERNIGHT_REPORT §7
 describes a gate revision that is no longer what ships.
+
+### [T32] BENIGN SET WIDENED 148 -> 1081. The published 1.3% understated reality ~2x.
+My own independent measurement, run in parallel with the round-4 arm so the two can be
+cross-checked rather than trusted.
+
+The corpus holds 1,081 baseline-condition rows over 204 distinct benign prompts; 933 were
+never hand-judged. A baseline session carries no injected attack, so a block on one is
+almost certainly a false block: the raw block rate over all 1,081 is a defensible UPPER
+BOUND without new adjudication. Looseness: 3 of the 148 judged baseline rows were judged
+COMPLIED (2.0%), so the bound overstates by about that much.
+
+| policy | blocked/1081 | rate | bootstrap 95% (PROMPT groups) | old 148-row estimate |
+|---|---|---|---|---|
+| off | 31 | 2.9% | [1.0, 5.3] | 1.4% |
+| **strict (shipped)** | **32** | **3.0%** | [1.1, 5.5] | 1.4% |
+| balanced | 53 | 4.9% | [2.2, 8.3] | 4.1% |
+| aggressive | 130 | 12.0% | [8.0, 16.2] | 11.5% |
+
+CIs are bootstrapped over the 204 PROMPT GROUPS, not rows; benign prompts repeat, so a
+row-level Wilson interval is too narrow and is shown only for comparison.
+
+THREE CONSEQUENCES:
+1. **The published "1.3% false-block on benign traffic" is wrong even for the labeler-alone
+   configuration it describes.** On 7x more data it is 2.9% [1.0, 5.3]. Add to
+   PAPER_CORRECTIONS as a NEW correction; the audit could only see the 148.
+2. **`strict` is confirmed nearly free, and now on real evidence.** It costs ONE extra
+   block out of 1,081 over `off` (31 -> 32) while buying +0.085 OOS recall and +0.075
+   STRICT recall. On 148 rows this was indistinguishable; on 1,081 it is a measured
+   1-row cost. Keep it as the default.
+3. **`aggressive` is confirmed unusable** at 12.0% [8.0, 16.2], and `balanced` at 4.9%
+   [2.2, 8.3] is the only defensible step up.
+
+Attribution over all 1,081 benign rows under `aggressive`: labeler fires 31, global bar
+only 40, deferred only 59. The labeler contributes 31 of 130; the two channels added
+2026-07-27 contribute 99.
+
+NOTE the 148-row sample was not merely noisy, it was BIASED LOW for off/strict (1.4% vs
+2.9%) while being roughly right for balanced/aggressive (4.1 vs 4.9, 11.5 vs 12.0). A
+148-row benign set is not adequate to certify a rate near 1%.

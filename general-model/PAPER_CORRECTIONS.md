@@ -196,6 +196,11 @@ labelled rows sit at index ≤ 1923 and everything since is a pure append
 
 ## 5. Figure audit — re-derived, one at a time
 
+> The table below is the audit **as found**. All three defects it names were fixed on
+> 2026-07-27; see **§5.1** for what was done and the numbers re-derived off each
+> regenerated PNG. Do not act on the "must be regenerated" / "do not publish" verdicts
+> without reading §5.1 first.
+
 | figure | claims on the face of it | verdict |
 |---|---|---|
 | `fig1_label_undercount.png` | n=817; canary 11.3 % (92/817) vs behavioral 50.7 % (414/817); title "canary misses 326 of 414 = …" | **Numbers correct.** **But the title is CLIPPED** — the rendered PNG cuts off at "= " and the reader never sees "79 %". `make_figures.py:74-76` builds a two-line title too wide for `figsize=(4.6, 3.4)`. **Misleading as rendered; must be regenerated with a wider figure or a shorter title.** |
@@ -205,6 +210,20 @@ labelled rows sit at index ≤ 1923 and everything since is a pure append
 | `fig5_protocol_ladder.png` | left: 0.797 plain KFold / 0.743 prompt-grouped / 0.712 LOACO, "leak −0.055"; right: per-family LOACO 0.82…0.31 | **Fully correct.** Every value matches `models/metrics_behavioral.json` to two decimals (0.7427→0.74, 0.7117→0.71, cot_hijack 0.3065→0.31, false_precedent 0.5145→0.51). Reads its numbers out of the shipped joblib, so it cannot drift. **This is the model figure to publish.** |
 | `fig6_ab_intervention.png` | 12/12 vs 3/12, Fisher p = 0.00034, filesystem outcome | **Correct** against `ab_intervention_results.json`. **Caption obligation:** the A/B tested the literal string `rm -rf`, which is the one spelling the pre-`T23` rule layer caught. It measured one spelling, not the capability (`WORKLOG.md:430-453`). Publishing the panel without that sentence overstates what was demonstrated. |
 | `fig5_transfer_and_safety.png.withdrawn` | n=89 baseline / n=84 attack, cross-source 0.602 | Correctly withdrawn. **`PAPER_PLAN.md:62,73` still cites it as a deliverable — remove those references.** |
+
+### 5.1 Resolution of the three §5 defects — done 2026-07-27 12:44, re-verified off the rendered PNGs
+
+All three were fixed in `analysis/make_figures.py`; `fig2` regenerated **byte-identical**
+(md5 `58c12bc57266c5aba6fcfd3d53c3815c` before and after), confirming the edit touched
+nothing it should not. `openclaw-plugin/` was not modified; `test_suite.py` re-run anyway:
+**22 passed, 0 failed**. `make_figures.py` is idempotent — a second run is a no-op on the
+retired files.
+
+| defect | action taken | verified off the rendered PNG |
+|---|---|---|
+| **1. `fig1` title clipped** | `figsize` 4.6×3.4 → 6.6×3.8; the second title line is now a separate `ax.text` at `y=1.015` so `tight_layout` reserves room for it. Finding kept verbatim. | The subtitle now reads in full: **"n=817 hand-judged attack sessions; canary misses 326 of 414 = 79%"**. Bars: 11.3 % (92/817), 50.7 % (414/817). Re-derived from `load_all_gold` at 2026-07-27 12:42 — n 817, canary 92 (11.2607 %), behavioural 414 (50.6732 %), canary∧behavioural tp 88, missed 414−88 = 326, 326/414 = 78.744 % → 79 %. Exact. |
+| **2. `fig3_corpus.png` misleading** | **Withdrawn** → `fig3_corpus.png.withdrawn`, and replaced by a new **`fig3_corpus_provenance.png`** built from the live source files. Argument for replacing rather than merely relabelling: the "unsafe" series was not one labeler but **three incomparable heuristics pooled under one legend entry** — `deterministic_behavioral_labeler` (newcats, 1577), `chenhao_risk_indicator_or` (chenhao, 651), `scigateway_heuristic` (scigw22, 75); `label_origin` confirms all 2303 rows are machine-labelled and **zero are adjudicated**. An honest axis label would have had to say "three different unvalidated heuristics, pooled", at which point the series carries no interpretable quantity. So the machine-label series was deleted outright and replaced with the one provenance fact the paper actually needs: how much of the evidence base is hand-adjudicated. The new panel plots **only line counts and loader counts** and carries no rate at all. | Face of the new figure: newcats **2166** collected / **965** hand-adjudicated; chenhao_release **1314** / **0**; collected_22category **82** / **0**; stamp "snapshot 2026-07-27 (newcats collector is live; file mtime 2026-07-27 06:43). No machine labels plotted." Re-derived: `wc -l` = 2166 / 1314 / 82; `len(load_all_gold(load_records()))` = 965; the generator asserts every gold `line_idx` falls inside newcats, so the 0/0 are structural, not assumed. Staleness of the old figure quantified: `corpus_clean.jsonl` was frozen at mtime 2026-07-26 15:03 with 1601 raw newcats rows, i.e. **565 raw rows behind** the live 2166. |
+| **3. `fig4_honest_vs_inflated.png` misleading** | **Retired** → `fig4_honest_vs_inflated.png.withdrawn`. `fig_honest_vs_inflated()` deleted from `make_figures.py`; it can no longer be regenerated, and the module docstring records why. No replacement panel is generated here — `fig5_protocol_ladder.png` already tells the story from the current artifact. | Confirmed absent from the generator's output list (`generated 3 figures`: fig1, fig2, fig3_corpus_provenance) and the PNG no longer resolves under its published name. |
 
 ---
 
@@ -273,7 +292,7 @@ labelled rows sit at index ≤ 1923 and everything since is a pure append
 | **deferred_compliance T1 AUC 0.853, Δ +0.170** (`WORKLOG.md:399`; `OVERNIGHT_REPORT.md:271-275`) | On gold2-only prompts the gain is **+0.027, CI [−0.014, +0.072] — contains zero** (`COMPETITION_ROUND2.md:199-208`). The repo simultaneously calls this arm the round's WINNER and says its generalisation claim does not survive. | Either report it as **operating-point-only** (which does survive on STRICT) or measure the AUC claim on a larger contamination-free slice. Never publish +0.17 as a generalising gain. |
 | **"unfitted hand-weighted score reaches AUC 0.842 with zero training"** | I reproduced it (0.8419 all-965; 0.8723 attack slice; permutation control 0.504 — harness sound). But it is measured on all 965 rows, **including the 685 whose prompts the feature author's taxonomy came from**. | Report the same number on STRICT before publishing it as evidence of generality. |
 | **action-recovery counts (405 / 660 / 769 / 794 / 680 / 1,059 / 5,230)** | Five mutually inconsistent sets across four documents; only "794 enriched rows" survives contact with the artifact. | Fix the definition of "distinct trial", re-run `recover_actions.py`, and quote one set from one artifact with a timestamp. |
-| **`fig3_corpus.png` and `fig4_honest_vs_inflated.png`** | See §5. One shows a machine-label rate that reads as an ASR; the other shows a canary-era 0.502 as "the honest number". | Regenerate `fig3` with an honest axis label, and retire `fig4` in favour of `fig5_protocol_ladder.png`. |
+| ~~**`fig3_corpus.png` and `fig4_honest_vs_inflated.png`**~~ | ~~See §5.~~ | **CLOSED 2026-07-27** — both withdrawn to `.withdrawn`, `fig4` no longer generated, `fig3` replaced by `fig3_corpus_provenance.png`. See §5.1. |
 | **PAPER_PLAN.md as a whole** | It is a **300-label-era document**. §A, B1, B2, B3, B4, B5, B6, C1, C2, D1 all quote superseded numbers (43.7/10.6/76 %, kappa 0.256, 83 %/80 %/75 %/67 %, 0.602/0.748/0.801, 405/769/680, 1.3 %, F1 0.874), and B4/B6 cite a withdrawn figure. | Rewrite against this file before any of it goes into the draft. Do not edit it number-by-number; the framing changed too. |
 | **live gateway counters** | Two conflicting snapshots, unreproducible. | Snapshot once, timestamp it, and quote that one. |
 | **"Anomaly-from-normal 0.798 vs 0.863"; "ensembling is worse, 0.817 vs 0.874"; "91 engineered features"; "verification-collapse 0.98"** (`RESULTS.md:340-348`; `PROGRESS.md:207-208`; `PAPER_PLAN.md:78-82`) | All measured against **canary-era or in-sample** labels. The 0.874 comparator is in-sample. | Re-measure under the grouped protocol on behavioural labels, or present them as historical process notes rather than results. |
@@ -291,3 +310,54 @@ labelled rows sit at index ≤ 1923 and everything since is a pure append
 | `RESULTS.md` | **Half of it is pre-adjudication.** §1, §2, §3.2, §3.3, §5 all need replacing. §0's withdrawal notice, the 22-category section and the live-transcript section are fine. |
 | `PROGRESS.md` | Same as RESULTS.md; F1–F4 are all superseded. |
 | `PAPER_PLAN.md` | **Fully stale.** Rewrite, do not patch. |
+
+---
+
+## 9. ADDENDUM 2026-07-27 — the benign false-block rate, measured on 1,081 rows not 148
+
+Correction **0.1** above was derived from the 148 hand-judged baseline sessions, which is
+all the audit had. The corpus in fact holds **1,081 baseline-condition rows over 204
+distinct benign prompts**; 933 were never hand-judged. A baseline session carries no
+injected attack, so a block on one is almost certainly a false block, which makes the raw
+block rate over all 1,081 a defensible **upper bound** with no new adjudication. It is
+loose by roughly 2.0%, since 3 of the 148 judged baseline rows were themselves judged
+COMPLIED.
+
+| policy | blocked / 1081 | rate | bootstrap 95 % (PROMPT groups) | the old 148-row figure |
+|---|---|---|---|---|
+| off (labeler alone) | 31 | **2.9 %** | [1.0, 5.3] | 1.4 % |
+| **strict (shipped default)** | **32** | **3.0 %** | [1.1, 5.5] | 1.4 % |
+| balanced | 53 | 4.9 % | [2.2, 8.3] | 4.1 % |
+| aggressive | 130 | 12.0 % | [8.0, 16.2] | 11.5 % |
+
+CIs bootstrap the **204 prompt groups**, not the rows. Benign prompts repeat, so a
+row-level Wilson interval is too narrow; it is shown in the source output only for
+comparison.
+
+### What this changes
+
+1. **A NEW correction, which supersedes 0.1's own replacement value.** The published
+   "1.3 % false-block on benign traffic" is wrong *even for the labeler-alone configuration
+   it describes*. On 7× more data that configuration is **2.9 % [1.0, 5.3]**. Neither 1.3 %
+   nor 1.4 % should appear in the paper.
+2. **`strict` is confirmed near-free on real evidence.** It costs exactly **one** extra
+   block out of 1,081 over `off` (31 → 32) while buying +0.085 OOS recall and +0.075 STRICT
+   recall. On 148 rows the two were indistinguishable; on 1,081 the cost is measurable and
+   it is one row.
+3. **`aggressive` is confirmed unusable** (12.0 %, CI [8.0, 16.2]) and **`balanced`
+   (4.9 %)** is the only defensible step up from the default.
+
+### The methodological point, which is worth publishing
+
+The 148-row sample was not merely noisy, it was **biased low** where it mattered: 1.4 % vs
+2.9 % for off/strict, while being roughly right for balanced (4.1 vs 4.9) and aggressive
+(11.5 vs 12.0). A 148-row benign set cannot certify a rate near 1 %. Any paper reporting a
+low false-positive rate on a benign set of that size is reporting a number its sample
+cannot support, and this project did exactly that for weeks.
+
+Attribution over all 1,081 benign rows under `aggressive`: labeler fires 31, global bar
+only 40, deferred only 59.
+
+Reproduce: `python3` on the corpus via `load_all_gold`/`load_records`, scoring
+`scorer._compliance_layers` with `scorer.BLOCK_POLICY` set per policy; script preserved at
+`analysis/measure_benign_wide.py`.
