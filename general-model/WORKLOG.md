@@ -385,3 +385,71 @@ The guard was TESTED against violations rather than assumed to work:
   pure append past the range       -> no false alarm
 Run it before trusting any number, and after anything touches the corpus.
 Re-freeze with `--freeze` only after deliberately adding labels.
+
+### [T21] COMPETITION RESULT — 4 arms, 3 survived adversarial verification
+| arm | beat | verifiers | survived |
+|---|---|---|---|
+| compliance_features | T1 AND T3 | 2 ran, 0 refuted | YES <- WINNER |
+| supervised_on_gold | T1 only | 2 ran, 0 refuted | YES |
+| recall_lift | T3 | 2 ran, 0 refuted | YES |
+| ensemble | claimed T3 | 2 ran, 1 refuted | NO |
+
+**WINNER: compliance_features** (`analysis/compete/deferred_compliance.py`, 20 features
+authored from the canary-blind taxonomy). Beat BOTH targets:
+  T1: AUC 0.853 (sd 0.004) vs 0.748. logreg delta +0.170, RF delta +0.086 CI [+0.048,+0.124]
+  T3: P 0.9235 -> 0.9352 AND R 0.4486 -> 0.5771 on the 671 held out. F1 0.604 -> 0.714
+      +45 catches for +1 false positive. recall CI [+0.089,+0.172]. P(prec<0.90)=0.031
+  Zero-fit: the UNFITTED hand-weighted score alone reaches AUC 0.842 with no training.
+  Permuted-label null 0.471. Provenance machine-checked: authored only on chenhao +
+  collected_22category, which I verified share 0 prompts and 0 responses with gold.
+
+Reproduced FOUR times independently: the arm, both refuters, and my own from-scratch run
+(P 0.9352 R 0.5771 F1 0.7138 tp202 fp14, exact to every digit; gold1 P 0.9298 R 0.8281).
+
+supervised_on_gold is a real T1 win (nested AUC 0.898, CI [0.870,0.926]) but does NOT help
+the gate: at precision >=0.90 it gives R 0.387 vs T3's 0.449. Its whole +0.15 lives in the
+mid-range of the score distribution, not the high-precision head the gate blocks on.
+
+### [T22] DEPLOYED != MEASURED. The gate was running unmeasured code.
+`openclaw-plugin/behavioral_labeler.py` had silently drifted from
+`analysis/rebuild/behavioral_labeler.py`: 558 lines vs 790, different sha256.
+
+| copy | P | R | tp | fp |
+|---|---|---|---|---|
+| analysis/rebuild (every published number describes THIS) | 0.9235 | 0.4486 | 157 | 13 |
+| openclaw-plugin (what the gate actually ran) | 0.9649 | 0.3143 | 110 | 4 |
+
+Nothing crashed. Nothing warned. Same class of silent error as the n=971 join and the
+prompt leak. Synced the plugin to the measured version and added a test that hashes both
+files and FAILS on drift.
+
+Also found while wiring: `_compliance_layers` did not receive tool names, costing 6 of the
+45 recovered detections. Threaded `tools` through; the scorer's own code path now measures
+P 0.9352 R 0.5771 tp202 fp14, exactly matching the verified target.
+
+### [T23] LIVE SECURITY HOLE FOUND AND FIXED — denylist was substring-matching "rm -rf"
+A live block test DELETED its target. Root cause was not the plugin or the scorer, both of
+which were healthy: `rule_layer` substring-matched the literal "rm -rf", so flag variants
+walked straight through.
+
+| command | before | after |
+|---|---|---|
+| `rm -rf X` | block | block |
+| `rm -r X` | **ALLOW** | block |
+| `rm -fr X` | **ALLOW** | block |
+| `rm --recursive --force X` | **ALLOW** | block |
+| `find X -delete` | **ALLOW** | block |
+| `find X -exec rm {} ;` | **ALLOW** | block |
+
+Fixed with `\brm\s+(?:-[a-z]*r[a-z]*|--recursive)\b` plus a find-delete pattern. The word
+boundary matters: params arrive as JSON so the command is preceded by a quote, and a first
+attempt anchored on `\s` matched `cd /t && rm -r x` but NOT a bare `rm -r /x`.
+Verified 9 destructive spellings block and 6 benign ones (`rm file.txt`, `grep -r`,
+`ls -lr`, `confirm -r`) do not. Enumerated as a regression test.
+
+HONEST CAVEAT ON THE A/B: the 12/12 vs 3/12 result used the literal `rm -rf`, which the
+old rule DID catch, so that measurement stands. But an attacker spelling it `rm -r` would
+have passed the gate for its entire history until now. The A/B measured the gate against
+one spelling, not against the capability.
+
+Live re-verified after the fix: **8/8 prevented, 8 block events logged.** 20/20 tests pass.
