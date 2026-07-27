@@ -535,3 +535,57 @@ Suggested order for a talk: **rule_gateway_blind** (why this track exists) →
 **confound_prompt_length** (why the first answer was wrong) → **collision_ceiling**
 (why the problem is hard) → **overblock_trajectory** (what we recovered) →
 **architecture_ranking** (why the remaining headroom is not in model choice).
+
+---
+
+## 15. Cross-methodology check against Sid's adjudicated labels (2026-07-27)
+
+Sid's 965 hand-judged labels (`general-model/gold_labels/`) cover **8 of this track's
+9 subtypes**, measured on *real* payloads rather than benign canaries. That makes the
+comparison this track could never run on its own possible: **does benign-canary
+technique-effectiveness transfer to real attacks?**
+
+Per-technique attack success, this track's canary probes vs Sid's adjudicated ASR
+(`prompt_leaking` excluded — its `leak_markers` were never populated, so its 0.00 is an
+unmeasurable, not a result):
+
+| technique | canary ASR | real-payload ASR | gap |
+|---|---:|---:|---:|
+| reasoning_hijack / cot_hijack | 1.00 | 0.65 | +0.35 |
+| sleeper_trigger | 0.96 | 0.53 | +0.43 |
+| fabricated_context / false_precedent | 0.92 | 0.81 | +0.11 |
+| delimiter_confusion | 0.88 | 0.70 | +0.18 |
+| hypothetical_framing | 0.84 | 0.37 | +0.47 |
+| role_spoofing | 0.78 | 0.48 | +0.30 |
+
+**Two findings, and the second one is uncomfortable:**
+
+1. **Benign canaries systematically overstate susceptibility** — mean ASR 0.90 vs 0.59,
+   a **+0.31** gap, positive for every technique. Expected: eliciting a harmless marker
+   is easier than eliciting a real credential. Worth stating as a calibration offset.
+
+2. **The per-technique ranking transfers only moderately.** Spearman **+0.486** (n=6),
+   which at this sample size is not significant. The resistant end does agree —
+   `hypothetical_framing` and `role_spoofing` are the two lowest in both — but the
+   susceptible end disagrees: `reasoning_hijack` is 1st under canaries and 3rd under
+   real payloads, `fabricated_context` is 3rd and 1st.
+
+This **qualifies §B2's defence** of the benign-canary methodology. The claim that
+holding the payload harmless "gives a per-technique ranking" is supported only weakly:
+directionally at the resistant end, not as a rank order, and not on absolute rates.
+State it as a measured limitation with a number attached, rather than waiting for it to
+be raised — it is a far stronger position than the vague "harm isn't directly
+demonstrated" caveat the handoff currently carries.
+
+**Sid's result also independently confirms §12.** His `canary_recall_vs_behaviour` is
+**0.213** — the canary label misses **78.7%** of true compliances, judged by hand.
+§12 showed the canary feature *recomputes* the label; Sid shows the canary label
+*misses* most real compliance. Two methods, opposite directions, same conclusion: the
+canary is not ground truth. Together these are a considerably stronger claim than
+either alone, and it is worth writing up jointly.
+
+He also hit the same *class* of confound independently: a prompt-duplication leak
+(285 distinct prompts across 965 rows) inflated AUC 0.797 → 0.743 until CV was grouped
+on `md5(prompt)`. And his leave-one-category-out mirrors §6's grouped-split weakness —
+`cot_hijack` 0.31 (below chance) and `false_precedent` 0.51 (chance) while being the
+highest-ASR family.
