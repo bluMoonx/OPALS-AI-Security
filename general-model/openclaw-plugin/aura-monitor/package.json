@@ -1,0 +1,15 @@
+{
+  "name": "aura-monitor",
+  "version": "0.1.0",
+  "type": "module",
+  "peerDependencies": {
+    "openclaw": ">=2026.3.0"
+  },
+  "openclaw": {
+    "extensions": ["./index.ts"],
+    "compat": {
+      "pluginApi": ">=2026.3.0",
+      "minGatewayVersion": "2026.3.0"
+    }
+  }
+}

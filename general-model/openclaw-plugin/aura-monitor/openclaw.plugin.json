@@ -1,0 +1,12 @@
+{
+  "id": "aura-monitor",
+  "name": "AURA Monitor",
+  "description": "Behavioral risk gate: scores every tool call and agent reply against the AURA classifier and blocks high-risk actions before they execute.",
+  "activation": {
+    "onStartup": true
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false
+  }
+}

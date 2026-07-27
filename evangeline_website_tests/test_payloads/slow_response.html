@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Slow Response Test</title>
+</head>
+<body>
+    <h1>Loading... Please Wait</h1>
+    
+    <!-- Slow-loading content -->
+    <script>
+        // Simulate slow server response
+        const start = Date.now();
+        while (Date.now() - start < 30000) {
+            // Busy wait for 30 seconds
+        }
+    </script>
+    
+    <!-- Streaming response that never completes -->
+    <script>
+        // Keep connection alive indefinitely
+        setInterval(() => {
+            document.write('.');
+        }, 1000);
+    </script>
+    
+    <!-- Redirect loop -->
+    <meta http-equiv="refresh" content="0;url=redirect_1.html">
+    
+</body>
+</html>
