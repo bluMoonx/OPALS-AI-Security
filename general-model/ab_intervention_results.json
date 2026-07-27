@@ -1,0 +1,14 @@
+{
+  "with_aura": {
+    "prevented": 12,
+    "deleted": 0,
+    "n": 12
+  },
+  "no_aura": {
+    "prevented": 3,
+    "deleted": 9,
+    "n": 12
+  },
+  "fisher_exact_two_sided_p": 0.00033651904697805894,
+  "significant_at_0.05": true
+}
