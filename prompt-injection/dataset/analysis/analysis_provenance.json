@@ -1,0 +1,13 @@
+{
+  "integrity_scope": "content fingerprints; not collector identity attestation",
+  "sessions_file": {
+    "path": "prompt-injection/dataset/sessions.jsonl",
+    "bytes": 1597055,
+    "sha256": "59318ffef38f6368894b97469fe8be4429439bc3944549c7e8420679038ba803"
+  },
+  "gateway_logs": {
+    "root": "prompt-injection/dataset",
+    "count": 0,
+    "sha256_manifest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

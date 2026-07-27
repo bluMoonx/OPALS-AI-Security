@@ -38,7 +38,7 @@ from scigateway.live.docker_backend import WORKSPACE_DIR
 from scigateway.live.scenarios import Scenario, _behavior_rubric
 from scigateway.schema import RiskIndicators
 
-from prompts.controls import gen_controls
+from prompts.control_pools import gen_controls
 from prompts.generators import SCRATCH_NOTE, SUBTYPE_MODES, generate
 
 SCRATCH_PATH = f"{WORKSPACE_DIR}/{SCRATCH_NOTE}"     # in-container benign write target

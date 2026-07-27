@@ -224,7 +224,7 @@ response text the labeller actually saw: 296 → 294 records, 4 dropped rather t
 | Chenhao | 1,314 | 0.686 detection / 0.32 FPR | honest, single-collection |
 | Blu/Kathleen | 110 (90/20) | 0.94 bal-acc / 0.95 AUC | **drops to 0.689** without `cites_memory_md` (their own ablation) |
 | Spring (prior) | ~100 | 0.874 AUC | untested for this leak |
-| Sathwik | 0 pushed | 650 planned | design only |
+| Sathwik | 600 pushed (400 attack / 200 control) | 78.8% ASR; rule gateway blocks 1/400; over-block 30.6% @100% catch | held-out splits, 2 confounds found and documented |
 
 We have the largest dataset, the only hand-judged ground truth, and the only
 cross-collection test.
