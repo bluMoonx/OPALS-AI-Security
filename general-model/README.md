@@ -65,6 +65,7 @@ prompt-grouped 10-seed CV **AUC 0.7427**, leave-one-attack-category-out **0.7117
 | **understand each model file** | [`MODELS.md`](MODELS.md) |
 | **know whether layering helps** | [`layering/README.md`](layering/README.md) |
 | **check the paper's claims** | [`PAPER_FACTCHECK.md`](PAPER_FACTCHECK.md) |
+| **fix the abstract and figures** | [`PAPER_REVIEW.md`](PAPER_REVIEW.md) |
 
 ```bash
 cd openclaw-plugin && ./setup.sh          # install into a running OpenClaw container
@@ -104,6 +105,7 @@ general-model/
 ├── MODELS.md                 what each .joblib is, and which one to use
 ├── GATE_OPERATING_POINTS.md  the authoritative numbers
 ├── PAPER_FACTCHECK.md        every paper claim checked against source data
+├── PAPER_REVIEW.md           abstract rewrite + figure-by-figure review
 │
 ├── openclaw-plugin/          THE PRODUCT
 │   ├── README.md               install guide, config, dashboard, limitations
