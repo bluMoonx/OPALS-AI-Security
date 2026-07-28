@@ -29,9 +29,24 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-sys.path.insert(0, os.path.join(ROOT, "analysis"))
+# Helper modules live in different places depending on which checkout you have:
+# the working repo keeps them in analysis/, the published team repo in src/, and
+# some are vendored next to this file. Search all three rather than assuming one,
+# otherwise a fresh clone dies on `import science_features` before it can start.
+for _cand in ("analysis", "src", "src/rebuild", "src/compete"):
+    _p = os.path.join(ROOT, _cand)
+    if os.path.isdir(_p):
+        sys.path.insert(0, _p)
+sys.path.insert(0, HERE)
 import joblib
-from science_features import science_features
+try:
+    from science_features import science_features
+except ImportError as _e:  # be explicit rather than failing three frames deeper
+    raise SystemExit(
+        f"AURA scorer: cannot import science_features ({_e}).\n"
+        f"  Looked in: {[os.path.join(ROOT, c) for c in ('analysis','src')]} and {HERE}\n"
+        f"  Put science_features.py in one of those, then restart."
+    )
 
 # ML layer uses the BEHAVIOURAL model (trained on 965 hand-judged labels).
 # aura_general.joblib was trained on canary labels, which recover only 21% of true
