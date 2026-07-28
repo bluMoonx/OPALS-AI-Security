@@ -60,7 +60,7 @@ from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-ROOT = "/Users/sid/Documents/Behavioral Risk Prediction for Autonomous AI Systems"
+ROOT = (os.environ.get("AURA_ROOT") or os.path.dirname(os.path.abspath(__file__)))
 REBUILD = os.path.join(ROOT, "analysis/rebuild")
 CORPUS = os.path.join(REBUILD, "corpus_clean.jsonl")
 GOLD_GLOB = os.path.join(REBUILD, "gold_*.jsonl")

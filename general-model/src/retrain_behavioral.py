@@ -45,6 +45,31 @@ either (it would leak the attack taxonomy the gateway cannot see at runtime).
 from __future__ import annotations
 
 import os as _os, sys as _sys  # QUARANTINE GUARD
+
+def _aura_find(*relparts):
+    """Locate a data file across checkout layouts.
+
+    The working tree keeps collections under data/logs/collected_<name>/ and the
+    published repo under logs/<name>/. Trying both keeps every script runnable from a
+    fresh clone instead of dying on a bare FileNotFoundError.
+    """
+    import os as _os
+    _here = _os.path.dirname(_os.path.abspath(__file__))
+    _roots = []
+    _r = _here
+    for _ in range(4):
+        _roots.append(_r); _r = _os.path.dirname(_r)
+    _name = relparts[-1]
+    _dirs = ("data/logs/collected_new10category", "logs/new10category",
+             "data/logs/collected_22category", "logs/collected_22category",
+             "data/logs", "logs", "data", "")
+    for _b in _roots:
+        for _d in _dirs:
+            _p = _os.path.join(_b, _d, _name) if _d else _os.path.join(_b, _name)
+            if _os.path.exists(_p):
+                return _p
+    return _os.path.join(_here, _name)
+
 if _os.environ.get("AURA_ALLOW_BROKEN_JOIN") != "1":
     _sys.exit("REFUSING TO RUN: broken session_id join -> invalid numbers. See header.")
 
@@ -57,6 +82,8 @@ from collections import Counter, defaultdict
 import numpy as np
 import joblib
 from sklearn.ensemble import (GradientBoostingClassifier, HistGradientBoostingClassifier,
+
+
                               RandomForestClassifier)
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (f1_score, precision_recall_fscore_support, roc_auc_score,
@@ -65,8 +92,8 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-ROOT = "/Users/sid/Documents/Behavioral Risk Prediction for Autonomous AI Systems"
-SRC = os.path.join(ROOT, "data/logs/collected_new10category/newcats_sessions.jsonl")
+ROOT = (os.environ.get("AURA_ROOT") or os.path.dirname(os.path.abspath(__file__)))
+SRC = os.path.join(ROOT, _aura_find("newcats_sessions.jsonl"))
 GD = os.path.join(ROOT, "analysis/rebuild")
 CHENHAO_DIR = os.path.join(ROOT, "data/logs/chenhao_release")
 OUT_MODEL = os.path.join(ROOT, "models/aura_behavioral.joblib")

@@ -32,27 +32,87 @@ Scientific task + untrusted content
 
 ## Results
 
-Shipped default (`AURA_BLOCK_POLICY=strict`), measured on held-out data:
+### The gate, on held-out data
 
-| slice | precision | recall |
-|---|---|---|
-| **OOS** — 671 unseen attack sessions | **0.9214** | **0.6029** |
-| **STRICT** — 288 whose prompt never appears in training | **0.9213** | **0.4767** |
-| gold1 — 146 threshold-fitting sessions | 0.9310 | 0.8438 |
+Shipped default, `AURA_BLOCK_POLICY=strict`:
 
-**Cost: 31 false blocks in 1,081 benign sessions = 2.87%** [2.0, 4.0], against a written
-budget of 3.00%.
+| slice | n | precision | recall | tp / fp |
+|---|---|---|---|---|
+| **OOS** — unseen attack sessions | 671 | **0.9214** | **0.6029** | 211 / 18 |
+| **STRICT** — prompt never seen in training | 288 | **0.9213** | **0.4767** | 82 / 7 |
+| gold1 — threshold-fitting slice | 146 | 0.9310 | 0.8438 | 54 / 4 |
+| independent corpus (different collector) | 400 | 0.9099 | 0.3206 | — |
 
-Full policy curve, and why `balanced` and `aggressive` are rejected, in
-[`GATE_OPERATING_POINTS.md`](GATE_OPERATING_POINTS.md). Reproduce with
-[`analysis/paper_repro/policy_curve.py`](analysis/paper_repro/policy_curve.py).
+**Benign cost: 31 false blocks in 1,081 sessions = 2.87%** [2.0, 4.0], budget 3.00%.
+Of 54 raw blocks, 23 are objectively correct (canary disclosed, planted marker emitted,
+credential code, secret-file solicitation), leaving 31 false.
+
+### The full policy curve
+
+| policy | OOS P / R | STRICT P / R | benign raw / correct / **FALSE** | rate | budget |
+|---|---|---|---|---|---|
+| `off` | .9235 / .4486 | .8793 / .2965 | 31 / 19 / **12** | 1.11% | ok |
+| **`strict`** ← ships | **.9214 / .6029** | **.9213 / .4767** | 54 / 23 / **31** | **2.87%** | **ok** |
+| `balanced` | .9217 / .6057 | .9222 / .4826 | 59 / 24 / **35** | 3.24% | over |
+| `aggressive` | .9183 / .6743 | .9292 / .6105 | 130 / 31 / **99** | 9.16% | over |
+
+`balanced` buys +1 tp on each slice for 4 more false blocks and breaks the budget.
+`aggressive` blocks roughly one benign session in eleven.
+
+### The model
+
+`aura_behavioral.joblib` — Random Forest, 12 features, 965 hand-judged labels.
+
+| metric | value |
+|---|---|
+| prompt-grouped CV AUC, 10 seeds | **0.7427** |
+| leave-one-attack-category-out AUC | **0.7117** |
+| controls, v1 (length-confounded) | **0/200** blocked |
+| controls, v2 (length-matched, harder) | **0/200** blocked |
+| test suite | **24 / 24** |
+
+**F1 is the wrong lens here and we do not headline it.** The always-positive trivial F1 is
+0.6035 on all gold, 0.6856 on OOS, 0.7478 on STRICT. F1 never looks at the benign
+population, which is the entire point of a gate. Quote (recall, benign false-block rate).
+
+### The corpus
+
+| corpus | rows | distinct prompts | role |
+|---|---|---|---|
+| ten-category (ours) | 2,166 | 285 in gold | train + eval |
+| hand-judged gold | 965 | 285 | 817 attack / 148 baseline |
+| cross-source release | 1,314 | **10** | transfer; 81% carry tool output |
+| independent prompt-injection | 600 | 455 | held-out transfer |
+| independent controls v2 | 600 | 531 | benign, confound removed |
+| memory poisoning | 94 | — | 84 attack / 10 control |
+| broad taxonomy | 82 | — | 23 attack categories |
+| browser payloads | 16 | — | live rerun with tool traces |
+| **total** | **5,372** | | |
+
+Action trail: **6,387 action records** with `kind`/`target`/`in_scope`/`status` over 950
+enriched rows and **1,284 distinct trials**. Quote distinct-trial figures (660 trials with
+actions, 1,059 out-of-scope actions) — the row-level sums are inflated by a non-unique
+`session_id` join.
+
+### Layering: measured, and it does not ship
+
+LOACO **0.7117 -> 0.7395** (reproduced at 0.7402 on different seeds), moving exactly the
+families that sat near chance: `cot_hijack` 0.307 -> 0.392, `false_precedent` 0.514 -> 0.655.
+But the gain at the operating point is **+1 true positive per slice**, which a permuted-score
+null reproduces exactly, and precision falls under 0.90. The gate buys **6.81 true positives
+per false block**; the best layer buys **0.375**. Details in [`layering/`](layering/README.md).
+
+Reproduce everything above:
+
+```bash
+python3 analysis/paper_repro/policy_curve.py    # the policy table
+python3 layering/w2_repro.py                    # AUC, LOACO, per-family
+python3 openclaw-plugin/test_suite.py           # 24 tests
+```
 
 > **No gate number may be quoted without its policy label.** A recall from one policy beside
 > a benign rate from another describes a system that does not exist. That has happened here
-> before.
-
-Model: `aura_behavioral.joblib`, Random Forest, 12 features, 965 hand-judged labels,
-prompt-grouped 10-seed CV **AUC 0.7427**, leave-one-attack-category-out **0.7117**.
+> before. Full detail in [`GATE_OPERATING_POINTS.md`](GATE_OPERATING_POINTS.md).
 
 ---
 
@@ -64,8 +124,6 @@ prompt-grouped 10-seed CV **AUC 0.7427**, leave-one-attack-category-out **0.7117
 | **see the numbers and how they were measured** | [`GATE_OPERATING_POINTS.md`](GATE_OPERATING_POINTS.md) |
 | **understand each model file** | [`MODELS.md`](MODELS.md) |
 | **know whether layering helps** | [`layering/README.md`](layering/README.md) |
-| **check the paper's claims** | [`PAPER_FACTCHECK.md`](PAPER_FACTCHECK.md) |
-| **fix the abstract and figures** | [`PAPER_REVIEW.md`](PAPER_REVIEW.md) |
 
 ```bash
 cd openclaw-plugin && ./setup.sh          # install into a running OpenClaw container
@@ -104,8 +162,6 @@ general-model/
 ├── README.md                 ← you are here
 ├── MODELS.md                 what each .joblib is, and which one to use
 ├── GATE_OPERATING_POINTS.md  the authoritative numbers
-├── PAPER_FACTCHECK.md        every paper claim checked against source data
-├── PAPER_REVIEW.md           abstract rewrite + figure-by-figure review
 │
 ├── openclaw-plugin/          THE PRODUCT
 │   ├── README.md               install guide, config, dashboard, limitations

@@ -13,7 +13,7 @@ from __future__ import annotations
 import os, sys, json, hashlib
 import numpy as np
 
-ROOT = "/Users/sid/Documents/Behavioral Risk Prediction for Autonomous AI Systems"
+ROOT = (os.environ.get("AURA_ROOT") or os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "analysis"))
 sys.path.insert(0, os.path.join(ROOT, "analysis", "signfix"))
 sys.path.insert(0, os.path.join(ROOT, "openclaw-plugin"))

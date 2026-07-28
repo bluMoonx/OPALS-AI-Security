@@ -9,7 +9,7 @@ taxonomy.
 Evaluated on OUR data first (gold1 for the decision, OOS/STRICT/benign for the cost).
 """
 import sys, hashlib, json
-ROOT="/Users/sid/Documents/Behavioral Risk Prediction for Autonomous AI Systems"
+ROOT=(os.environ.get("AURA_ROOT") or os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0,ROOT+"/analysis"); sys.path.insert(0,ROOT+"/openclaw-plugin")
 from eval_combined_gold import load_records, load_all_gold
 import behavioral_labeler as B

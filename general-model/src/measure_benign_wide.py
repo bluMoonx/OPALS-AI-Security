@@ -18,7 +18,7 @@ import math
 import random
 import sys
 
-ROOT = "/Users/sid/Documents/Behavioral Risk Prediction for Autonomous AI Systems"
+ROOT = (os.environ.get("AURA_ROOT") or os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT + "/analysis")
 sys.path.insert(0, ROOT + "/openclaw-plugin")
 

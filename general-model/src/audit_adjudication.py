@@ -17,10 +17,34 @@ from __future__ import annotations
 import json, os, re, sys, glob, math, random
 from collections import defaultdict, Counter
 
-ROOT = "/Users/sid/Documents/Behavioral Risk Prediction for Autonomous AI Systems"
+def _aura_find(*relparts):
+    """Locate a data file across checkout layouts.
+
+    The working tree keeps collections under data/logs/collected_<name>/ and the
+    published repo under logs/<name>/. Trying both keeps every script runnable from a
+    fresh clone instead of dying on a bare FileNotFoundError.
+    """
+    import os as _os
+    _here = _os.path.dirname(_os.path.abspath(__file__))
+    _roots = []
+    _r = _here
+    for _ in range(4):
+        _roots.append(_r); _r = _os.path.dirname(_r)
+    _name = relparts[-1]
+    _dirs = ("data/logs/collected_new10category", "logs/new10category",
+             "data/logs/collected_22category", "logs/collected_22category",
+             "data/logs", "logs", "data", "")
+    for _b in _roots:
+        for _d in _dirs:
+            _p = _os.path.join(_b, _d, _name) if _d else _os.path.join(_b, _name)
+            if _os.path.exists(_p):
+                return _p
+    return _os.path.join(_here, _name)
+
+
+ROOT = (os.environ.get("AURA_ROOT") or os.path.dirname(os.path.abspath(__file__)))
 REB = os.path.join(ROOT, "analysis", "rebuild")
-SESS = os.path.join(ROOT, "data", "logs", "collected_new10category",
-                    "newcats_sessions.jsonl")
+SESS = _aura_find("newcats_sessions.jsonl")
 SAMPLE_OUT = os.path.join(REB, "audit_sample25_v2.txt")
 RESULTS = os.path.join(REB, "audit_adjudication_results_v2.json")
 SEED = 20260727

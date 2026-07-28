@@ -16,7 +16,7 @@ Benign cost is reported on BOTH pools:
 import sys, os, hashlib, json, random
 from collections import Counter
 
-ROOT = "/Users/sid/Documents/Behavioral Risk Prediction for Autonomous AI Systems"
+ROOT = (os.environ.get("AURA_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, "analysis"))
 sys.path.insert(0, os.path.join(ROOT, "openclaw-plugin"))
 from eval_combined_gold import load_records, load_all_gold

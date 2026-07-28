@@ -1,5 +1,5 @@
 import sys, json
-ROOT="/Users/sid/Documents/Behavioral Risk Prediction for Autonomous AI Systems"
+ROOT=(os.environ.get("AURA_ROOT") or os.path.dirname(os.path.abspath(__file__)))
 REPO=("/private/tmp/claude-501/-Users-sid-Documents-Behavioral-Risk-Prediction-for-Autonomous"
       "-AI-Systems/69306e3f-efd6-48e7-a076-fc2873ce40b2/scratchpad/opals")
 sys.path.insert(0,ROOT+"/analysis"); sys.path.insert(0,ROOT+"/openclaw-plugin")

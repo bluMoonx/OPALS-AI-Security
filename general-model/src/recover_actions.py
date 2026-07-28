@@ -34,12 +34,35 @@ Usage:
 from __future__ import annotations
 import json, os, glob, re
 
+def _aura_find(*relparts):
+    """Locate a data file across checkout layouts.
+
+    The working tree keeps collections under data/logs/collected_<name>/ and the
+    published repo under logs/<name>/. Trying both keeps every script runnable from a
+    fresh clone instead of dying on a bare FileNotFoundError.
+    """
+    import os as _os
+    _here = _os.path.dirname(_os.path.abspath(__file__))
+    _roots = []
+    _r = _here
+    for _ in range(4):
+        _roots.append(_r); _r = _os.path.dirname(_r)
+    _name = relparts[-1]
+    _dirs = ("data/logs/collected_new10category", "logs/new10category",
+             "data/logs/collected_22category", "logs/collected_22category",
+             "data/logs", "logs", "data", "")
+    for _b in _roots:
+        for _d in _dirs:
+            _p = _os.path.join(_b, _d, _name) if _d else _os.path.join(_b, _name)
+            if _os.path.exists(_p):
+                return _p
+    return _os.path.join(_here, _name)
+
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW_DIR = os.path.join(ROOT, "data", "logs", "container_sessions", "sessions")
-NEWCATS = os.path.join(ROOT, "data", "logs", "collected_new10category",
-                       "newcats_sessions.jsonl")
-OUT = os.path.join(ROOT, "data", "logs", "collected_new10category",
-                   "newcats_actions_recovered.jsonl")
+NEWCATS = _aura_find("newcats_sessions.jsonl")
+OUT = _aura_find("newcats_actions_recovered.jsonl")
 
 WORKSPACE = "/home/node/.openclaw/workspace"
 
