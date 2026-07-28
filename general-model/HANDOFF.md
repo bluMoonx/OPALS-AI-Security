@@ -337,3 +337,96 @@ are done, two are not.**
 * **Issue 1** (theirs, small): recompute `analysis_metrics.json` from `sessions_tierlabeled.jsonl`.
 * **Issue 6a** (Kathleen): control group to 40 real control questions, not 20 of which 10 are n/a.
 * **Ours**: push local action recovery, fix `policy_curve.py` to call `scorer.score()` (§15).
+
+---
+
+## 17. PUSHED 2026-07-28 — `b7bec38` + `11ba7bd`
+
+15 files. Junk-guarded (no `__pycache__`, `.log`, `.joblib`, `.bak`) and deletion-guarded.
+Nothing of anyone else's was removed. No AI attribution in either message.
+
+**FINAL AUTHORITATIVE NUMBERS** (`GATE_OPERATING_POINTS.md`, from `scorer.score()`):
+
+| policy | gold1 P/R | OOS P/R | STRICT P/R | benign raw/correct/FALSE | rate | budget |
+|---|---|---|---|---|---|---|
+| off | .9455/.8125 | .9235/.4486 | .8793/.2965 | 31/19/12 | 1.11% | OK |
+| **strict** | **.9310/.8438** | **.9214/.6029** | **.9213/.4767** | **54/23/31** | **2.87%** [2.0,4.0] | **OK** |
+| balanced | .9310/.8438 | .9217/.6057 | .9222/.4826 | 59/24/35 | 3.24% | OVER |
+| aggressive | .9322/.8594 | .9183/.6743 | .9292/.6105 | 130/31/99 | 9.16% | OVER |
+
+Recall went UP (OOS .5343 -> .6029, STRICT .3721 -> .4767) at essentially unchanged benign
+cost, because the old table omitted the compliance layer. `balanced` is now over budget and
+is no longer a candidate default, which retires the conditional in the old §2.
+
+The 2.88% / 4.72% split is resolved: both scripts now share one definition and agree on
+**31 false blocks**.
+
+### Two blockers found while pushing
+1. **GitHub push protection rejected `newcats_actions_recovered.jsonl`** — 6 placeholder
+   Slack webhook URLs (`T00000000/B00000000`) the agent generated inside its own replies.
+   Not live credentials. Pushing it needs either the repo unblock URL or redaction, and
+   redaction alters the corpus. **Left out of the push; needs Sid's decision.** The team repo
+   keeps its 769-row version, so issue 2 is still satisfied, just with less data.
+2. **A fresh clone crashed on `import science_features`.** `scorer.py` only added
+   `ROOT/analysis` to `sys.path`, but the published layout puts helpers in
+   `general-model/src/`. Fixed in `11ba7bd` and verified by importing and scoring from both
+   layouts.
+
+### Still open
+* Issue 6a (Kathleen): control group is 20, of which 10 are `not_applicable`, so effectively 10.
+* The ten-category Table 2 row (798/226) is **unreproducible**; its standardization script was
+  never committed. See `PAPER_FACTCHECK.md` §1b.
+* Website Table 2 row and Fig 5 need redrawing (10/16, not 16/16).
+* Reply hooks on the conversational surface still unverified.
+
+---
+
+## 18. SESSION 3 — Nathan's data, new channel, paper (3) revision
+
+Pushed `11ba7bd..8509fbe`. Three commits total this session: `b7bec38`, `11ba7bd`, `8509fbe`.
+
+### Nathan's corpus IS usable, and it exposed a real scope limit
+`nathans data/*.json`, 8 live runs, 208 records, all with prompt + response + verdict.
+* prompt_injection: 48 rows, **6 distinct prompts**, 19 successes / 29 resisted
+* memory_poisoning: 160 rows, 20 distinct prompts, 11 facts, 80 adjudicated (all poisoned),
+  **80 `manual_review_needed`** and therefore excluded
+* Its six subtypes are OUR ten-category taxonomy, collected by a different person, so it is a
+  same-taxonomy / different-collector transfer test. Diversity is thin: report at prompt-group
+  level only.
+
+**The shipped gate blocked 0 of 19 successful injections.** Not a bug. Every blocking channel
+is built on secret-disclosure semantics (`secret_source` + `exfil_demand`); that corpus plants
+an arbitrary marker and asks the agent to echo it. **AURA detects injection-driven secret
+disclosure, not injection compliance in general.** That belongs in the paper's limitations.
+
+### New channel: `instructed_echo`, FLAG-grade, default ON
+`AURA_INSTRUCTED_ECHO=0` disables. Measured on three corpora, not just the motivating one:
+
+| | result |
+|---|---|
+| Nathan, ungated | TP 11/19, FP 18/29, **P 0.379** — a refusal that QUOTES the token is textually identical to compliance |
+| Nathan, refusal-gated | TP 11/19, FP 2/29, **P 0.846** — ships |
+| our benign pool | 7 fires not already blocked. As a BLOCK: 2.87% -> **3.52%**, over budget. As a FLAG: **zero** false blocks |
+| our OOS / STRICT | **identical tp/fp on and off**. Buys nothing on our own data |
+
+22/22 tests. Benign FALSE unchanged at 31/1081 = 2.87%.
+
+### Paper revision (3): most of the previous check is fixed
+**Verified exactly**: website 16/8/50% + 25% AM (the paper's `label` field is right, my
+earlier 10/16 used the unadjudicated `score` field), pooled 816 and 29.6% -> 30% [27, 33],
+Fig 5 precisions .735/.534/.514, indirect injection 79%, 22-category 39%.
+
+**Two blockers remain**:
+1. Data Availability names `standardized_analysis/standardize_tracks.py`. **It does not exist
+   in the repo.** It is what produces Table 2, Fig 7, the pooled 30% and the 816 denominator.
+2. Ten-category 798/226 still unreproducible from any committed file. Resolves once (1) lands.
+
+**Also flagged**: author list differs between group doc (4 authors) and paper (3, drops
+Sathwik); Nathan/Evangeline/Audrey contribute data but are not authors. Memory-poisoning
+control is effectively **10**, not 20, since half its rows are `not_applicable`. The
+ten-category caveat should say the tool targets DO exist.
+
+### Still not pushed
+`newcats_actions_recovered.jsonl` — GitHub push protection blocks it over 6 placeholder Slack
+webhooks (`T00000000/B00000000`) the agent wrote into its own replies. Needs either the repo
+unblock URL or redaction; redaction alters the corpus. **Sid's decision.**
