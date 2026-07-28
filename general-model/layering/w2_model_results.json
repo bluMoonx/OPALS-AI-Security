@@ -1,0 +1,499 @@
+{
+  "protocol": {
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "min_spec_rows": 25,
+    "flat_features": [
+      "attribution_count",
+      "capability_spoof",
+      "certainty_density",
+      "citation_present",
+      "hedge_density",
+      "num_tools",
+      "numeric_claim_count",
+      "override_echo_count",
+      "provenance_claim_count",
+      "reply_word_count",
+      "unverified_confident_claim",
+      "verified_externally"
+    ],
+    "router_features": [
+      "attribution_count",
+      "capability_spoof",
+      "certainty_density",
+      "citation_present",
+      "hedge_density",
+      "num_tools",
+      "numeric_claim_count",
+      "override_echo_count",
+      "provenance_claim_count",
+      "reply_word_count",
+      "unverified_confident_claim",
+      "verified_externally",
+      "d_action_demand",
+      "d_chain_ref",
+      "d_disclosure_demand",
+      "d_emit_ref",
+      "d_path_ref",
+      "d_read_verb",
+      "d_secret_ref",
+      "d_self_ref"
+    ]
+  },
+  "loaco": {
+    "flat": {
+      "auc": 0.7119413957884787,
+      "per_family": {
+        "cot_hijack": 0.30850362557679634,
+        "delimiter_confusion": 0.644657863145258,
+        "emotional_coercion": 0.8205264087617029,
+        "false_precedent": 0.522300469483568,
+        "hypothetical_framing": 0.808991135500211,
+        "meta_prompting": 0.793918918918919,
+        "multilingual_injection": 0.6883830455259026,
+        "prompt_leaking": 0.6764285714285715,
+        "role_spoofing": 0.6813186813186813,
+        "sleeper_trigger": 0.6594771241830065
+      },
+      "delta_ci": null
+    },
+    "spec_soft_router": {
+      "auc": 0.739536837683138,
+      "per_family": {
+        "cot_hijack": 0.3915622940013184,
+        "delimiter_confusion": 0.698079231692677,
+        "emotional_coercion": 0.8268857092386505,
+        "false_precedent": 0.6549295774647886,
+        "hypothetical_framing": 0.7769100886449978,
+        "meta_prompting": 0.7810810810810811,
+        "multilingual_injection": 0.6766091051805339,
+        "prompt_leaking": 0.6635714285714286,
+        "role_spoofing": 0.7877747252747254,
+        "sleeper_trigger": 0.6967320261437909
+      },
+      "delta_ci": [
+        0.027494073223166396,
+        0.000396106152587847,
+        0.05644714151701544
+      ]
+    },
+    "spec_hard_router": {
+      "auc": 0.7207263386371195,
+      "per_family": {
+        "cot_hijack": 0.4963744232036915,
+        "delimiter_confusion": 0.6566626650660263,
+        "emotional_coercion": 0.8281222398869458,
+        "false_precedent": 0.5880281690140845,
+        "hypothetical_framing": 0.7214014352047278,
+        "meta_prompting": 0.8040540540540541,
+        "multilingual_injection": 0.6059654631083202,
+        "prompt_leaking": 0.7735714285714286,
+        "role_spoofing": 0.7671703296703297,
+        "sleeper_trigger": 0.7
+      },
+      "delta_ci": [
+        0.00875569443259372,
+        -0.03190923308878807,
+        0.04883202239450083
+      ]
+    },
+    "spec_max": {
+      "auc": 0.6127229603178771,
+      "per_family": {
+        "cot_hijack": 0.3750823994726434,
+        "delimiter_confusion": 0.7022809123649459,
+        "emotional_coercion": 0.6954601660484013,
+        "false_precedent": 0.5629890453834115,
+        "hypothetical_framing": 0.6408822287885184,
+        "meta_prompting": 0.7439189189189189,
+        "multilingual_injection": 0.5694662480376766,
+        "prompt_leaking": 0.4335714285714286,
+        "role_spoofing": 0.5467032967032968,
+        "sleeper_trigger": 0.4601307189542484
+      },
+      "delta_ci": [
+        -0.09993460993139346,
+        -0.14436734087555841,
+        -0.057212391308535684
+      ]
+    },
+    "spec_mean": {
+      "auc": 0.6967127028304365,
+      "per_family": {
+        "cot_hijack": 0.25181278839815424,
+        "delimiter_confusion": 0.6926770708283313,
+        "emotional_coercion": 0.8199964670552907,
+        "false_precedent": 0.5015649452269171,
+        "hypothetical_framing": 0.8020261713803293,
+        "meta_prompting": 0.7777027027027027,
+        "multilingual_injection": 0.7142857142857143,
+        "prompt_leaking": 0.5285714285714285,
+        "role_spoofing": 0.7342032967032968,
+        "sleeper_trigger": 0.5849673202614379
+      },
+      "delta_ci": [
+        -0.015382894688754286,
+        -0.036680058829633676,
+        0.004701890980345916
+      ]
+    },
+    "blend_50_50": {
+      "auc": 0.7314455005338795,
+      "per_family": {
+        "cot_hijack": 0.3361898483849703,
+        "delimiter_confusion": 0.6782713085234093,
+        "emotional_coercion": 0.8320084790673026,
+        "false_precedent": 0.5778560250391236,
+        "hypothetical_framing": 0.7986492190797805,
+        "meta_prompting": 0.7912162162162162,
+        "multilingual_injection": 0.6899529042386185,
+        "prompt_leaking": 0.6828571428571428,
+        "role_spoofing": 0.7335164835164836,
+        "sleeper_trigger": 0.6895424836601307
+      },
+      "delta_ci": [
+        0.019432744826777624,
+        0.007902640745941339,
+        0.03229488787829339
+      ]
+    },
+    "blend_learned": {
+      "auc": 0.7336772917432477,
+      "per_family": {
+        "cot_hijack": 0.35266974291364533,
+        "delimiter_confusion": 0.6794717887154861,
+        "emotional_coercion": 0.830242006712595,
+        "false_precedent": 0.5942879499217528,
+        "hypothetical_framing": 0.7830308146897426,
+        "meta_prompting": 0.7905405405405406,
+        "multilingual_injection": 0.6946624803767661,
+        "prompt_leaking": 0.6564285714285715,
+        "role_spoofing": 0.7603021978021978,
+        "sleeper_trigger": 0.6986928104575164
+      },
+      "delta_ci": [
+        0.021696519426650865,
+        0.004556206657922298,
+        0.04136521479180284
+      ]
+    },
+    "cascade": {
+      "auc": 0.7197876735108264,
+      "per_family": {
+        "cot_hijack": 0.35596572181938035,
+        "delimiter_confusion": 0.6710684273709483,
+        "emotional_coercion": 0.8143437555202261,
+        "false_precedent": 0.5935054773082942,
+        "hypothetical_framing": 0.8127902068383284,
+        "meta_prompting": 0.7736486486486487,
+        "multilingual_injection": 0.6930926216640503,
+        "prompt_leaking": 0.6371428571428572,
+        "role_spoofing": 0.7493131868131868,
+        "sleeper_trigger": 0.6594771241830065
+      },
+      "delta_ci": [
+        0.0078061462407937035,
+        -0.0068485170247814305,
+        0.022400834000796184
+      ]
+    },
+    "cascade_avg": {
+      "auc": 0.7199670920198147,
+      "per_family": {
+        "cot_hijack": 0.3256427158866183,
+        "delimiter_confusion": 0.6650660264105641,
+        "emotional_coercion": 0.8221162338809398,
+        "false_precedent": 0.5715962441314554,
+        "hypothetical_framing": 0.8108906711692696,
+        "meta_prompting": 0.7891891891891891,
+        "multilingual_injection": 0.6915227629513343,
+        "prompt_leaking": 0.6721428571428572,
+        "role_spoofing": 0.7245879120879121,
+        "sleeper_trigger": 0.6692810457516339
+      },
+      "delta_ci": [
+        0.008003759481062002,
+        0.0007005063697252206,
+        0.015365053136560973
+      ]
+    },
+    "flat_perfam_thresh": {
+      "auc": 0.6839739886922578,
+      "per_family": {
+        "cot_hijack": 0.35201054713249835,
+        "delimiter_confusion": 0.6206482593037214,
+        "emotional_coercion": 0.6954601660484013,
+        "false_precedent": 0.6134585289514867,
+        "hypothetical_framing": 0.7931616715913887,
+        "meta_prompting": 0.722972972972973,
+        "multilingual_injection": 0.5219780219780219,
+        "prompt_leaking": 0.6592857142857144,
+        "role_spoofing": 0.8152472527472528,
+        "sleeper_trigger": 0.6973856209150328
+      },
+      "delta_ci": [
+        -0.028001464174527466,
+        -0.05745761581466485,
+        0.00332279615963863
+      ]
+    },
+    "flat_perfam_soft": {
+      "auc": 0.7180635054000595,
+      "per_family": {
+        "cot_hijack": 0.3289386947923533,
+        "delimiter_confusion": 0.6788715486194478,
+        "emotional_coercion": 0.7993287405052111,
+        "false_precedent": 0.6075899843505477,
+        "hypothetical_framing": 0.818910932883073,
+        "meta_prompting": 0.7804054054054054,
+        "multilingual_injection": 0.6687598116169544,
+        "prompt_leaking": 0.6485714285714285,
+        "role_spoofing": 0.7857142857142858,
+        "sleeper_trigger": 0.669281045751634
+      },
+      "delta_ci": [
+        0.006284948963721991,
+        -0.008359043272568875,
+        0.02066746592150212
+      ]
+    }
+  },
+  "router_acc_loaco": 0.0,
+  "router_acc_groupcv": 0.33181347150259066,
+  "groupcv": {
+    "flat": {
+      "auc": 0.7488315916609778,
+      "per_family": {
+        "cot_hijack": 0.4087013843111404,
+        "delimiter_confusion": 0.6458583433373349,
+        "emotional_coercion": 0.8281222398869457,
+        "false_precedent": 0.6205007824726135,
+        "hypothetical_framing": 0.8423385394681301,
+        "meta_prompting": 0.7668918918918919,
+        "multilingual_injection": 0.7425431711145997,
+        "prompt_leaking": 0.7935714285714286,
+        "role_spoofing": 0.6826923076923077,
+        "sleeper_trigger": 0.596078431372549
+      },
+      "delta_ci": null
+    },
+    "spec_soft_router": {
+      "auc": 0.7849034640900419,
+      "per_family": {
+        "cot_hijack": 0.47264337508239945,
+        "delimiter_confusion": 0.7016806722689075,
+        "emotional_coercion": 0.8417240770181946,
+        "false_precedent": 0.7507824726134585,
+        "hypothetical_framing": 0.8345293372731111,
+        "meta_prompting": 0.8162162162162162,
+        "multilingual_injection": 0.7653061224489796,
+        "prompt_leaking": 0.8128571428571428,
+        "role_spoofing": 0.7520604395604396,
+        "sleeper_trigger": 0.6745098039215686
+      },
+      "delta_ci": [
+        0.03638378061755,
+        0.01351955206658843,
+        0.061340801931543086
+      ]
+    },
+    "spec_hard_router": {
+      "auc": 0.7683707048959374,
+      "per_family": {
+        "cot_hijack": 0.5260382333553065,
+        "delimiter_confusion": 0.712484993997599,
+        "emotional_coercion": 0.8484366719660837,
+        "false_precedent": 0.7363067292644757,
+        "hypothetical_framing": 0.7832418742085268,
+        "meta_prompting": 0.7932432432432432,
+        "multilingual_injection": 0.695447409733124,
+        "prompt_leaking": 0.8442857142857143,
+        "role_spoofing": 0.7431318681318682,
+        "sleeper_trigger": 0.6196078431372549
+      },
+      "delta_ci": [
+        0.019896904293707655,
+        -0.013408927474767102,
+        0.054223973421361406
+      ]
+    },
+    "spec_max": {
+      "auc": 0.6827530676188975,
+      "per_family": {
+        "cot_hijack": 0.4304548450889914,
+        "delimiter_confusion": 0.6770708283313325,
+        "emotional_coercion": 0.7841370782547253,
+        "false_precedent": 0.7120500782472614,
+        "hypothetical_framing": 0.7482059940903335,
+        "meta_prompting": 0.6777027027027027,
+        "multilingual_injection": 0.5879120879120878,
+        "prompt_leaking": 0.6564285714285715,
+        "role_spoofing": 0.6311813186813187,
+        "sleeper_trigger": 0.5
+      },
+      "delta_ci": [
+        -0.06633289465879531,
+        -0.10600400934937067,
+        -0.029033140843280958
+      ]
+    },
+    "spec_mean": {
+      "auc": 0.7352745540793642,
+      "per_family": {
+        "cot_hijack": 0.32564271588661836,
+        "delimiter_confusion": 0.6926770708283313,
+        "emotional_coercion": 0.8343048931284225,
+        "false_precedent": 0.5649452269170578,
+        "hypothetical_framing": 0.8353735753482483,
+        "meta_prompting": 0.7878378378378378,
+        "multilingual_injection": 0.7951334379905809,
+        "prompt_leaking": 0.5935714285714285,
+        "role_spoofing": 0.7218406593406593,
+        "sleeper_trigger": 0.5705882352941177
+      },
+      "delta_ci": [
+        -0.013397270112148233,
+        -0.03650206987057558,
+        0.007694122123445801
+      ]
+    },
+    "blend_50_50": {
+      "auc": 0.7721253654011098,
+      "per_family": {
+        "cot_hijack": 0.42913645352669744,
+        "delimiter_confusion": 0.6860744297719088,
+        "emotional_coercion": 0.8401342518989576,
+        "false_precedent": 0.6885758998435054,
+        "hypothetical_framing": 0.8393837062051499,
+        "meta_prompting": 0.793918918918919,
+        "multilingual_injection": 0.7653061224489797,
+        "prompt_leaking": 0.8085714285714286,
+        "role_spoofing": 0.7239010989010989,
+        "sleeper_trigger": 0.6326797385620915
+      },
+      "delta_ci": [
+        0.023384638426111652,
+        0.012946452747112841,
+        0.035238609005745346
+      ]
+    },
+    "blend_learned": {
+      "auc": 0.776326384148156,
+      "per_family": {
+        "cot_hijack": 0.4337508239947264,
+        "delimiter_confusion": 0.6986794717887155,
+        "emotional_coercion": 0.849673202614379,
+        "false_precedent": 0.7030516431924884,
+        "hypothetical_framing": 0.8328408611228366,
+        "meta_prompting": 0.8060810810810811,
+        "multilingual_injection": 0.7637362637362639,
+        "prompt_leaking": 0.8092857142857144,
+        "role_spoofing": 0.742445054945055,
+        "sleeper_trigger": 0.6418300653594772
+      },
+      "delta_ci": [
+        0.027659797570197316,
+        0.01269545364263595,
+        0.04425842097442196
+      ]
+    },
+    "cascade": {
+      "auc": 0.7627255859545939,
+      "per_family": {
+        "cot_hijack": 0.4515491100856955,
+        "delimiter_confusion": 0.680672268907563,
+        "emotional_coercion": 0.8346581875993639,
+        "false_precedent": 0.667057902973396,
+        "hypothetical_framing": 0.8395947657239342,
+        "meta_prompting": 0.7675675675675676,
+        "multilingual_injection": 0.7802197802197803,
+        "prompt_leaking": 0.785,
+        "role_spoofing": 0.7355769230769231,
+        "sleeper_trigger": 0.6006535947712418
+      },
+      "delta_ci": [
+        0.013979448661094901,
+        0.0015641651384773719,
+        0.02693448045734497
+      ]
+    },
+    "cascade_avg": {
+      "auc": 0.7589227887762781,
+      "per_family": {
+        "cot_hijack": 0.42847725774555045,
+        "delimiter_confusion": 0.6674669867947178,
+        "emotional_coercion": 0.834658187599364,
+        "false_precedent": 0.6506259780907668,
+        "hypothetical_framing": 0.8412832418742087,
+        "meta_prompting": 0.7709459459459459,
+        "multilingual_injection": 0.7700156985871272,
+        "prompt_leaking": 0.7885714285714286,
+        "role_spoofing": 0.7190934065934066,
+        "sleeper_trigger": 0.6078431372549019
+      },
+      "delta_ci": [
+        0.010153564196869755,
+        0.0038206499846101362,
+        0.017059378326086783
+      ]
+    },
+    "flat_perfam_thresh": {
+      "auc": 0.7265924486688022,
+      "per_family": {
+        "cot_hijack": 0.4218852999340804,
+        "delimiter_confusion": 0.6254501800720288,
+        "emotional_coercion": 0.8071012188659248,
+        "false_precedent": 0.6025039123630673,
+        "hypothetical_framing": 0.8115238497256226,
+        "meta_prompting": 0.7445945945945945,
+        "multilingual_injection": 0.6436420722135009,
+        "prompt_leaking": 0.8185714285714285,
+        "role_spoofing": 0.8427197802197802,
+        "sleeper_trigger": 0.6052287581699346
+      },
+      "delta_ci": [
+        -0.022200572087110647,
+        -0.04969322269048519,
+        0.0054242576821141005
+      ]
+    },
+    "flat_perfam_soft": {
+      "auc": 0.7558464177563059,
+      "per_family": {
+        "cot_hijack": 0.4377059986816085,
+        "delimiter_confusion": 0.6674669867947179,
+        "emotional_coercion": 0.8447270800211977,
+        "false_precedent": 0.6557120500782474,
+        "hypothetical_framing": 0.8455044322498945,
+        "meta_prompting": 0.7648648648648648,
+        "multilingual_injection": 0.7229199372056515,
+        "prompt_leaking": 0.7957142857142857,
+        "role_spoofing": 0.7836538461538461,
+        "sleeper_trigger": 0.6111111111111112
+      },
+      "delta_ci": [
+        0.0070879888863890905,
+        -0.006239803838644795,
+        0.020501012566368826
+      ]
+    }
+  },
+  "permuted_loaco_auc": {
+    "flat": 0.5424959302630888,
+    "spec_soft_router": 0.517081954874057,
+    "spec_hard_router": 0.4964335101262056,
+    "spec_max": 0.515675051199916,
+    "spec_mean": 0.5314179313483519,
+    "blend_50_50": 0.5359427786238162,
+    "blend_learned": 0.5376888270405573,
+    "cascade": 0.5350106775893154,
+    "cascade_avg": 0.5402838313290973,
+    "flat_perfam_thresh": 0.5472395805982951,
+    "flat_perfam_soft": 0.5442332265574402
+  }
+}
