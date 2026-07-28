@@ -589,3 +589,62 @@ He also hit the same *class* of confound independently: a prompt-duplication lea
 on `md5(prompt)`. And his leave-one-category-out mirrors §6's grouped-split weakness —
 `cot_hijack` 0.31 (below chance) and `false_precedent` 0.51 (chance) while being the
 highest-ASR family.
+
+---
+
+## 16. Controls re-collected (2026-07-27) — confound #1 closed, #2 still open
+
+200 benign controls re-collected live with `controls_v2`, 50 per family, **0 failures**.
+All 131 unique prompts exercised (v1 only ever used 55 of its 55).
+
+### The confound is gone — measured on collected sessions, not pool definitions
+
+| | median | range | length AUC | best single threshold catches |
+|---|---:|---:|---:|---:|
+| attacks (n=400) | 29 | 10–74 | — | — |
+| v1 controls (n=200) | 11 | 3–18 | 0.974 | **78.8%** at 0% FP |
+| **v2 controls (n=200)** | **29** | **6–71** | **0.568** | **1.0%** at 0% FP |
+
+### What it did to the numbers
+
+Random forest, 15 held-out splits, target `attack_succeeded`:
+
+| dataset | feature set | AUC | over-block @100% |
+|---|---|---:|---:|
+| ours, v1 controls | behaviour2 | 0.992 | 3.6% |
+| **ours, v2 controls** | behaviour2 | 0.976 | **6.2%** |
+| pooled w/ Chenhao, v1 controls | behaviour2 | 0.934 | 30.7% |
+| **pooled w/ Chenhao, v2 controls** | behaviour2 | 0.930 | **30.8%** |
+
+Two things worth reading carefully:
+
+1. **On our data the number got worse (3.6% → 6.2%), which is the correct direction.**
+   The old figure was partly free separability from prompt length. 6.2% is the honest
+   one.
+2. **The pooled headline barely moved (30.7% → 30.8%).** That is not a failure — it is
+   evidence the 30.6% headline never rested on this confound. The pooled figure is
+   dominated by Chenhao's 1,314 sessions, whose controls were already length-matched;
+   our 200 were a small and already-easy slice of it.
+
+### Confound #2 is now the binding constraint
+
+| ours, v2 controls | AUC | over-block @100% |
+|---|---:|---:|
+| behaviour2 (includes compliance features) | 0.976 | 6.2% |
+| **behaviour2 minus compliance** | **0.753** | **94.1%** |
+
+The 6.2% is still a canary-detector detecting canaries (§12). Fixing the length
+confound did nothing for the circularity, because they are independent problems: one is
+about how the *controls* were written, the other about how *success* is defined. Only
+the two-rater adjudication (`analysis/make_adjudication.py`, worksheets already
+generated, zero tokens) resolves it.
+
+**Status: confound #1 fixed and verified on live data. Confound #2 outstanding and now
+the limiting factor on every number this track reports.**
+
+### Artifacts
+
+`dataset/sessions_v2controls.jsonl` — 400 attacks + the 200 new controls. The original
+`sessions.jsonl` is left **unchanged** so every result above it stays reproducible and
+PR #3's numbers remain valid; the two are meant to be compared, not swapped.
+Raw logs in `pi_experiments/controls_v2_20260727_1411/` (gitignored, local).
