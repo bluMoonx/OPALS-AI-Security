@@ -32,11 +32,8 @@ GM = os.path.join(ROOT, "general-model")
 sys.path.insert(0, os.path.join(GM, "src"))
 from science_features import science_features  # AURA's real extractor
 
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score, roc_curve
-import joblib
 
 PROC = os.path.abspath(os.path.join("..", "data", "processed"))
 
@@ -154,9 +151,9 @@ def main():
     ytr = np.array([int(r["label"]) for r in train])
     cat_tr = np.array([r.get("attack_category") or "?" for r in train])
 
-    model = Pipeline([("sc", StandardScaler()),
-                      ("m", LogisticRegression(max_iter=4000, C=1.0,
-                                               class_weight="balanced", solver="lbfgs"))])
+    model = RandomForestClassifier(n_estimators=300, min_samples_leaf=2,
+                                   class_weight="balanced_subsample",
+                                   random_state=0, n_jobs=-1)
     model.fit(Xtr, ytr)
 
     # threshold set to 10% false-alarm on the training BENIGN negatives
@@ -191,22 +188,10 @@ def main():
     print("  same features fire on a confident answer from LEGITIMATE memory. Distinguishing")
     print("  poisoned-from-true memory still needs content-level fact-checking (unchanged).")
 
-    # ---- save a NEW model (non-destructive) into MY folder ----
-    Xall = np.vstack([Xtr, Xmine])
-    yall = np.concatenate([ytr, np.ones(len(my_attacks), int)])
-    final = Pipeline([("sc", StandardScaler()),
-                      ("m", LogisticRegression(max_iter=4000, C=1.0,
-                                               class_weight="balanced", solver="lbfgs"))]).fit(Xall, yall)
-    models_dir = os.path.join(PROC, "..", "..", "models")
-    os.makedirs(models_dir, exist_ok=True)
-    mp = os.path.join(models_dir, "aura_plus_memory_poisoning.joblib")
-    joblib.dump({"model": final, "features": ALL,
-                 "note": "AURA science+surface model retrained WITH real astrophysics "
-                         "memory-poisoning sessions added. Non-shipping; sibling to the "
-                         "team's aura_behavioral.joblib.",
-                 "generalization_recall_at_10fpr": recall,
-                 "n_memory_poisoning_added": len(my_attacks)}, mp)
-    print(f"\nSaved new model -> {mp}")
+    # NOTE: we deliberately do NOT save a separate model here. Memory poisoning is
+    # integrated into the ONE AURA by appending to the shared corpus_clean.jsonl;
+    # the trained model is regenerated from that corpus by AURA's own trainer.
+    # This script only measures, using AURA's recipe in memory.
 
     try:
         chart(recall, before, len(my_attacks), mine_scores, thr10)
