@@ -447,8 +447,9 @@ def _compliance_layers(prompt: str, reply: str, tools=()) -> tuple[float, float]
     return (0.93 if complied else 0.0), (0.55 if (attack_shaped and not _refused(reply)) else 0.0)
 
 BLOCK_AT, FLAG_AT = 0.85, 0.5
-HISTORY = deque(maxlen=250)
-STATS = {"scored": 0, "allow": 0, "flag": 0, "block": 0, "started": time.time()}
+HISTORY = deque(maxlen=500)
+STATS = {"scored": 0, "allow": 0, "flag": 0, "block": 0, "started": time.time(),
+         "by_layer": {}}
 
 DANGER_CMD = ("rm -rf", "sudo ", "chmod 777", "chmod -R 777", "mkfs", ":(){",
               "> /dev/sd", "dd if=", "curl", "| bash", "systemctl stop")
@@ -824,94 +825,259 @@ def score(req: dict) -> dict:
            "reason": reasons[layer] if verdict != "allow" else "", "layer": layer,
            "layers": {k: round(v, 3) for k, v in layers.items()}}
     STATS["scored"] += 1; STATS[verdict] += 1
-    HISTORY.appendleft({**out, "tool": tool or "(reply)", "at": time.strftime("%H:%M:%S"),
-                        "preview": (reply[:90] or params_str[:90])})
+    STATS["by_layer"][layer] = STATS["by_layer"].get(layer, 0) + 1
+
+    # Full decision record. The dashboard renders every field with textContent, never
+    # innerHTML, so retaining untrusted agent text here is safe to display. Values are
+    # truncated so one enormous reply cannot evict the whole ring buffer's usefulness.
+    trail = req.get("trail") or []
+    HISTORY.appendleft({
+        **out,
+        "tool": tool or "(reply)",
+        "at": time.strftime("%H:%M:%S"),
+        "ts": time.time(),
+        "preview": (reply[:140] or params_str[:140]),
+        "session": req.get("sessionKey") or req.get("sessionId") or "",
+        # conversation context: what the user asked and what the agent said
+        "prompt": prompt[:4000],
+        "reply": reply[:8000],
+        "prompt_len": len(prompt),
+        "reply_len": len(reply),
+        # action context: what the agent tried to do
+        "params": params_str[:2000] if tool else "",
+        "tools": [t for t in tools][:40],
+        "trail": trail[-20:] if isinstance(trail, list) else [],
+        "derived_paths": (req.get("derivedPaths") or [])[:20],
+        "ingested_len": len(ingested),
+        "ingested": ingested[:2000],
+        # why: the evidence behind the decision
+        "evidence": {
+            "rule": r_reason or "",
+            "action": a_reason or "",
+            "policy": BLOCK_POLICY,
+            "echo_grade": ECHO_GRADE,
+            "instructed_literals": sorted(_instructed_literals(prompt))[:12],
+            "untrusted_frame": framed,
+        },
+        "kind": "tool_call" if tool else "reply",
+    })
     return out
 
 
 # Dashboard renders UNTRUSTED agent text -> DOM built with textContent only.
 DASHBOARD = """<!doctype html><html><head><meta charset=utf-8><title>AURA Monitor</title>
+<meta name=viewport content="width=device-width,initial-scale=1">
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0d0f14;color:#e6e8ee;
-font:14px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-.wrap{max-width:1100px;margin:0 auto;padding:28px 20px}
-h1{font-size:20px;margin:0 0 2px;letter-spacing:-.01em}
-.sub{color:#8b93a7;font-size:13px;margin-bottom:22px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
-.card{background:#151922;border:1px solid #232936;border-radius:10px;padding:14px 16px}
-.card .n{font-size:26px;font-weight:600;letter-spacing:-.02em}
-.card .l{color:#8b93a7;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+*{box-sizing:border-box}
+body{margin:0;background:#0b0d12;color:#e6e8ee;
+font:14px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.wrap{max-width:1240px;margin:0 auto;padding:24px 18px 60px}
+header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+h1{font-size:19px;margin:0;letter-spacing:-.01em;font-weight:650}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#3ddc97;
+margin-right:8px;vertical-align:middle;box-shadow:0 0 0 3px rgba(61,220,151,.15)}
+.sub{color:#7b8397;font-size:12.5px;margin-bottom:20px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px;margin-bottom:14px}
+.card{background:#131722;border:1px solid #222839;border-radius:10px;padding:12px 14px}
+.card .n{font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1.1}
+.card .l{color:#7b8397;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
 .allow{color:#3ddc97}.flag{color:#ffc857}.block{color:#ff5c5c}
-table{width:100%;border-collapse:collapse;background:#151922;border:1px solid #232936;border-radius:10px;overflow:hidden}
-th{text-align:left;padding:10px 14px;color:#8b93a7;font-size:11px;text-transform:uppercase;
-letter-spacing:.06em;border-bottom:1px solid #232936;font-weight:500}
-td{padding:10px 14px;border-bottom:1px solid #1b202b;font-size:13px;vertical-align:top}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+input[type=search],select{background:#131722;border:1px solid #222839;color:#e6e8ee;
+border-radius:8px;padding:7px 11px;font-size:13px;font-family:inherit;outline:none}
+input[type=search]{flex:1;min-width:190px}
+input[type=search]:focus,select:focus{border-color:#3a445e}
+.chip{background:#131722;border:1px solid #222839;color:#9aa3b8;border-radius:999px;
+padding:5px 13px;font-size:12px;cursor:pointer;user-select:none}
+.chip.on{background:#1e2536;border-color:#3a445e;color:#e6e8ee}
+.layers{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.lchip{background:#131722;border:1px solid #222839;border-radius:6px;padding:3px 9px;
+font-size:11px;color:#9aa3b8}
+.lchip b{color:#e6e8ee;font-weight:600}
+table{width:100%;border-collapse:collapse;background:#131722;border:1px solid #222839;
+border-radius:10px;overflow:hidden}
+th{text-align:left;padding:9px 13px;color:#7b8397;font-size:10.5px;text-transform:uppercase;
+letter-spacing:.07em;border-bottom:1px solid #222839;font-weight:500}
+td{padding:9px 13px;border-bottom:1px solid #191e2b;font-size:13px;vertical-align:top}
+tr.row{cursor:pointer}
+tr.row:hover{background:#171c28}
 tr:last-child td{border-bottom:none}
-.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;
-text-transform:uppercase;letter-spacing:.04em}
-.pill.allow{background:rgba(61,220,151,.12);color:#3ddc97}
-.pill.flag{background:rgba(255,200,87,.12);color:#ffc857}
-.pill.block{background:rgba(255,92,92,.12);color:#ff5c5c}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:600;
+text-transform:uppercase;letter-spacing:.05em}
+.pill.allow{background:rgba(61,220,151,.13);color:#3ddc97}
+.pill.flag{background:rgba(255,200,87,.13);color:#ffc857}
+.pill.block{background:rgba(255,92,92,.13);color:#ff5c5c}
 code{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:#9fb4d4}
-.prev{color:#6d7688;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rsn{color:#e6e8ee;font-weight:600}
-.empty{padding:36px;text-align:center;color:#6d7688}
-.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#3ddc97;margin-right:6px}
+.prev{color:#6d7688;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rsn{color:#e6e8ee;font-weight:550}
+.empty{padding:44px;text-align:center;color:#5f6878}
+.det{background:#0e1219}
+.det td{padding:0}
+.detin{padding:16px 18px;display:grid;gap:14px}
+.sec h4{margin:0 0 6px;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;
+color:#7b8397;font-weight:600}
+.txt{background:#0b0e15;border:1px solid #1d2331;border-radius:8px;padding:10px 12px;
+white-space:pre-wrap;word-break:break-word;font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:#c3cbdb;max-height:280px;overflow:auto}
+.txt.user{border-left:2px solid #4a7dff}
+.txt.agent{border-left:2px solid #3ddc97}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+.meter{display:flex;align-items:center;gap:8px;margin:3px 0}
+.meter .nm{width:120px;color:#9aa3b8;font-size:12px}
+.meter .tr{flex:1;height:6px;background:#1a1f2c;border-radius:3px;overflow:hidden}
+.meter .fl{height:100%;border-radius:3px}
+.meter .vl{width:44px;text-align:right;font:11.5px ui-monospace,Menlo,monospace;color:#c3cbdb}
+.kv{display:flex;gap:8px;font-size:12px;color:#9aa3b8;flex-wrap:wrap}
+.kv span{background:#0b0e15;border:1px solid #1d2331;border-radius:6px;padding:2px 8px}
+.tl{font:12px ui-monospace,Menlo,monospace;color:#9fb4d4}
+.tl li{margin:2px 0}
 </style></head><body><div class=wrap>
-<h1><span class=dot></span>AURA Monitor</h1>
-<div class=sub id=meta>connecting…</div>
+<header><h1><span class=dot></span>AURA Monitor</h1>
+<span class=sub id=meta>connecting...</span></header>
 <div class=cards>
 <div class=card><div class=n id=s-scored>0</div><div class=l>scored</div></div>
 <div class=card><div class="n allow" id=s-allow>0</div><div class=l>allowed</div></div>
 <div class=card><div class="n flag" id=s-flag>0</div><div class=l>flagged</div></div>
 <div class=card><div class="n block" id=s-block>0</div><div class=l>blocked</div></div>
+<div class=card><div class=n id=s-up>0s</div><div class=l>uptime</div></div>
 </div>
-<table><thead><tr><th>time</th><th>verdict</th><th>risk</th><th>layer</th><th>tool</th><th>detail</th></tr></thead>
-<tbody id=rows></tbody></table>
-</div><script>
-// All agent-derived strings are inserted with textContent (never innerHTML):
-// the monitored agent is untrusted and must not be able to script this page.
-function cell(row, text, cls){
-  const td=document.createElement('td');
-  if(cls) td.className=cls;
-  const code=document.createElement('code');
-  code.textContent=text;
-  td.appendChild(code); row.appendChild(td); return td;
+<div class=layers id=layerchips></div>
+<div class=bar>
+<input type=search id=q placeholder="search prompt, reply, tool, reason, session...">
+<span class="chip on" data-v=all>all</span>
+<span class=chip data-v=block>block</span>
+<span class=chip data-v=flag>flag</span>
+<span class=chip data-v=allow>allow</span>
+<select id=kind><option value=all>all events</option>
+<option value=tool_call>tool calls</option><option value=reply>replies</option></select>
+</div>
+<table><thead><tr><th style="width:74px">time</th><th style="width:78px">verdict</th>
+<th style="width:56px">risk</th><th style="width:112px">layer</th><th style="width:120px">tool</th>
+<th>detail</th></tr></thead><tbody id=rows></tbody></table>
+</div>
+<script>
+var FILTER='all', DATA=[], OPEN={};
+function el(t,c,txt){var e=document.createElement(t); if(c)e.className=c;
+  if(txt!==undefined)e.textContent=txt; return e;}   // textContent ONLY: agent text is untrusted
+function meter(name,val){
+  var w=el('div','meter'); w.appendChild(el('div','nm',name));
+  var tr=el('div','tr'), fl=el('div','fl');
+  var pct=Math.max(0,Math.min(1,val))*100;
+  fl.style.width=pct+'%';
+  fl.style.background = val>=0.85?'#ff5c5c' : val>=0.5?'#ffc857' : '#35507a';
+  tr.appendChild(fl); w.appendChild(tr); w.appendChild(el('div','vl',val.toFixed(3)));
+  return w;
 }
-function emptyRow(tb){
-  const tr=document.createElement('tr'), td=document.createElement('td');
-  td.colSpan=6; td.className='empty'; td.textContent='waiting for agent activity…';
-  tr.appendChild(td); tb.appendChild(tr);
-}
-async function tick(){
- const meta=document.getElementById('meta');
- try{
-  const d=await (await fetch('/history')).json();
-  meta.textContent='general '+d.model.general_auc+' AUC · specialist '+d.model.specialist_auc
-    +' AUC · block≥'+d.thresholds.block+' flag≥'+d.thresholds.flag
-    +' · up '+Math.floor(d.stats.uptime/60)+'m';
-  for(const k of ['scored','allow','flag','block'])
-    document.getElementById('s-'+k).textContent=d.stats[k];
-  const tb=document.getElementById('rows');
-  tb.replaceChildren();
-  if(!d.history.length){ emptyRow(tb); return; }
-  for(const h of d.history){
-    const tr=document.createElement('tr');
-    cell(tr,h.at);
-    const vtd=document.createElement('td'), sp=document.createElement('span');
-    sp.className='pill '+h.verdict; sp.textContent=h.verdict;
-    vtd.appendChild(sp); tr.appendChild(vtd);
-    cell(tr,h.risk); cell(tr,h.layer); cell(tr,h.tool);
-    const dtd=document.createElement('td'); dtd.className='prev';
-    if(h.reason){ const b=document.createElement('span'); b.className='rsn';
-      b.textContent=h.reason+' — '; dtd.appendChild(b); }
-    dtd.appendChild(document.createTextNode(h.preview||''));
-    tr.appendChild(dtd); tb.appendChild(tr);
+function section(title,node){var s=el('div','sec'); s.appendChild(el('h4',null,title));
+  s.appendChild(node); return s;}
+function textbox(cls,str){return el('div','txt '+(cls||''),str||'(empty)');}
+function details(r){
+  var d=el('div','detin');
+  var kv=el('div','kv');
+  [['session',r.session||'-'],['kind',r.kind],['policy',(r.evidence||{}).policy],
+   ['echo grade',(r.evidence||{}).echo_grade],['prompt chars',r.prompt_len],
+   ['reply chars',r.reply_len],['ingested chars',r.ingested_len]].forEach(function(p){
+     kv.appendChild(el('span',null,p[0]+': '+p[1]));});
+  d.appendChild(kv);
+  var g=el('div','grid2');
+  g.appendChild(section('User prompt',textbox('user',r.prompt)));
+  g.appendChild(section(r.kind==='reply'?'Agent reply':'Agent reply so far',
+                        textbox('agent',r.reply)));
+  d.appendChild(g);
+  if(r.tool && r.tool!=='(reply)'){
+    d.appendChild(section('Tool call — '+r.tool, textbox('',r.params)));
   }
- }catch(e){ meta.textContent='scorer offline'; }
+  var ls=el('div'); var L=r.layers||{};
+  Object.keys(L).sort(function(a,b){return L[b]-L[a];}).forEach(function(k){
+    ls.appendChild(meter(k,L[k]));});
+  d.appendChild(section('Layer scores (risk = max; only precise layers may block)',ls));
+  var ev=r.evidence||{}, eb=el('ul','tl');
+  if(ev.rule) eb.appendChild(el('li',null,'rule: '+ev.rule));
+  if(ev.action) eb.appendChild(el('li',null,'action: '+ev.action));
+  if(ev.untrusted_frame) eb.appendChild(el('li',null,'untrusted-source frame present'));
+  if((ev.instructed_literals||[]).length)
+    eb.appendChild(el('li',null,'planted literals: '+ev.instructed_literals.join(', ')));
+  if((r.derived_paths||[]).length)
+    eb.appendChild(el('li',null,'paths: '+r.derived_paths.join(', ')));
+  if((r.tools||[]).length) eb.appendChild(el('li',null,'tools available: '+r.tools.join(', ')));
+  if(!eb.childNodes.length) eb.appendChild(el('li',null,'no additional evidence recorded'));
+  d.appendChild(section('Evidence',eb));
+  if((r.trail||[]).length){
+    var tl=el('ul','tl');
+    r.trail.forEach(function(t){
+      tl.appendChild(el('li',null,'- '+(t.tool||'?')+(t.kind?' ['+t.kind+']':'')+
+        (t.paths&&t.paths.length?' -> '+t.paths.join(', '):'')+(t.failed?' (failed)':'')));});
+    d.appendChild(section('Action trail',tl));
+  }
+  if(r.ingested_len) d.appendChild(section('Untrusted content ingested',textbox('',r.ingested)));
+  return d;
 }
-tick(); setInterval(tick,1500);
+function render(){
+  var q=(document.getElementById('q').value||'').toLowerCase();
+  var kind=document.getElementById('kind').value;
+  var tb=document.getElementById('rows'); tb.textContent='';
+  var rows=DATA.filter(function(r){
+    if(FILTER!=='all' && r.verdict!==FILTER) return false;
+    if(kind!=='all' && r.kind!==kind) return false;
+    if(!q) return true;
+    return [r.prompt,r.reply,r.tool,r.reason,r.layer,r.session,r.params]
+      .join(' ').toLowerCase().indexOf(q)>=0;
+  });
+  if(!rows.length){
+    var tr=el('tr'), td=el('td'); td.colSpan=6;
+    td.appendChild(el('div','empty', DATA.length?'No events match.':
+      'No activity yet. Run an agent task and decisions appear here.'));
+    tr.appendChild(td); tb.appendChild(tr); return;
+  }
+  rows.forEach(function(r,i){
+    var key=(r.ts||i)+'-'+i;
+    var tr=el('tr','row');
+    tr.appendChild(el('td',null,r.at));
+    var td=el('td'); td.appendChild(el('span','pill '+r.verdict,r.verdict)); tr.appendChild(td);
+    var rk=el('td'); rk.appendChild(el('code',null,(r.risk||0).toFixed(2))); tr.appendChild(rk);
+    tr.appendChild(el('td',null,r.layer||''));
+    var tl=el('td'); tl.appendChild(el('code',null,r.tool||'')); tr.appendChild(tl);
+    var dt=el('td');
+    if(r.reason) dt.appendChild(el('div','rsn',r.reason));
+    dt.appendChild(el('div','prev',r.preview||''));
+    tr.appendChild(dt);
+    tb.appendChild(tr);
+    var drow=el('tr','det'), dtd=el('td'); dtd.colSpan=6;
+    if(OPEN[key]) dtd.appendChild(details(r));
+    drow.appendChild(dtd); drow.style.display=OPEN[key]?'':'none'; tb.appendChild(drow);
+    tr.onclick=function(){ OPEN[key]=!OPEN[key]; render(); };
+  });
+}
+function tick(){
+  fetch('/history').then(function(r){return r.json()}).then(function(d){
+    DATA=d.history||[];
+    ['scored','allow','flag','block'].forEach(function(k){
+      document.getElementById('s-'+k).textContent=d.stats[k];});
+    var u=d.stats.uptime||0;
+    document.getElementById('s-up').textContent=
+      u<60?u+'s':(u<3600?Math.floor(u/60)+'m':Math.floor(u/3600)+'h');
+    document.getElementById('meta').textContent=
+      'block >= '+d.thresholds.block+'  ·  flag >= '+d.thresholds.flag+
+      '  ·  model AUC '+(d.model.general_auc||0).toFixed(4)+
+      '  ·  '+DATA.length+' recent decisions';
+    var lc=document.getElementById('layerchips'); lc.textContent='';
+    var bl=d.stats.by_layer||{};
+    Object.keys(bl).sort(function(a,b){return bl[b]-bl[a];}).forEach(function(k){
+      var c=el('span','lchip'); c.appendChild(document.createTextNode(k+' '));
+      var b=el('b',null,bl[k]); c.appendChild(b); lc.appendChild(c);});
+    render();
+  }).catch(function(){document.getElementById('meta').textContent='scorer unreachable';});
+}
+document.querySelectorAll('.chip').forEach(function(c){
+  c.onclick=function(){
+    document.querySelectorAll('.chip').forEach(function(x){x.classList.remove('on')});
+    c.classList.add('on'); FILTER=c.dataset.v; render();};});
+document.getElementById('q').oninput=render;
+document.getElementById('kind').onchange=render;
+tick(); setInterval(tick,2000);
 </script></body></html>"""
+
 
 
 class H(BaseHTTPRequestHandler):
@@ -938,6 +1104,7 @@ class H(BaseHTTPRequestHandler):
             self._send(json.dumps({
                 "history": list(HISTORY),
                 "stats": {**{k: STATS[k] for k in ("scored", "allow", "flag", "block")},
+                          "by_layer": STATS["by_layer"],
                           "uptime": int(time.time() - STATS["started"])},
                 "model": {"general_auc": GEN.get("cv_auc"), "specialist_auc": SPEC.get("cv_auc")},
                 "thresholds": {"block": BLOCK_AT, "flag": FLAG_AT},

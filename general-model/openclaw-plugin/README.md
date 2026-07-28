@@ -24,8 +24,30 @@ enables conversation access, and restarts the gateway.
 - models present in `../models/` (loaded automatically, by path relative to `scorer.py`)
 
 Then open:
-- **Dashboard** → `http://localhost:5005/dashboard`
-- **Decision history (JSON)** → `http://localhost:5005/history`
+- **Dashboard** -> `http://localhost:5005/dashboard`
+- **Decision history (JSON)** -> `http://localhost:5005/history`
+
+### The dashboard
+
+Every decision is a row. **Click any row to expand it.** The detail view shows:
+
+| section | what it gives you |
+|---|---|
+| context strip | session id, event kind, active block policy, echo grade, prompt/reply/ingested sizes |
+| **User prompt / Agent reply** | the full conversation for that decision, side by side |
+| Tool call | the tool name and the exact params it was about to run |
+| **Layer scores** | every layer's score as a bar, sorted, so you can see *why* `risk` is what it is and which layer was the argmax |
+| Evidence | the rule/action reason, planted literals found in the prompt, derived paths, tools available, untrusted-source frame |
+| Action trail | the ordered tools already called this session, with targets and failures |
+| Ingested content | the untrusted text the agent read, which the ECHO layer scores against |
+
+Top bar: live counts, per-layer firing counts, free-text search across prompt/reply/tool/
+reason/session, verdict filters (block / flag / allow) and an event-kind filter
+(tool calls / replies). Polls every 2s.
+
+**Security:** the dashboard renders untrusted agent text. Every node is built with
+`textContent`; there is no `innerHTML`, `outerHTML`, `document.write` or `eval` anywhere in
+it, and `test_suite.py` fails if one is ever introduced.
 
 ### If your setup differs
 
@@ -128,6 +150,7 @@ reply-path numbers as live CLI behaviour.
 | `AURA_BLOCK_POLICY` | `off` \| `strict` (default) \| `balanced` \| `aggressive` | how aggressively the evidence channels gate. `budget` was measured and **rejected** |
 | `AURA_ECHO_GRADE` | `flag` (default) \| `block` | whether an echo alone can block |
 | `AURA_EVIDENCE_PROMOTION` | `0` (default) \| `1` | promote multi-channel evidence to block grade |
+| `AURA_INSTRUCTED_ECHO` | `1` (default) \| `0` | flag-grade channel for "the reply emits a literal the prompt planted" |
 
 Numbers for each policy are in [`../GATE_OPERATING_POINTS.md`](../GATE_OPERATING_POINTS.md).
 **No gate number may be quoted without its policy label.**
@@ -141,7 +164,7 @@ Numbers for each policy are in [`../GATE_OPERATING_POINTS.md`](../GATE_OPERATING
 - `behavioral_labeler.py`, `deferred_compliance.py` — deterministic detection channels
 - `setup.sh` — one-command install
 - `try_aura.sh` — hands-on demo; `./try_aura.sh "some text"` scores your own text
-- `test_suite.py` — 22 tests. **Run after any change to a shipped file.**
+- `test_suite.py` — 24 tests. **Run after any change to a shipped file.**
 
 ```bash
 python3 openclaw-plugin/test_suite.py

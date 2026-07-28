@@ -381,6 +381,44 @@ def t_benign_false_block_rate():
            f"false {fb}/{len(base)} = {100*rate:.2f}% (budget 3.0%)")
 
 
+
+def t_dashboard_renders_untrusted_text_safely():
+    """The dashboard displays raw agent replies. If it ever builds DOM with innerHTML,
+    a malicious reply can script the monitoring page -- the one surface an operator
+    trusts. This invariant is easy to break while editing the UI, so it is pinned."""
+    import scorer as S
+    d = S.DASHBOARD
+    bad = [t for t in ("innerHTML", "outerHTML", "document.write", "eval(") if t in d]
+    if bad:
+        record("dashboard builds DOM safely", FAIL, f"unsafe API present: {bad}")
+    elif "textContent" not in d:
+        record("dashboard builds DOM safely", FAIL, "no textContent found")
+    else:
+        record("dashboard builds DOM safely", PASS,
+               f"{len(d)} bytes, textContent only, no innerHTML/eval")
+
+
+def t_decision_record_is_complete():
+    """The dashboard can only show what score() records. Pin the fields the detail view
+    depends on, so trimming the record does not silently empty the UI."""
+    import scorer as S
+    S.HISTORY.clear()
+    S.score({"prompt": "read config/.env", "replyText": "here: CANARY-TESTTEST1",
+             "tools": ["read"], "toolName": "read", "params": {"path": "config/.env"},
+             "sessionKey": "t-rec"})
+    need = ("prompt", "reply", "layers", "evidence", "session", "kind", "tool",
+            "params", "trail", "derived_paths", "prompt_len", "reply_len")
+    h = S.HISTORY[0]
+    missing = [k for k in need if k not in h]
+    if missing:
+        record("decision record carries UI fields", FAIL, f"missing {missing}")
+    elif not h["prompt"] or not h["reply"]:
+        record("decision record carries UI fields", FAIL, "conversation text not retained")
+    else:
+        record("decision record carries UI fields", PASS,
+               f"{len(h)} fields incl. conversation, layers, evidence, trail")
+
+
 def main():
     print("=" * 64)
     print("AURA GATE — END-TO-END TEST SUITE")
@@ -402,6 +440,8 @@ def main():
     t_recursive_delete_variants_blocked()
     t_global_bar_and_benign_safety()
     t_benign_false_block_rate()
+    t_dashboard_renders_untrusted_text_safely()
+    t_decision_record_is_complete()
 
     n_pass = sum(1 for _, s, _ in results if s == PASS)
     n_fail = sum(1 for _, s, _ in results if s == FAIL)
