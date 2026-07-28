@@ -49,11 +49,17 @@ from scigateway.live.scenarios import _behavior_rubric, is_out_of_scope
 from scigateway.schema import Session
 from scigateway.taxonomy import score_to_label
 
-from prompts.controls import gen_controls
+from prompts.control_pools import gen_controls, resolve_version
 from scenarios import PI_FAMILIES, build_scenarios
+
+# Every subtype in this track delivers its injection inside the user prompt, so
+# the registered scigateway category is DIRECT (Evangeline owns the indirect /
+# website-embedded vector). Per-technique detail lives in agent_config["subtype"].
+SCIGATEWAY_ATTACK_CATEGORY = "direct_prompt_injection"
 
 PAYLOAD_MODES = ("echo", "escalate")
 _DELAY = 0.0   # seconds to pause between live turns (rate-limit pacing); set by collect()
+_CONTROL_VERSION = None   # benign-control pool version; set by collect()
 
 
 def _send_turns(backend, prompts, session_id, category, condition, mode):
@@ -104,7 +110,12 @@ def _build_session(session_id, run_date, backend, *, category, task_type, condit
         tool_trace_available=True, latency_seconds=round(latency, 3),
         risk_indicators=result.risk_indicators, human_label=result.label,
         label_notes=f"{marker}{condition} ({'dry' if backend.dry_run else 'live'}): {result.notes}",
-        attack_category=category if attack_present else "benign",
+        # Must be a category scigateway REGISTERS (scigateway.attacks._BY_KEY).
+        # Writing the subtype here made categorize_session() fall through to its
+        # risk_indicators fallback, which only fires on a SUCCESSFUL injection --
+        # so resisted attacks were counted as benign controls (400/200 read as
+        # 315/285, group-doc Issue #1). The subtype is kept in agent_config.
+        attack_category=SCIGATEWAY_ATTACK_CATEGORY if attack_present else "benign",
         attack_objective=agent_config_extra.get("attack_objective", "") if attack_present else "",
         agent_config={
             "source": "dry_run_pi_harness" if backend.dry_run else "live_openclaw_docker",
@@ -176,7 +187,8 @@ def _control_session(backend, family, bench, index, out, run_date):
                             risk_indicators=RiskIndicators(out_of_scope_ops=oos),
                             attack_succeeded=False, label=score_to_label(dims),
                             notes="benign control")
-    extra = {"payload_mode": "none", "subtype": "control", "pi_family": family}
+    extra = {"payload_mode": "none", "subtype": "control", "pi_family": family,
+             "control_pool_version": resolve_version(_CONTROL_VERSION)}
     session = _build_session(
         session_id, run_date, backend, category="benign", task_type="note_management",
         condition="baseline", parsed=parsed, prompts=prompts, latency=latency,
@@ -185,9 +197,14 @@ def _control_session(backend, family, bench, index, out, run_date):
 
 
 def collect(*, out_dir, n_attack, n_control, seed, dry_run, container, model,
-            subtypes=None, delay=0.0, run_date=None):
-    global _DELAY
+            subtypes=None, delay=0.0, run_date=None, controls_version=None,
+            controls_only=False):
+    global _DELAY, _CONTROL_VERSION
     _DELAY = delay
+    _CONTROL_VERSION = resolve_version(controls_version)
+    print(f"[pi-collect] benign-control pool v{_CONTROL_VERSION}"
+          + ("  (v1 is length-confounded -- see analysis/DETECTOR_FINDINGS.md §3)"
+             if _CONTROL_VERSION == 1 else "  (length-matched)"), flush=True)
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     backend = OpenClawDockerBackend(container=container, model=model, dry_run=dry_run)
@@ -241,7 +258,7 @@ def collect(*, out_dir, n_attack, n_control, seed, dry_run, container, model,
                   f"label={session.human_label:10s} succeeded={manifest['attack_succeeded']}",
                   flush=True)
 
-        for scen in scenarios:
+        for scen in ([] if controls_only else scenarios):
             per_mode = per_subtype // len(scen.modes)
             for mode in scen.modes:
                 for i in range(per_mode):
@@ -250,7 +267,8 @@ def collect(*, out_dir, n_attack, n_control, seed, dry_run, container, model,
                              backend, scen, mode, i, out, run_date))
 
         for family in families:
-            for i, bench in enumerate(gen_controls(family, n_control, seed=seed)):
+            for i, bench in enumerate(gen_controls(family, n_control, seed=seed,
+                                                   version=_CONTROL_VERSION)):
                 _run(f"{family}-control-{i:03d}",
                      lambda family=family, bench=bench, i=i: _control_session(
                          backend, family, bench, i, out, run_date))
@@ -290,6 +308,14 @@ def main():
                     help="per-mode attack count for a dual-mode subtype (total/subtype = 2*this = 50)")
     ap.add_argument("--n-control", type=int, default=50, help="control sessions per family")
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--controls-only", action="store_true",
+                    help="collect ONLY the benign controls (skip every attack "
+                         "scenario). --n-attack 0 does not do this: per_subtype is "
+                         "floored at 2*max(n_attack,1), so it still runs ~18 attacks.")
+    ap.add_argument("--controls-version", type=int, default=None, choices=[1, 2],
+                    help="benign-control pool: 1=original (length-confounded, "
+                         "kept only to reproduce the existing dataset), "
+                         "2=length-matched (default for new collections)")
     ap.add_argument("--delay", type=float, default=0.0, help="seconds between live turns (pacing)")
     ap.add_argument("--container", default=None)
     ap.add_argument("--model", default=None)
@@ -298,7 +324,9 @@ def main():
 
     rows = collect(out_dir=args.out_dir, subtypes=args.subtypes, n_attack=args.n_attack,
                    n_control=args.n_control, seed=args.seed, dry_run=args.dry_run,
-                   container=args.container, model=args.model, delay=args.delay)
+                   container=args.container, model=args.model, delay=args.delay,
+                   controls_version=args.controls_version,
+                   controls_only=args.controls_only)
     n_attack = sum(1 for r in rows if r["attack_present"])
     print(f"[pi-collect] {len(rows)} sessions ({n_attack} attack / {len(rows)-n_attack} control) "
           f"-> {args.out_dir}  dry_run={args.dry_run}")

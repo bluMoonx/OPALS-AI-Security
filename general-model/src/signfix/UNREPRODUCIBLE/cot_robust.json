@@ -1,0 +1,206 @@
+{
+  "logreg_E0": {
+    "label": "logreg E0",
+    "pooled": 0.6131474382537765,
+    "pooled_sd": 0.0,
+    "pooled_seeds": [
+      0.6131474382537765,
+      0.6131474382537765,
+      0.6131474382537765
+    ],
+    "per": {
+      "cot_hijack": 0.36914963744232027,
+      "delimiter_confusion": 0.7286914765906362,
+      "emotional_coercion": 0.7189542483660132,
+      "false_precedent": 0.5121283255086071,
+      "hypothetical_framing": 0.5333474039679189,
+      "meta_prompting": 0.8581081081081082,
+      "multilingual_injection": 0.5682888540031397,
+      "prompt_leaking": 0.14928571428571427,
+      "role_spoofing": 0.5899725274725275,
+      "sleeper_trigger": 0.7013071895424837
+    },
+    "per_sd": {
+      "cot_hijack": 5.551115123125783e-17,
+      "delimiter_confusion": 1.1102230246251565e-16,
+      "emotional_coercion": 0.0,
+      "false_precedent": 0.0,
+      "hypothetical_framing": 0.0,
+      "meta_prompting": 1.1102230246251565e-16,
+      "multilingual_injection": 0.0,
+      "prompt_leaking": 0.0,
+      "role_spoofing": 0.0,
+      "sleeper_trigger": 0.0
+    }
+  },
+  "logreg_V1": {
+    "label": "logreg V1",
+    "pooled": 0.6086379071924942,
+    "pooled_sd": 0.0,
+    "pooled_seeds": [
+      0.6086379071924942,
+      0.6086379071924942,
+      0.6086379071924942
+    ],
+    "per": {
+      "cot_hijack": 0.46341463414634143,
+      "delimiter_confusion": 0.7521008403361344,
+      "emotional_coercion": 0.6890125419537184,
+      "false_precedent": 0.5007824726134585,
+      "hypothetical_framing": 0.5363022372308991,
+      "meta_prompting": 0.8425675675675676,
+      "multilingual_injection": 0.5926216640502355,
+      "prompt_leaking": 0.13142857142857142,
+      "role_spoofing": 0.5831043956043956,
+      "sleeper_trigger": 0.6869281045751635
+    },
+    "per_sd": {
+      "cot_hijack": 0.0,
+      "delimiter_confusion": 0.0,
+      "emotional_coercion": 0.0,
+      "false_precedent": 0.0,
+      "hypothetical_framing": 0.0,
+      "meta_prompting": 0.0,
+      "multilingual_injection": 0.0,
+      "prompt_leaking": 0.0,
+      "role_spoofing": 0.0,
+      "sleeper_trigger": 0.0
+    }
+  },
+  "logreg_V19": {
+    "label": "logreg V19",
+    "pooled": 0.704922193631956,
+    "pooled_sd": 1.1102230246251565e-16,
+    "pooled_seeds": [
+      0.7049221936319559,
+      0.7049221936319559,
+      0.7049221936319559
+    ],
+    "per": {
+      "cot_hijack": 0.6565589980224127,
+      "delimiter_confusion": 0.7695078031212484,
+      "emotional_coercion": 0.8148736972266383,
+      "false_precedent": 0.5508607198748044,
+      "hypothetical_framing": 0.6730688054031239,
+      "meta_prompting": 0.8324324324324325,
+      "multilingual_injection": 0.7959183673469387,
+      "prompt_leaking": 0.23357142857142854,
+      "role_spoofing": 0.756868131868132,
+      "sleeper_trigger": 0.6895424836601306
+    },
+    "per_sd": {
+      "cot_hijack": 0.0,
+      "delimiter_confusion": 0.0,
+      "emotional_coercion": 0.0,
+      "false_precedent": 0.0,
+      "hypothetical_framing": 1.1102230246251565e-16,
+      "meta_prompting": 0.0,
+      "multilingual_injection": 1.1102230246251565e-16,
+      "prompt_leaking": 0.0,
+      "role_spoofing": 0.0,
+      "sleeper_trigger": 1.1102230246251565e-16
+    }
+  },
+  "gradboost_E0": {
+    "label": "gradboost E0",
+    "pooled": 0.6794608109133131,
+    "pooled_sd": 0.0013241777673473252,
+    "pooled_seeds": [
+      0.6800617899840711,
+      0.680696318857323,
+      0.6776243238985454
+    ],
+    "per": {
+      "cot_hijack": 0.2932322566468908,
+      "delimiter_confusion": 0.6893757503001202,
+      "emotional_coercion": 0.7954719425307664,
+      "false_precedent": 0.5319509650495565,
+      "hypothetical_framing": 0.789081187561559,
+      "meta_prompting": 0.7358108108108108,
+      "multilingual_injection": 0.641287284144427,
+      "prompt_leaking": 0.5711904761904761,
+      "role_spoofing": 0.6510989010989011,
+      "sleeper_trigger": 0.6099128540305011
+    },
+    "per_sd": {
+      "cot_hijack": 0.0003107478713190627,
+      "delimiter_confusion": 1.1102230246251565e-16,
+      "emotional_coercion": 0.00036297556397388644,
+      "false_precedent": 0.0015096292257159882,
+      "hypothetical_framing": 0.000358732201603561,
+      "meta_prompting": 0.0,
+      "multilingual_injection": 0.0,
+      "prompt_leaking": 0.01953832213231299,
+      "role_spoofing": 0.0,
+      "sleeper_trigger": 0.007400996841596115
+    }
+  },
+  "gradboost_V1": {
+    "label": "gradboost V1",
+    "pooled": 0.6879722499372765,
+    "pooled_sd": 0.00045759085301428883,
+    "pooled_seeds": [
+      0.6886169896199829,
+      0.6876980167690665,
+      0.6876017434227801
+    ],
+    "per": {
+      "cot_hijack": 0.40990990990990994,
+      "delimiter_confusion": 0.6394557823129252,
+      "emotional_coercion": 0.7825766943414002,
+      "false_precedent": 0.5169535732916015,
+      "hypothetical_framing": 0.7829252849303504,
+      "meta_prompting": 0.740990990990991,
+      "multilingual_injection": 0.6703296703296703,
+      "prompt_leaking": 0.6366666666666667,
+      "role_spoofing": 0.7109661172161172,
+      "sleeper_trigger": 0.5777777777777778
+    },
+    "per_sd": {
+      "cot_hijack": 0.00031074787131908887,
+      "delimiter_confusion": 0.00028295589483250615,
+      "emotional_coercion": 0.0011658122754061766,
+      "false_precedent": 0.0008039141892239021,
+      "hypothetical_framing": 0.0006213423994884091,
+      "meta_prompting": 0.0008427156276517997,
+      "multilingual_injection": 0.0,
+      "prompt_leaking": 0.0008908708063747388,
+      "role_spoofing": 0.0003237668412026305,
+      "sleeper_trigger": 0.0
+    }
+  },
+  "gradboost_V19": {
+    "label": "gradboost V19",
+    "pooled": 0.7300232806455567,
+    "pooled_sd": 0.000374521987374333,
+    "pooled_seeds": [
+      0.7297475887902818,
+      0.7305527840501322,
+      0.729769469096256
+    ],
+    "per": {
+      "cot_hijack": 0.5021973192704902,
+      "delimiter_confusion": 0.699079631852741,
+      "emotional_coercion": 0.7888476712006124,
+      "false_precedent": 0.6287819509650495,
+      "hypothetical_framing": 0.7841916420430562,
+      "meta_prompting": 0.7858108108108107,
+      "multilingual_injection": 0.608058608058608,
+      "prompt_leaking": 0.6967857142857143,
+      "role_spoofing": 0.6943681318681318,
+      "sleeper_trigger": 0.6899782135076252
+    },
+    "per_sd": {
+      "cot_hijack": 0.001553739356595392,
+      "delimiter_confusion": 0.0014147794741627925,
+      "emotional_coercion": 8.327230538613919e-05,
+      "false_precedent": 0.0011218473222538584,
+      "hypothetical_framing": 1.1102230246251565e-16,
+      "meta_prompting": 0.0019110994086123233,
+      "multilingual_injection": 0.0009789789081040953,
+      "prompt_leaking": 0.010168645954315552,
+      "role_spoofing": 0.0,
+      "sleeper_trigger": 0.0006162150598575556
+    }
+  }
+}
