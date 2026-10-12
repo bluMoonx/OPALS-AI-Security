@@ -1,0 +1,235 @@
+{
+  "corpus": {
+    "sessions": 2166,
+    "attacks": 1085,
+    "benign": 1081,
+    "attack_types": {
+      "emotional_coercion": 207,
+      "hypothetical_framing": 158,
+      "false_precedent": 122,
+      "delimiter_confusion": 89,
+      "role_spoofing": 87,
+      "sleeper_trigger": 86,
+      "cot_hijack": 85,
+      "meta_prompting": 83,
+      "multilingual_injection": 83,
+      "prompt_leaking": 85
+    },
+    "distinct_prompts": 403,
+    "biomedical_prompts": 111,
+    "labeled": 965,
+    "labeled_prompts": 285,
+    "held_out": 671,
+    "laboratory_sessions": 614
+  },
+  "agreement": {
+    "labeled_attacks": 817,
+    "human_successes": 414,
+    "canary_vs_human_kappa": 0.20050648526507442,
+    "canary_caught": 88
+  },
+  "table_III": {
+    "chosen_policy_by_fold": {
+      "0": "off",
+      "1": "off",
+      "2": "off",
+      "3": "balanced",
+      "4": "balanced"
+    },
+    "successful": [
+      177,
+      144,
+      29
+    ],
+    "successful_lab": [
+      71,
+      36,
+      6
+    ],
+    "successful_other": [
+      106,
+      108,
+      23
+    ],
+    "unsuccessful": [
+      13,
+      47,
+      261
+    ],
+    "benign": [
+      50,
+      349,
+      682
+    ],
+    "benign_lab": [
+      3,
+      105,
+      183
+    ],
+    "benign_other": [
+      47,
+      244,
+      499
+    ],
+    "benign_false_refusals_adjudicated": 27,
+    "per_fold_refusal_and_false_refusal": [
+      [
+        52.459016393442624,
+        1.0452961672473868
+      ],
+      [
+        48.05194805194805,
+        0.9523809523809523
+      ],
+      [
+        39.325842696629216,
+        1.5267175572519085
+      ],
+      [
+        62.295081967213115,
+        4.705882352941177
+      ],
+      [
+        56.45161290322581,
+        6.179775280898877
+      ]
+    ]
+  },
+  "aggressive": {
+    "refused_successes": 236,
+    "false_refusals": 99
+  },
+  "strict_in_sample": {
+    "refused_successes": 211,
+    "false_refusals": 31
+  },
+  "table_I_lost_if_removed": {
+    "rule": [
+      0,
+      0
+    ],
+    "echo": [
+      0,
+      0
+    ],
+    "compliance": [
+      201,
+      8
+    ],
+    "no_refusal": [
+      0,
+      13
+    ],
+    "instructed_echo": [
+      0,
+      0
+    ],
+    "action": [
+      0,
+      0
+    ],
+    "general": [
+      0,
+      79
+    ],
+    "specialist": [
+      0,
+      0
+    ]
+  },
+  "layer_fires_on_successes": {
+    "rule": 0,
+    "echo": 0,
+    "compliance": 211,
+    "no_refusal": 142,
+    "instructed_echo": 1,
+    "action": 0,
+    "general": 275,
+    "specialist": 10
+  },
+  "refusal_by_attack_type": {
+    "hypothetical_framing": 0.45454545454545453,
+    "false_precedent": 0.6774193548387096,
+    "delimiter_confusion": 0.8421052631578947,
+    "role_spoofing": 0.7083333333333334,
+    "cot_hijack": 0.7419354838709677,
+    "meta_prompting": 0.4482758620689655,
+    "prompt_leaking": 0.8461538461538461,
+    "sleeper_trigger": 0.5384615384615384,
+    "multilingual_injection": 0.55,
+    "emotional_coercion": 0.34
+  },
+  "mantel_haenszel": {
+    "odds_ratio": 2.2611442238456902,
+    "p_continuity_corrected": 0.002410097796508409
+  },
+  "keyword_rule_variants": {
+    "ratios": [
+      2.1605144081924266,
+      2.1823185414516684,
+      1.8658112804063085,
+      2.104755538579068,
+      2.079196665403562
+    ],
+    "p": [
+      4.9347849866602725e-05,
+      1.0180519332098976e-05,
+      0.00035181621061512616,
+      2.1794290278487718e-05,
+      3.485550288623396e-05
+    ]
+  },
+  "laboratory": {
+    "canary": [
+      53,
+      323,
+      65,
+      762
+    ],
+    "share_by_type": {
+      "emotional_coercion": 0.25120772946859904,
+      "hypothetical_framing": 0.24050632911392406,
+      "false_precedent": 0.4098360655737705,
+      "delimiter_confusion": 0.30337078651685395,
+      "role_spoofing": 0.6091954022988506,
+      "sleeper_trigger": 0.19767441860465115,
+      "cot_hijack": 0.5176470588235295,
+      "meta_prompting": 0.3132530120481928,
+      "multilingual_injection": 0.1927710843373494,
+      "prompt_leaking": 0.0
+    },
+    "held_out_human": [
+      113,
+      186,
+      237,
+      485,
+      0.007357242467020578
+    ],
+    "per_prompt_canary_p": 0.25287778108852144,
+    "per_prompt_human_p": 0.19681921531335023,
+    "cot_hijack_prompts": [
+      4,
+      5,
+      1,
+      5
+    ],
+    "replay_refusal": [
+      71,
+      113,
+      106,
+      237
+    ],
+    "replay_refusal_per_prompt_p": 0.03459215064361096
+  },
+  "table_II_behavioral": {
+    "human": [
+      414,
+      817,
+      142
+    ],
+    "canary": [
+      118,
+      1085
+    ]
+  }
+}
