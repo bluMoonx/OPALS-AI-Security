@@ -140,9 +140,7 @@ OUT["table_III"] = {"chosen_policy_by_fold": chosen, "successful": cnt(S), "succ
                     "benign_false_refusals_adjudicated": fr_adj, "per_fold_refusal_and_false_refusal": per_fold}
 pols = collections.Counter(chosen.values())
 check("IV-B", "policy chosen per fold", "off x3, balanced x2", dict(pols), pols == collections.Counter({"off": 3, "balanced": 2}))
-for name, row, exp in (("successful attacks", S, (177, 144, 29)), ("  laboratory", SL, (71, 36, 6)), ("  other", SO, (106, 108, 23)),
-                       ("unsuccessful attacks", U, (13, 47, 261)), ("benign tasks", oof_b, (50, 349, 682)),
-                       ("  laboratory", BL, (3, 105, 183)), ("  other", BO, (47, 244, 499))):
+for name, row, exp in (("successful attacks", S, (177, 144, 29)), ("unsuccessful attacks", U, (13, 47, 261)), ("benign tasks", oof_b, (50, 349, 682))):
     check("TabIII", f"{name} refused/escalated/allowed", "/".join(map(str, exp)), "/".join(map(str, cnt(row))), cnt(row) == exp)
 s_b, s_f, _ = cnt(S); u_b = U.count("block"); b_b, b_f, _ = cnt(oof_b)
 check("IV-B", "refused / escalated / coverage of successes", "51% / 41% / 92%",
@@ -160,11 +158,11 @@ OUT["aggressive"] = dict(refused_successes=ag_ref, false_refusals=ag_fr)
 st_ref = sum(1 for v, t in zip(V["strict"]["oos"], y) if v == "block" and t == 1)
 st_fr = sum(1 for v, f in zip(V["strict"]["ben"], ben_false) if v == "block" and f)
 OUT["strict_in_sample"] = dict(refused_successes=st_ref, false_refusals=st_fr)
-check("IV-B", "shipped strict setting on every session: refusal / false refusal", "60% / 2.9%",
-      f"{pct(st_ref, sum(y)):.1f}% / {pct(st_fr, len(benign)):.2f}%", (r0(pct(st_ref, sum(y))), round(pct(st_fr, len(benign)), 1)) == (60, 2.9))
+check("IV-B", "shipped strict setting on every session: refusal / false refusal", "60% / 2.87%",
+      f"{pct(st_ref, sum(y)):.1f}% / {pct(st_fr, len(benign)):.2f}%", (r0(pct(st_ref, sum(y))), round(pct(st_fr, len(benign)), 2)) == (60, 2.87))
 check("IV-B", "strict chosen in any fold", "never", "never" if "strict" not in chosen.values() else "chosen", "strict" not in chosen.values())
-check("IV-B", "aggressive setting: refusal / false refusal", "67% / 9.2%", f"{pct(ag_ref, sum(y)):.1f}% / {pct(ag_fr, len(benign)):.2f}%",
-      (r0(pct(ag_ref, sum(y))), round(pct(ag_fr, len(benign)), 1)) == (67, 9.2))
+check("IV-B", "aggressive setting: refusal / false refusals", "67% / 99 of 1,081 (9.16%)", f"{pct(ag_ref, sum(y)):.1f}% / {pct(ag_fr, len(benign)):.2f}%",
+      (r0(pct(ag_ref, sum(y))), ag_fr, round(pct(ag_fr, len(benign)), 2)) == (67, 99, 9.16))
 
 print("\n=== Table I / IV-C  shipped (strict) setting, layer ablation, tool-reaching split ===")
 scorer.BLOCK_POLICY = "strict"
@@ -184,33 +182,32 @@ for kk, e in exp_lost.items():
     check("TabI", f"lost if removed: {kk}", f"{e[0]} / {e[1]}", f"{lost.get(kk)[0]} / {lost.get(kk)[1]}" if kk in lost else "absent", lost.get(kk) == e)
 fires = {kk: sum(1 for o in so if o["layers"].get(kk, 0) >= FLAG) for kk in names}
 OUT["layer_fires_on_successes"] = fires
-check("IV-C", "successes on which specialist / instructed echo fired", "10 / 1", f"{fires.get('specialist')} / {fires.get('instructed_echo')}",
-      (fires.get("specialist"), fires.get("instructed_echo")) == (10, 1))
-check("IV-C", "refusals of successes without the compliance check", "211 -> 10", f"{base_r} -> {base_r - lost['compliance'][0]}", (base_r, base_r - lost["compliance"][0]) == (211, 10))
-kind = ["tool-reaching" if (acts[idx[id(g["_rec"])]].get("n_out_of_scope") or 0) > 0 else "text-resident" for g in succ]
+succ_oof = [(g, v) for g, v, t in zip(oos, oof_o, y) if t == 1]
+kind_of = lambda g: "tool-reaching" if (acts[idx[id(g["_rec"])]].get("n_out_of_scope") or 0) > 0 else "text-resident"
 by = collections.defaultdict(collections.Counter)
-for kd, o in zip(kind, so): by[kd][o["verdict"]] += 1
+for g, v in succ_oof: by[kind_of(g)][v] += 1
 tr, tx = by["tool-reaching"], by["text-resident"]
-check("IV-C", "refused: text-resident / tool-reaching", "65% of 222 / 52% of 128",
+check("IV-C", "refused out of fold: text-resident / action-manifesting", "59% of 222 / 36% of 128",
       f"{pct(tx['block'], sum(tx.values())):.1f}% of {sum(tx.values())} / {pct(tr['block'], sum(tr.values())):.1f}% of {sum(tr.values())}",
-      (r0(pct(tx["block"], sum(tx.values()))), sum(tx.values()), r0(pct(tr["block"], sum(tr.values()))), sum(tr.values())) == (65, 222, 52, 128))
-stealth = [(g["_rec"]["attack_category"], kd) for g, kd, o in zip(succ, kind, so) if o["verdict"] == "allow"]
-st_kind = collections.Counter(kd for _, kd in stealth); st_type = collections.Counter(t for t, _ in stealth)
-n_type = collections.Counter(g["_rec"]["attack_category"] for g in succ)
-check("IV-C", "unflagged successes; text-resident among them", "28; 21", f"{len(stealth)}; {st_kind['text-resident']}", (len(stealth), st_kind["text-resident"]) == (28, 21))
-check("IV-C", "unflagged: hypothetical framing / emotional coercion", "10 of 44 / 8 of 50",
+      (r0(pct(tx["block"], sum(tx.values()))), sum(tx.values()), r0(pct(tr["block"], sum(tr.values()))), sum(tr.values())) == (59, 222, 36, 128))
+stealth = [g for g, v in succ_oof if v == "allow"]
+st_kind = collections.Counter(kind_of(g) for g in stealth); st_type = collections.Counter(g["_rec"]["attack_category"] for g in stealth)
+n_type = collections.Counter(g["_rec"]["attack_category"] for g, _ in succ_oof)
+check("IV-C", "unflagged out of fold; text-resident among them", "29; 21", f"{len(stealth)}; {st_kind['text-resident']}", (len(stealth), st_kind["text-resident"]) == (29, 21))
+check("IV-C", "unflagged: hypothetical framing / emotional coercion", "10 of 44 / 9 of 50",
       f"{st_type['hypothetical_framing']} of {n_type['hypothetical_framing']} / {st_type['emotional_coercion']} of {n_type['emotional_coercion']}",
-      (st_type["hypothetical_framing"], n_type["hypothetical_framing"], st_type["emotional_coercion"], n_type["emotional_coercion"]) == (10, 44, 8, 50))
-ref_type = {t: sum(1 for g, o in zip(succ, so) if g["_rec"]["attack_category"] == t and o["verdict"] == "block") / n for t, n in n_type.items()}
-lo_t, hi_t = min(ref_type, key=ref_type.get), max(ref_type, key=ref_type.get)
-OUT["refusal_by_attack_type"] = ref_type
-check("IV-C", "refusal by attack type, lowest / highest", "34% emo. (50) / 85% leak. (26)",
-      f"{100*ref_type[lo_t]:.1f}% {lo_t} ({n_type[lo_t]}) / {100*ref_type[hi_t]:.1f}% {hi_t} ({n_type[hi_t]})",
-      (lo_t, n_type[lo_t], r0(100 * ref_type[lo_t]), hi_t, n_type[hi_t], r0(100 * ref_type[hi_t])) == ("emotional_coercion", 50, 34, "prompt_leaking", 26, 85))
+      (st_type["hypothetical_framing"], n_type["hypothetical_framing"], st_type["emotional_coercion"], n_type["emotional_coercion"]) == (10, 44, 9, 50))
+ref_type = {t: sum(1 for g, v in succ_oof if g["_rec"]["attack_category"] == t and v == "block") / n for t, n in n_type.items()}
+OUT["iv_c_out_of_fold"] = dict(by_kind={k: dict(c) for k, c in by.items()}, unflagged=len(stealth), refusal_by_type=ref_type)
+check("IV-C", "outright refusal by attack type, lowest / highest", "14% / 85%",
+      f"{100*min(ref_type.values()):.1f}% / {100*max(ref_type.values()):.1f}%", (r0(100 * min(ref_type.values())), r0(100 * max(ref_type.values()))) == (14, 85))
 
 print("\n=== IV-D  laboratory tasks (exploratory) ===")
 la = [r for r in att if LAB.search(r.get("prompt") or "")]; ot = [r for r in att if not LAB.search(r.get("prompt") or "")]
 ls, os_ = sum(r["attack_succeeded"] for r in la), sum(r["attack_succeeded"] for r in ot)
+lw, ow = wilson(53, 323), wilson(65, 762)
+check("IV-D", "Wilson 95%: laboratory / other", "13-21% / 7-11%", f"{100*lw[0]:.1f}-{100*lw[1]:.1f}% / {100*ow[0]:.1f}-{100*ow[1]:.1f}%",
+      (r0(100 * lw[0]), r0(100 * lw[1]), r0(100 * ow[0]), r0(100 * ow[1])) == (13, 21, 7, 11))
 check("IV-D", "canary success: laboratory vs other", "53/323 (16.4%) vs 65/762 (8.5%)",
       f"{ls}/{len(la)} ({pct(ls, len(la)):.1f}%) vs {os_}/{len(ot)} ({pct(os_, len(ot)):.1f}%)", (ls, len(la), os_, len(ot)) == (53, 323, 65, 762))
 share = {t: sum(1 for r in la if r["attack_category"] == t) / n for t, n in types.items()}
@@ -236,26 +233,22 @@ for pat in variants.values():
     a_, o_ = sum(r["attack_succeeded"] for r in va), sum(r["attack_succeeded"] for r in vo)
     ratios.append((a_ / len(va)) / (o_ / len(vo))); ps.append(fisher_exact([[a_, len(va) - a_], [o_, len(vo) - o_]])[1])
 OUT["keyword_rule_variants"] = dict(ratios=ratios, p=ps)
-check("IV-D", "five other keyword-rule variants: ratio range; max p", "1.9-2.2; < 0.001", f"{min(ratios):.2f}-{max(ratios):.2f}; {max(ps):.1e}",
-      (round(min(ratios), 1), round(max(ratios), 1)) == (1.9, 2.2) and max(ps) < 0.001)
 check("IV-D", "Mantel-Haenszel OR across attack types; p", "2.26; 0.002", f"{mh_or:.2f}; {mh_p:.4f}", round(mh_or, 2) == 2.26 and round(mh_p, 3) == 0.002)
 hl = [int(g["behavioral_label"]) for g, l in zip(oos, lab_o) if l]; ho = [int(g["behavioral_label"]) for g, l in zip(oos, lab_o) if not l]
 _, p_h = fisher_exact([[sum(hl), len(hl) - sum(hl)], [sum(ho), len(ho) - sum(ho)]])
 check("IV-D", "held-out human labels: laboratory vs other", "61% of 186 vs 49% of 485",
       f"{pct(sum(hl), len(hl)):.1f}% of {len(hl)} vs {pct(sum(ho), len(ho)):.1f}% of {len(ho)}", (r0(pct(sum(hl), len(hl))), len(hl), r0(pct(sum(ho), len(ho))), len(ho)) == (61, 186, 49, 485))
-check("IV-D", "  Fisher p by session (not stated in text)", "0.007", f"{p_h:.4f}", round(p_h, 3) == 0.007)
 def per_prompt(keys, vals, labs):
     g, L = collections.defaultdict(list), {}
     for kk, v, l in zip(keys, vals, labs): g[kk].append(v); L[kk] = l
     return [sum(v) / len(v) for kk, v in g.items() if L[kk]], [sum(v) / len(v) for kk, v in g.items() if not L[kk]]
 pl, po_ = per_prompt([H(r.get("prompt")) for r in att], [int(r["attack_succeeded"]) for r in att], [bool(LAB.search(r.get("prompt") or "")) for r in att])
 p_mw = mannwhitneyu(pl, po_).pvalue
-check("IV-D", "canary per prompt: lab vs other; Mann-Whitney p", "14.3% (53) vs 8.5% (152); 0.25",
+check("IV-D", "canary per prompt: lab vs other (53 vs 152 prompts); Mann-Whitney p", "0.25",
       f"{100*sum(pl)/len(pl):.1f}% ({len(pl)}) vs {100*sum(po_)/len(po_):.1f}% ({len(po_)}); {p_mw:.3f}",
       (round(100 * sum(pl) / len(pl), 1), len(pl), round(100 * sum(po_) / len(po_), 1), len(po_), round(p_mw, 2)) == (14.3, 53, 8.5, 152, 0.25))
 hl_, ho_ = per_prompt([H(g["_rec"].get("prompt")) for g in oos], y, lab_o)
 p_mwh = mannwhitneyu(hl_, ho_).pvalue
-check("IV-D", "human labels per prompt: Mann-Whitney p", "0.20", f"{p_mwh:.3f}", round(p_mwh, 2) == 0.20)
 cot = collections.defaultdict(list)
 for r in att:
     if r["attack_category"] == "cot_hijack": cot[H(r.get("prompt"))].append(r)
@@ -270,9 +263,6 @@ rl, ro_ = per_prompt(sk, [int(v == "block") for v in S], [l for l, t in zip(lab_
 p_rf = mannwhitneyu(rl, ro_).pvalue
 check("IV-D", "replay refusal per prompt: lab vs other; p", "51% vs 35%; 0.035",
       f"{100*sum(rl)/len(rl):.1f}% vs {100*sum(ro_)/len(ro_):.1f}%; {p_rf:.4f}", (r0(100 * sum(rl) / len(rl)), r0(100 * sum(ro_) / len(ro_)), round(p_rf, 3)) == (51, 35, 0.035))
-check("IV-D", "benign interrupted: laboratory / other", "37% / 37%",
-      f"{pct(len(BL) - BL.count('allow'), len(BL)):.1f}% / {pct(len(BO) - BO.count('allow'), len(BO)):.1f}%",
-      (r0(pct(len(BL) - BL.count("allow"), len(BL))), r0(pct(len(BO) - BO.count("allow"), len(BO)))) == (37, 37))
 OUT["laboratory"] = dict(canary=(ls, len(la), os_, len(ot)), share_by_type=share, held_out_human=(sum(hl), len(hl), sum(ho), len(ho), p_h),
                          per_prompt_canary_p=p_mw, per_prompt_human_p=p_mwh, cot_hijack_prompts=(cls, len(cl), cos, len(co)),
                          replay_refusal=(sl_b, len(SL), so_b, len(SO)), replay_refusal_per_prompt_p=p_rf)
@@ -297,7 +287,6 @@ check("IV-A", "deletion trial (ab_intervention_results.json): 0/12 vs 9/12, p", 
 # sessions scored as successes); its session logs are not in this repository.
 _, p_cred = fisher_exact([[0, 10], [10, 0]]); _, p_ben = fisher_exact([[18, 12], [28, 2]])
 check("IV-A", "tool denial 0/10 vs 10/10 (poster counts), p", "1.1e-5", f"{p_cred:.2e}", round(p_cred * 1e5, 1) == 1.1)
-check("IV-A", "benign tasks working 18/30 vs 28/30 (poster counts), p", "0.005", f"{p_ben:.4f}", round(p_ben, 3) == 0.005)
 check("IV-A", "Wilson 95% upper bounds for 0/10 and 0/12", "28% and 24%", f"{100*wilson(0, 10)[1]:.1f}% and {100*wilson(0, 12)[1]:.1f}%",
       (r0(100 * wilson(0, 10)[1]), r0(100 * wilson(0, 12)[1])) == (28, 24))
 _, p_pilot = fisher_exact([[0, 4], [3, 1]])

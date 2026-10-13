@@ -9,7 +9,7 @@ python3 general-model/camera_ready/camera_ready_numbers.py
 ```
 
 It prints one line per number (section, what the paper states, what the script computes) and ends
-with `56 of 56 numbers match the paper.` All values are also written to `camera_ready_numbers.json`.
+with `46 of 46 numbers match the paper.` All values are also written to `camera_ready_numbers.json`.
 The first run scores 1,752 sessions under four block policies with `openclaw-plugin/scorer.py`;
 the verdicts are cached in `verdict_cache.json`. Delete the cache to rescore from scratch.
 
@@ -20,9 +20,9 @@ the verdicts are cached in `verdict_cache.json`. Delete the cache to rescore fro
 | III-D | corpus size, attack types, biomedical share of distinct prompts, labeled sessions, laboratory keyword rule |
 | III-E | canary agreement with the human judges (Cohen's kappa) |
 | IV-A | deletion trial from `ab_intervention_results.json`; Fisher and Wilson statistics for the trial counts |
-| IV-B, Table III | out-of-fold policy choice and outcomes, laboratory split, per-fold ranges, aggressive and strict settings |
-| Table I, IV-C | leave-one-layer-out ablation, which layers fire, tool-reaching vs text-resident refusal, unflagged successes |
-| IV-D | laboratory vs other (canary and human labels), Mantel-Haenszel adjustment, per-prompt tests, keyword-rule variants |
+| IV-B, Table III | out-of-fold policy choice and outcomes, per-fold ranges, aggressive and strict settings |
+| Table I, IV-C | leave-one-layer-out ablation; out-of-fold refusal of text-resident vs action-manifesting successes, unflagged successes, refusal by attack type |
+| IV-D | laboratory vs other (canary and human labels) with Wilson intervals, Mantel-Haenszel adjustment, per-prompt tests, replay refusal by task type |
 | Table II | behavioral rows (human-labeled tool-reaching share, canary successes) |
 
 ## Inputs
@@ -38,8 +38,8 @@ this repository, so the script points it at `gold_labels/` before loading.
 
 ## Not reproduced here
 
-- **Tool-denial trial** (credential exfiltration, privilege escalation, benign tasks; IV-A): counts are as reported on
-  the team poster. The session logs are not in this repository.
+- **Tool-denial trial** (credential exfiltration, IV-A): counts are as reported on the team poster. The session logs are
+  not in this repository.
 - **Table II, non-behavioral rows**: these come from each collection's own outputs:
   `chenhao-data_release/*/analysis` (primary corpora), `prompt-injection/dataset` (direct injection),
   `memory-poisoning/data/processed` (memory poisoning), `logs/collected_22category` (broad taxonomy) and
